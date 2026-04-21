@@ -10,7 +10,7 @@ class ActivityCard extends StatelessWidget {
   final double amount;
   final bool isPositive;
 
-  const ActivityCard ({
+  ActivityCard ({
     Key? key,
     required this.icon,
     required this.iconBackgroundColor,
@@ -25,8 +25,8 @@ class ActivityCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(12),
+      margin:EdgeInsets.only(bottom: 12),
+      padding:EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
@@ -34,7 +34,7 @@ class ActivityCard extends StatelessWidget {
           BoxShadow(
             color: Colors.black.withOpacity(0.05),
             blurRadius: 8,
-            offset: const Offset(0, 2),
+            offset:Offset(0, 2),
           ),
         ],
       ),
@@ -42,14 +42,14 @@ class ActivityCard extends StatelessWidget {
         children: [
           // Ícone
           Container(
-            padding: const EdgeInsets.all(12),
+            padding:EdgeInsets.all(12),
             decoration: BoxDecoration(
               color: iconBackgroundColor,
               borderRadius: BorderRadius.circular(12),
             ),
             child: Icon(icon, color: iconColor, size: 24),
           ),
-          const SizedBox(width: 16),
+        SizedBox(width: 16),
           // Textos
           Expanded(
             child: Column(
@@ -57,16 +57,16 @@ class ActivityCard extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    const Icon(Icons.access_time, size: 12, color: Colors.grey),
-                    const SizedBox(width: 4),
-                    Text(time, style: const TextStyle(fontSize: 12, color: Colors.grey)),
+                  Icon(Icons.access_time, size: 12, color: Colors.grey),
+                  SizedBox(width: 4),
+                    Text(time, style:TextStyle(fontSize: 12, color: Colors.grey)),
                   ],
                 ),
-                const SizedBox(height: 4),
-                Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+              SizedBox(height: 4),
+                Text(title, style:TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
                 if (subtitle != null) ...[
-                  const SizedBox(height: 2),
-                  Text(subtitle!, style: const TextStyle(fontSize: 12, color: Colors.grey)),
+                SizedBox(height: 2),
+                  Text(subtitle!, style:TextStyle(fontSize: 12, color: Colors.grey)),
                 ]
               ],
             ),
@@ -77,7 +77,7 @@ class ActivityCard extends StatelessWidget {
             style: TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 16,
-              color: isPositive ? const Color(0xFF4CAF50) : const Color(0xFFFF7E55),
+              color: isPositive ?Color(0xFF4CAF50) :Color(0xFFFF7E55),
             ),
           ),
         ],

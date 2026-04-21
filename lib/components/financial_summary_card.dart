@@ -15,7 +15,7 @@ class FinancialSummaryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+      padding: EdgeInsets.symmetric(vertical: 16, horizontal: 20),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(24),
@@ -23,16 +23,24 @@ class FinancialSummaryCard extends StatelessWidget {
           BoxShadow(
             color: Colors.black.withOpacity(0.05),
             blurRadius: 10,
-            offset: const Offset(0, 4),
+            offset: Offset(0, 4),
           ),
         ],
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          _buildColumn('Receitas', receitas, const Color(0xFF4FA8FF)), // Azul do print
-          _buildColumn('Despesas', despesas, const Color(0xFFFF7E55)), // Laranja/Vermelho
-          _buildColumn('Saldo', saldo, const Color(0xFF4CAF50)), // Verde
+          _buildColumn(
+            'Receitas',
+            receitas,
+            Color(0xFF4FA8FF),
+          ), // Azul do print
+          _buildColumn(
+            'Despesas',
+            despesas,
+            Color(0xFFFF7E55),
+          ), // Laranja/Vermelho
+          _buildColumn('Saldo', saldo, Color(0xFF4CAF50)), // Verde
         ],
       ),
     );
@@ -44,13 +52,13 @@ class FinancialSummaryCard extends StatelessWidget {
       children: [
         Text(
           title,
-          style: const TextStyle(
+          style: TextStyle(
             fontWeight: FontWeight.w600,
             fontSize: 12,
             color: Colors.black87,
           ),
         ),
-        const SizedBox(height: 4),
+        SizedBox(height: 4),
         Text(
           'R\$ ${amount.toStringAsFixed(2).replaceAll('.', ',')}',
           style: TextStyle(

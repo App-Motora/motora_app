@@ -3,10 +3,12 @@ import 'package:motora_app/components/activity_card.dart';
 import 'package:motora_app/components/financial_summary_card.dart';
 
 class HomePage extends StatelessWidget {
+  const HomePage({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor:Color(0xFFF5F2E9),
+      backgroundColor: Color(0xFFF5F2E9),
       body: Stack(
         children: [
           Column(
@@ -17,11 +19,11 @@ class HomePage extends StatelessWidget {
               // 3. Lista de Atividades
               Expanded(
                 child: Padding(
-                  padding:EdgeInsets.symmetric(horizontal: 20),
+                  padding: EdgeInsets.symmetric(horizontal: 15),
                   child: ListView(
-                    physics:BouncingScrollPhysics(),
+                    physics: BouncingScrollPhysics(),
                     children: [
-                    Center(
+                      Center(
                         child: Text(
                           'Atividades de Hoje',
                           style: TextStyle(
@@ -31,10 +33,9 @@ class HomePage extends StatelessWidget {
                           ),
                         ),
                       ),
-                    SizedBox(height: 20),
+                      SizedBox(height: 20),
 
-                      // Usando o componente ActivityTile que criamos
-                    ActivityCard(
+                      ActivityCard(
                         icon: Icons.location_on,
                         iconBackgroundColor: Color(0xFF388E3C),
                         time: '14:32',
@@ -44,7 +45,7 @@ class HomePage extends StatelessWidget {
                         isPositive: true,
                       ),
 
-                    ActivityCard(
+                      ActivityCard(
                         icon: Icons.local_gas_station,
                         iconBackgroundColor: Color(0xFFFF7E55),
                         time: '16:46',
@@ -70,29 +71,26 @@ class HomePage extends StatelessWidget {
     return Container(
       height: 250,
       width: double.infinity,
-      decoration:BoxDecoration(
+      decoration: BoxDecoration(
         color: Color(0xFFF7E18B), // Amarelo do Figma
         borderRadius: BorderRadius.vertical(),
       ),
-      padding:EdgeInsets.only(top: 60, left: 20, right: 20),
+      padding: EdgeInsets.only(top: 60, left: 20, right: 20),
       child: Column(
         spacing: 10,
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-            Icon(Icons.menu, size: 28),
+              Icon(Icons.menu, size: 28),
               Container(
-                padding:EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 8,
-                ),
+                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 decoration: BoxDecoration(
                   color: Colors.white.withOpacity(0.5),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Row(
-                  children:[
+                  children: [
                     Text(
                       'Açaí da Praia',
                       style: TextStyle(fontWeight: FontWeight.bold),
@@ -101,16 +99,16 @@ class HomePage extends StatelessWidget {
                   ],
                 ),
               ),
-            SizedBox(width: 28), // Equilíbrio visual
+              SizedBox(width: 28), // Equilíbrio visual
             ],
           ),
           Container(
-            padding:EdgeInsets.all(10),
+            padding: EdgeInsets.all(10),
             decoration: BoxDecoration(
               color: Colors.white.withOpacity(0.8),
               borderRadius: BorderRadius.circular(15),
             ),
-            child:Text(
+            child: Text(
               '04h 15m de turno | 42 km rodados',
               style: TextStyle(fontWeight: FontWeight.w500, fontSize: 13),
             ),
@@ -124,11 +122,11 @@ class HomePage extends StatelessWidget {
   Widget _buildFloatingActionMenu() {
     return Column(
       children: [
-        _miniFob(Icons.access_time,Color(0xFF4FA8FF)),
-      SizedBox(height: 12),
-        _miniFob(Icons.swap_vert,Color(0xFFFF7E55)),
-      SizedBox(height: 12),
-        _miniFob(Icons.delivery_dining,Color(0xFF388E3C)),
+        _miniFob(Icons.access_time, Color(0xFF4FA8FF)),
+        SizedBox(height: 12),
+        _miniFob(Icons.swap_vert, Color(0xFFFF7E55)),
+        SizedBox(height: 12),
+        _miniFob(Icons.delivery_dining, Color(0xFF388E3C)),
       ],
     );
   }

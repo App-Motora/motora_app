@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:motora_app/components/activity_card.dart';
-import 'package:motora_app/components/financial_summary_card.dart';
+import 'package:motora_app/components/float_button.dart';
+import 'package:motora_app/components/header.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -14,7 +15,7 @@ class HomePage extends StatelessWidget {
           Column(
             children: [
               // 1. Header Amarelo
-              _buildHeader(),
+              Header(),
 
               // 3. Lista de Atividades
               Expanded(
@@ -67,86 +68,24 @@ class HomePage extends StatelessWidget {
     );
   }
 
-  Widget _buildHeader() {
-    return Container(
-      height: 250,
-      width: double.infinity,
-      decoration: BoxDecoration(
-        color: Color(0xFFF7E18B), // Amarelo do Figma
-        borderRadius: BorderRadius.vertical(),
-      ),
-      padding: EdgeInsets.only(top: 60, left: 20, right: 20),
-      child: Column(
-        spacing: 10,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Icon(Icons.menu, size: 28),
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.5),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Row(
-                  children: [
-                    Text(
-                      'Açaí da Praia',
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    Icon(Icons.chevron_right),
-                  ],
-                ),
-              ),
-              SizedBox(width: 28), // Equilíbrio visual
-            ],
-          ),
-          Container(
-            padding: EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.8),
-              borderRadius: BorderRadius.circular(15),
-            ),
-            child: Text(
-              '04h 15m de turno | 42 km rodados',
-              style: TextStyle(fontWeight: FontWeight.w500, fontSize: 13),
-            ),
-          ),
-          FinancialSummaryCard(receitas: 36.25, despesas: 25.00, saldo: 11.25),
-        ],
-      ),
-    );
-  }
-
   Widget _buildFloatingActionMenu() {
     return Column(
       children: [
-        _miniFob(Icons.access_time, Color(0xFF4FA8FF)),
+        FloatButton(
+          icon: Icons.access_time, 
+          color: Color(0xFF4FA8FF)
+        ),
         SizedBox(height: 12),
-        _miniFob(Icons.swap_vert, Color(0xFFFF7E55)),
+        FloatButton(
+          icon: Icons.swap_vert, 
+          color: Color(0xFFFF7E55)
+        ),
         SizedBox(height: 12),
-        _miniFob(Icons.delivery_dining, Color(0xFF388E3C)),
+        FloatButton(
+          icon: Icons.delivery_dining, 
+          color: Color(0xFF388E3C)
+        ),
       ],
-    );
-  }
-
-  Widget _miniFob(IconData icon, Color color) {
-    return Container(
-      height: 56,
-      width: 56,
-      decoration: BoxDecoration(
-        color: color,
-        shape: BoxShape.circle,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black26,
-            blurRadius: 10,
-            offset: Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Icon(icon, color: Colors.white),
     );
   }
 }

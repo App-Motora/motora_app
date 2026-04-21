@@ -1,0 +1,65 @@
+import 'package:flutter/material.dart';
+
+class FinancialSummaryCard extends StatelessWidget {
+  final double receitas;
+  final double despesas;
+  final double saldo;
+
+  const FinancialSummaryCard({
+    Key? key,
+    required this.receitas,
+    required this.despesas,
+    required this.saldo,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          _buildColumn('Receitas', receitas, const Color(0xFF4FA8FF)), // Azul do print
+          _buildColumn('Despesas', despesas, const Color(0xFFFF7E55)), // Laranja/Vermelho
+          _buildColumn('Saldo', saldo, const Color(0xFF4CAF50)), // Verde
+        ],
+      ),
+    );
+  }
+
+  Widget _buildColumn(String title, double amount, Color color) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Text(
+          title,
+          style: const TextStyle(
+            fontWeight: FontWeight.w600,
+            fontSize: 12,
+            color: Colors.black87,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          'R\$ ${amount.toStringAsFixed(2).replaceAll('.', ',')}',
+          style: TextStyle(
+            color: color,
+            fontWeight: FontWeight.bold,
+            fontSize: 16,
+          ),
+        ),
+      ],
+    );
+  }
+}

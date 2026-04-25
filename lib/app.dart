@@ -8,6 +8,20 @@ class App extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        inputDecorationTheme: InputDecorationTheme(
+          border: OutlineInputBorder(),
+          focusedBorder: OutlineInputBorder(
+            borderSide: BorderSide(color: Colors.grey.shade600),
+          )
+        ),
+        textSelectionTheme: TextSelectionThemeData(
+          cursorColor: Colors.orange,
+          selectionHandleColor: Color(0xFF4FA8FF), // Cor das alças de seleção
+          selectionColor: Colors.orange.withValues(alpha: 0.3),
+        ),
+        disabledColor: Colors.grey.shade300
+      ),
       home: Scaffold(
         body: HomePage(),
       ),

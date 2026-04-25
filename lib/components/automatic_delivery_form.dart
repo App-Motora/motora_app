@@ -41,8 +41,6 @@ class _AutomaticDeliveryFormState extends State<AutomaticDeliveryForm> {
                   ),
                 ],
               ),
-              SizedBox(height: 20),
-        
               Text('Restaurante', style: TextStyle(fontWeight: FontWeight.w500)),
               SizedBox(height: 8),
               Row(
@@ -59,10 +57,11 @@ class _AutomaticDeliveryFormState extends State<AutomaticDeliveryForm> {
                         child: DropdownButton<String>(
                           value: restauranteSelecionado,
                           isExpanded: true,
+                          dropdownColor: Colors.white,
                           items: restaurantes.map((String value) {
                             return DropdownMenuItem<String>(
                               value: value,
-                              child: Text(value),
+                              child: Text(value)
                             );
                           }).toList(),
                           onChanged: (newValue) {
@@ -78,7 +77,7 @@ class _AutomaticDeliveryFormState extends State<AutomaticDeliveryForm> {
                   Container(
                     decoration: BoxDecoration(
                       color: Color(0xFFF3D080),
-                      borderRadius: BorderRadius.circular(15),
+                      borderRadius: BorderRadius.circular(25),
                     ),
                     child: IconButton(
                       icon: Icon(Icons.add, color: Colors.black),
@@ -103,7 +102,6 @@ class _AutomaticDeliveryFormState extends State<AutomaticDeliveryForm> {
                     contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 16),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide(color: Colors.grey.shade300),
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
@@ -140,6 +138,7 @@ class _AutomaticDeliveryFormState extends State<AutomaticDeliveryForm> {
                         side: BorderSide(color: Colors.grey.shade300, width: 1),
                         padding: EdgeInsets.symmetric(vertical: 15),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                        overlayColor: Colors.grey,
                       ),
                       child: Text('Cancelar', style: TextStyle(color: Colors.black)),
                     ),

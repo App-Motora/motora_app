@@ -3,11 +3,13 @@ import 'package:flutter/material.dart';
 class FloatButton extends StatelessWidget {
   final IconData icon;
   final Color color;
+  final VoidCallback function;
 
   const FloatButton({
     Key? key,
     required this.icon,
-    required this.color
+    required this.color,
+    required this.function,
   }) : super(key: key);
 
 @override
@@ -26,8 +28,10 @@ class FloatButton extends StatelessWidget {
           ),
         ],
       ),
-      child: Icon(icon, color: Colors.white),
+      child: IconButton(
+        icon: Icon(icon, color: Colors.white),
+        onPressed: () => function(),
+      ),
     );
   }
-
 }

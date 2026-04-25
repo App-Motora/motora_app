@@ -76,17 +76,20 @@ class _HomePageState extends State<HomePage> {
       children: [
         FloatButton(
           icon: Icons.access_time, 
-          color: Color(0xFF4FA8FF)
+          color: Color(0xFF4FA8FF),
+          function: () {},
         ),
         SizedBox(height: 12),
         FloatButton(
           icon: Icons.swap_vert, 
-          color: Color(0xFFFF7E55)
+          color: Color(0xFFFF7E55),
+          function: () {},
         ),
         SizedBox(height: 12),
         FloatButton(
           icon: Icons.delivery_dining, 
-          color: Color(0xFF388E3C)
+          color: Color(0xFF388E3C),
+          function: () => {},
         ),
       ],
     );

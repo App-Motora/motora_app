@@ -15,60 +15,58 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Color(0xFFF5F2E9),
-      body: Stack(
-        children: [
-          Column(
-            children: [
-              // 1. Header Amarelo
-              Header(),
-
-              // 3. Lista de Atividades
-              Expanded(
-                child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 15),
-                  child: ListView(
-                    physics: BouncingScrollPhysics(),
-                    children: [
-                      Center(
-                        child: Text(
-                          'Atividades de Hoje',
-                          style: TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                            color: Color(0xFF2D2D2D),
+      body: SafeArea(
+        child: Stack(
+          children: [
+            Column(
+              children: [
+                Header(),
+                Expanded(
+                  child: Padding(
+                    padding: EdgeInsets.only(top: 15, left: 20, right: 20, bottom: 15),
+                    child: ListView(
+                      physics: BouncingScrollPhysics(),
+                      children: [
+                        Center(
+                          child: Text(
+                            'Atividades de Hoje',
+                            style: TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF2D2D2D),
+                            ),
                           ),
                         ),
-                      ),
-                      SizedBox(height: 20),
-
-                      ActivityCard(
-                        icon: Icons.location_on,
-                        iconBackgroundColor: Color(0xFF388E3C),
-                        time: '14:32',
-                        title: 'Entrega - Açaí da Praia',
-                        subtitle: '12.5 km rodados',
-                        amount: 12.50,
-                        isPositive: true,
-                      ),
-
-                      ActivityCard(
-                        icon: Icons.local_gas_station,
-                        iconBackgroundColor: Color(0xFFFF7E55),
-                        time: '16:46',
-                        title: 'Gasolina',
-                        amount: 25.00,
-                        isPositive: false,
-                      ),
-                    ],
+                        SizedBox(height: 20),
+        
+                        ActivityCard(
+                          icon: Icons.location_on,
+                          iconBackgroundColor: Color(0xFF388E3C),
+                          time: '14:32',
+                          title: 'Entrega - Açaí da Praia',
+                          subtitle: '12.5 km rodados',
+                          amount: 12.50,
+                          isPositive: true,
+                        ),
+        
+                        ActivityCard(
+                          icon: Icons.local_gas_station,
+                          iconBackgroundColor: Color(0xFFFF7E55),
+                          time: '16:46',
+                          title: 'Gasolina',
+                          amount: 25.00,
+                          isPositive: false,
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-            ],
-          ),
-
-          // 5. Botões Flutuantes (Customizados conforme o print)
-          Positioned(bottom: 30, right: 20, child: _buildFloatingActionMenu()),
-        ],
+              ],
+            ),
+        
+            Positioned(bottom: 30, right: 20, child: _buildFloatingActionMenu()),
+          ],
+        ),
       ),
     );
   }

@@ -7,13 +7,12 @@ class Header extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 250,
       width: double.infinity,
       decoration: BoxDecoration(
         color: Color(0xFFF7E18B),
         borderRadius: BorderRadius.vertical(),
       ),
-      padding: EdgeInsets.only(top: 60, left: 20, right: 20),
+      padding: EdgeInsets.only(top: 15, left: 20, right: 20, bottom: 15),
       child: Column(
         spacing: 10,
         children: [

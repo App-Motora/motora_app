@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:motora_app/components/activity_card.dart';
+import 'package:motora_app/components/automatic_delivery_form.dart';
 import 'package:motora_app/components/float_button.dart';
 import 'package:motora_app/components/header.dart';
 
@@ -89,7 +90,12 @@ class _HomePageState extends State<HomePage> {
         FloatButton(
           icon: Icons.delivery_dining, 
           color: Color(0xFF388E3C),
-          function: () => {},
+          function: () => showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AutomaticDeliveryForm();
+            },
+          ) ,
         ),
       ],
     );

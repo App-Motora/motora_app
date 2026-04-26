@@ -2,7 +2,22 @@ import 'package:flutter/material.dart';
 import 'package:motora_app/components/financial_summary_card.dart';
 
 class Header extends StatelessWidget {
-  const Header({super.key});
+  final String restaurantName;
+  final String shiftDuration;
+  final double kilometersDriven;
+  final double receitas;
+  final double despesas;
+  final double saldo;
+
+  const Header({
+    super.key,
+    required this.restaurantName,
+    required this.shiftDuration,
+    required this.kilometersDriven,
+    required this.receitas,
+    required this.despesas,
+    required this.saldo,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -10,7 +25,7 @@ class Header extends StatelessWidget {
       width: double.infinity,
       decoration: BoxDecoration(
         color: Color(0xFFF7E18B),
-        borderRadius: BorderRadius.vertical(),
+        borderRadius: BorderRadius.vertical(bottom: Radius.circular(24)),
       ),
       padding: EdgeInsets.only(top: 15, left: 20, right: 20, bottom: 15),
       child: Column(
@@ -29,7 +44,7 @@ class Header extends StatelessWidget {
                 child: Row(
                   children: [
                     Text(
-                      'Açaí da Praia',
+                      restaurantName, 
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
                     Icon(Icons.chevron_right),
@@ -46,11 +61,15 @@ class Header extends StatelessWidget {
               borderRadius: BorderRadius.circular(15),
             ),
             child: Text(
-              '04h 15m de turno | 42 km rodados',
+              '$shiftDuration de turno | ${kilometersDriven.toStringAsFixed(0)} km rodados', 
               style: TextStyle(fontWeight: FontWeight.w500, fontSize: 13),
             ),
           ),
-          FinancialSummaryCard(receitas: 36.25, despesas: 25.00, saldo: 11.25),
+          FinancialSummaryCard(
+            receitas: receitas, 
+            despesas: despesas, 
+            saldo: saldo,       
+          ),
         ],
       ),
     );

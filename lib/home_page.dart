@@ -6,18 +6,15 @@ import 'package:motora_app/home_page_vazia.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
-
   @override
   State<HomePage> createState() => _HomePageState();
 }
 
 class _HomePageState extends State<HomePage> {
   List activities = [];
-
   @override
   Widget build(BuildContext context) {
     bool hasActivities = activities.isNotEmpty;
-
     return Scaffold(
       backgroundColor: const Color(0xFFF5F2E9),
       body: SafeArea(
@@ -25,14 +22,17 @@ class _HomePageState extends State<HomePage> {
           children: [
             Column(
               children: [
-                const Header(
-                  restaurantName: 'Açaí da Praia',
-                  shiftDuration: '04h 15m',
-                  kilometersDriven: 42.0,
-                  receitas: 36.25,
-                  despesas: 25.00,
-                  saldo: 11.25,
+                Header(
+                  restaurantName: hasActivities
+                      ? 'Açaí da Praia'
+                      : 'Nenhum restaurante',
+                  shiftDuration: hasActivities ? '04h 15m' : '00h 00m',
+                  kilometersDriven: hasActivities ? 42.0 : 0.0,
+                  receitas: hasActivities ? 36.25 : 0.0,
+                  despesas: hasActivities ? 25.00 : 0.0,
+                  saldo: hasActivities ? 11.25 : 0.0,
                 ),
+
                 Expanded(
                   child: hasActivities
                       ? _buildActivityList()
@@ -40,6 +40,7 @@ class _HomePageState extends State<HomePage> {
                 ),
               ],
             ),
+
             if (hasActivities)
               Positioned(
                 bottom: 30,

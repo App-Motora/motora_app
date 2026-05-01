@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:motora_app/components/activity_card.dart';
 import 'package:motora_app/components/float_button.dart';
+import 'package:motora_app/components/generic_modal.dart';
 import 'package:motora_app/components/header.dart';
 
 class HomePage extends StatefulWidget {
@@ -77,7 +78,24 @@ class _HomePageState extends State<HomePage> {
         FloatButton(
           icon: Icons.access_time, 
           color: Color(0xFF4FA8FF),
-          function: () {},
+          function: () => showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return GenericModal(
+                title: 'Começar um turno?',
+                content: Column(
+                  children: [
+                    // Text('Tempo de turno: 04h 15m'),
+                    // Text('Quilômetros rodados: 42km'),
+                    Text('Restaurante vinculado: Açaí da Praia'),
+                    SizedBox(height: 20)
+                  ],
+                ),
+                confirmButtonText: 'Iniciar Turno',
+                confirmButtonIcon: Icon(Icons.play_arrow_outlined, color: Colors.black),
+              );
+            },
+          ),
         ),
         SizedBox(height: 12),
         FloatButton(

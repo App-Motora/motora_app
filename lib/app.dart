@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:motora_app/home_page.dart';
+import 'package:motora_app/login_page.dart'; 
+import 'package:motora_app/registro_page.dart'; 
 
 class App extends StatelessWidget {
   const App({super.key});
@@ -22,9 +24,13 @@ class App extends StatelessWidget {
         ),
         disabledColor: Colors.grey.shade300
       ),
-      home: Scaffold(
-        body: HomePage(),
-      ),
+      
+      initialRoute: '/login', 
+      routes: {
+        '/login': (context) => const LoginPage(),
+        '/registro': (context) => const RegistroPage(),
+        '/home': (context) => const HomePage(),
+      },
     );
   }
 }

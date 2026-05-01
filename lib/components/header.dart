@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:motora_app/components/financial_summary_card.dart';
 
-class Header extends StatelessWidget {
+class Header extends StatefulWidget {
   final String restaurantName;
   final String shiftDuration;
   final double kilometersDriven;
@@ -20,6 +20,20 @@ class Header extends StatelessWidget {
   });
 
   @override
+  State<Header> createState() => _HeaderState();
+}
+
+class _HeaderState extends State<Header> {
+  String selectedRestaurant = 'Açaí da Praia';
+
+  final List<String> restaurants = [
+    'Açaí da Praia',
+    'Pizzaria Central',
+    'Hambúrguer do Zé',
+    'Sushi Express Grande',
+  ];
+
+  @override
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
@@ -34,21 +48,36 @@ class Header extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Icon(Icons.menu, size: 28),
+              Icon(Icons.menu, size: 30),
               Container(
-                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding: EdgeInsets.symmetric(horizontal: 5),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.5),
+                  color: Colors.white.withValues(alpha: 0.5),
                   borderRadius: BorderRadius.circular(20),
                 ),
-                child: Row(
-                  children: [
-                    Text(
-                      restaurantName, 
-                      style: TextStyle(fontWeight: FontWeight.bold),
+                child: DropdownButtonHideUnderline(
+                  child: DropdownButton<String>(
+                    value: selectedRestaurant,
+                    icon: Icon(Icons.chevron_right, color: Colors.black),
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
+                      fontSize: 14,
                     ),
-                    Icon(Icons.chevron_right),
-                  ],
+                    onChanged: (String? newValue) {
+                      setState(() {
+                        selectedRestaurant = newValue!;
+                      });
+                    },
+                    dropdownColor: Colors.white,
+                    alignment: Alignment.center,
+                    items: restaurants.map<DropdownMenuItem<String>>((String value) {
+                      return DropdownMenuItem<String>(
+                        value: value,
+                        child: Text(value),
+                      );
+                    }).toList(),
+                  ),
                 ),
               ),
               SizedBox(width: 28),
@@ -57,18 +86,18 @@ class Header extends StatelessWidget {
           Container(
             padding: EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.8),
+              color: Colors.white.withValues(alpha: 0.8),
               borderRadius: BorderRadius.circular(15),
             ),
             child: Text(
-              '$shiftDuration de turno | ${kilometersDriven.toStringAsFixed(0)} km rodados', 
+              '${widget.shiftDuration} de turno | ${widget.kilometersDriven.toStringAsFixed(0)} km rodados', 
               style: TextStyle(fontWeight: FontWeight.w500, fontSize: 13),
             ),
           ),
           FinancialSummaryCard(
-            receitas: receitas, 
-            despesas: despesas, 
-            saldo: saldo,       
+            receitas: widget.receitas,
+            despesas: widget.despesas,
+            saldo: widget.saldo,
           ),
         ],
       ),

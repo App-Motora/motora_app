@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:motora_app/components/primary_button.dart';
+import 'package:motora_app/components/automatic_delivery_form.dart';
 
 class HomePageVazia extends StatelessWidget {
   const HomePageVazia({super.key});
@@ -32,7 +33,12 @@ class HomePageVazia extends StatelessWidget {
             label: 'Registrar Entrega',
             icon: Icons.delivery_dining,
             color: const Color(0xFF388E3C),
-            onPressed: () {},
+            onPressed: () => showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AutomaticDeliveryForm();
+            },
+           ),
           ),
           const SizedBox(height: 16),
           PrimaryButton(

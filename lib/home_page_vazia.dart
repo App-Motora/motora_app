@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:motora_app/components/automatic_expense_form.dart';
+import 'package:motora_app/components/generic_modal.dart';
 import 'package:motora_app/components/primary_button.dart';
 import 'package:motora_app/components/automatic_delivery_form.dart';
 
@@ -27,7 +28,22 @@ class HomePageVazia extends StatelessWidget {
             label: 'Iniciar Turno',
             icon: Icons.history,
             color: const Color(0xFF4FA8FF),
-            onPressed: () {},
+            onPressed: () => showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return GenericModal(
+                  title: 'Começar um turno?',
+                  content: Column(
+                    children: [
+                      Text('Restaurante vinculado: Açaí da Praia'),
+                      SizedBox(height: 20)
+                    ],
+                  ),
+                  confirmButtonText: 'Iniciar Turno',
+                  confirmButtonIcon: Icon(Icons.play_arrow_outlined, color: Colors.black),
+                );
+              },
+            ),
           ),
           const SizedBox(height: 20),
           PrimaryButton(

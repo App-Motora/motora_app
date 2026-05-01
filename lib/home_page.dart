@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:motora_app/components/activity_card.dart';
 import 'package:motora_app/components/automatic_delivery_form.dart';
 import 'package:motora_app/components/float_button.dart';
+import 'package:motora_app/components/generic_modal.dart';
 import 'package:motora_app/components/header.dart';
 import 'package:motora_app/home_page_vazia.dart';
 
@@ -85,9 +86,24 @@ class _HomePageState extends State<HomePage> {
     return Column(
       children: [
         FloatButton(
-          icon: Icons.access_time,
-          color: const Color(0xFF4FA8FF),
-          function: () {},
+          icon: Icons.access_time, 
+          color: Color(0xFF4FA8FF),
+          function: () => showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return GenericModal(
+                title: 'Começar um turno?',
+                content: Column(
+                  children: [
+                    Text('Restaurante vinculado: Açaí da Praia'),
+                    SizedBox(height: 20)
+                  ],
+                ),
+                confirmButtonText: 'Iniciar Turno',
+                confirmButtonIcon: Icon(Icons.play_arrow_outlined, color: Colors.black),
+              );
+            },
+          ),
         ),
         const SizedBox(height: 12),
         FloatButton(

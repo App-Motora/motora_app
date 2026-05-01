@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:motora_app/components/financial_summary_card.dart';
+import 'package:motora_app/components/shift_summary.dart';
 
 class Header extends StatefulWidget {
   final String restaurantName;
@@ -83,16 +84,12 @@ class _HeaderState extends State<Header> {
               SizedBox(width: 28),
             ],
           ),
-          Container(
-            padding: EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.8),
-              borderRadius: BorderRadius.circular(15),
-            ),
-            child: Text(
-              '${widget.shiftDuration} de turno | ${widget.kilometersDriven.toStringAsFixed(0)} km rodados', 
-              style: TextStyle(fontWeight: FontWeight.w500, fontSize: 13),
-            ),
+          ShiftSummary(
+            shiftDuration: widget.shiftDuration, 
+            kilometersDriven: widget.kilometersDriven, 
+            receitas: widget.receitas, 
+            despesas: widget.despesas, 
+            saldo: widget.saldo
           ),
           FinancialSummaryCard(
             receitas: widget.receitas,

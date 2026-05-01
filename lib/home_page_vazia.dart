@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:motora_app/components/automatic_expense_form.dart';
 import 'package:motora_app/components/generic_modal.dart';
 import 'package:motora_app/components/primary_button.dart';
 import 'package:motora_app/components/automatic_delivery_form.dart';
@@ -61,7 +62,12 @@ class HomePageVazia extends StatelessWidget {
             label: 'Registrar Despesa',
             icon: Icons.swap_vert,
             color: const Color(0xFFFF7E55),
-            onPressed: () {},
+            onPressed: () => showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return const AutomaticExpenseForm();
+              },
+            ),
           ),
         ],
       ),

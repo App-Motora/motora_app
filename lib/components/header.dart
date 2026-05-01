@@ -1,9 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:motora_app/components/financial_summary_card.dart';
 
-class Header extends StatelessWidget {
+class Header extends StatefulWidget {
   const Header({super.key});
 
+  @override
+  State<Header> createState() => _HeaderState();
+}
+
+class _HeaderState extends State<Header> {
+  String selectedRestaurant = 'Açaí da Praia';
+
+  final List<String> restaurants = [
+    'Açaí da Praia',
+    'Pizzaria Central',
+    'Hambúrguer do Zé',
+    'Sushi Express Grande',
+  ];
+  
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -21,19 +35,34 @@ class Header extends StatelessWidget {
             children: [
               Icon(Icons.menu, size: 28),
               Container(
-                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding: EdgeInsets.symmetric(horizontal: 12),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.5),
+                  color: Colors.white.withValues(alpha: 0.5),
                   borderRadius: BorderRadius.circular(20),
                 ),
-                child: Row(
-                  children: [
-                    Text(
-                      'Açaí da Praia',
-                      style: TextStyle(fontWeight: FontWeight.bold),
+                child: DropdownButtonHideUnderline( 
+                  child: DropdownButton<String>(
+                    value: selectedRestaurant,
+                    icon: Icon(Icons.chevron_right, color: Colors.black),
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold, 
+                      color: Colors.black,
+                      fontSize: 14,
                     ),
-                    Icon(Icons.chevron_right),
-                  ],
+                    onChanged: (String? newValue) {
+                      setState(() {
+                        selectedRestaurant = newValue!;
+                      });
+                    },
+                    dropdownColor: Colors.white,
+                    alignment: Alignment.center,
+                    items: restaurants.map<DropdownMenuItem<String>>((String value) {
+                      return DropdownMenuItem<String>(
+                        value: value,
+                        child: Text(value),
+                      );
+                    }).toList(),
+                  ),
                 ),
               ),
               SizedBox(width: 28),
@@ -42,7 +71,7 @@ class Header extends StatelessWidget {
           Container(
             padding: EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.8),
+              color: Colors.white.withValues(alpha: 0.8),
               borderRadius: BorderRadius.circular(15),
             ),
             child: Text(

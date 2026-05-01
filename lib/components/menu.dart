@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
-class Menu extends StatefulWidget
-{
+class Menu extends StatefulWidget {
   const Menu({super.key});
 
   @override
@@ -9,73 +8,133 @@ class Menu extends StatefulWidget
 }
 
 class _MenuState extends State<Menu> {
+  int _selectedIndex = 0;
+
+  final List<_MenuItemData> _items = const [
+    _MenuItemData(Icons.swap_vert, 'Despesas'),
+    _MenuItemData(Icons.delivery_dining, 'Entregas'),
+    _MenuItemData(Icons.analytics, 'Relatórios'),
+    _MenuItemData(Icons.history, 'Histórico de Atividades'),
+    _MenuItemData(Icons.restaurant, 'Restaurantes'),
+  ];
+
   @override
   Widget build(BuildContext context) {
     return SizedBox(
       width: MediaQuery.of(context).size.width * 0.65,
       child: Drawer(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+        backgroundColor: Colors.white,
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
-              color: Colors.white,
               width: double.infinity,
-              padding: EdgeInsets.fromLTRB(16.0, 12.0, 16.0, 16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
+              color: const Color(0xFFF7E18B),
+              padding: const EdgeInsets.fromLTRB(20.0, 26.0, 20.0, 18.0),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Text(
-                    "Fulano",
-                    style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 18),
+                  CircleAvatar(
+                    radius: 26,
+                    backgroundColor: Colors.white,
+                    child: const Icon(
+                      Icons.person,
+                      color: Color(0xFFF7E18B),
+                      size: 28,
+                    ),
                   ),
-                  SizedBox(height: 6),
-                  Text(
-                    "fulano@email.com",
-                    style: TextStyle(color: Colors.grey),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: const [
+                        Text(
+                          'Fulano',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
             ),
-            
+            const Divider(height: 0, thickness: 1, color: Color(0xFFE8E8E8)),
             Expanded(
-              child: ListView(
-                padding: EdgeInsets.zero,
-                children: [
-                  _buildMenuItem(Icons.swap_vert, "Despesas"),
-                  _buildMenuItem(Icons.delivery_dining, "Entregas"),
-                  _buildMenuItem(Icons.analytics, "Relatórios"),
-                  _buildMenuItem(Icons.history, "Histórico de Atividades"),
-                  _buildMenuItem(Icons.restaurant, "Restaurantes"),
-                ],
+              child: ListView.builder(
+                padding: const EdgeInsets.only(top: 14.0, bottom: 20.0),
+                itemCount: _items.length,
+                itemBuilder: (context, index) {
+                  final item = _items[index];
+                  return _buildMenuItem(index, item.icon, item.title);
+                },
               ),
             ),
 
-            Divider(),
-            ListTile(
-              title: Text(
-                "Sair",
-                style: TextStyle(color: Colors.red, fontWeight: FontWeight.w500),
+            const Divider(height: 0, thickness: 1),
+            const Padding(
+              padding: EdgeInsets.symmetric(vertical: 18.0),
+              child: Center(
+                child: Text(
+                  'Motora App',
+                  style: TextStyle(
+                    color: Colors.black87,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                ),
               ),
-              onTap: () {
-                // Lógica de logout
-              },
             ),
-            SizedBox(height: 7),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildMenuItem(IconData icon, String title) {
-    return ListTile(
-      leading: Icon(icon, size: 18),
-      title: Text(title),
-      trailing: Icon(Icons.chevron_right),
-      onTap: () {
-        // Navegação aqui
-      },
+  Widget _buildMenuItem(int index, IconData icon, String title) {
+    final selected = _selectedIndex == index;
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 18.0, vertical: 6.0),
+      child: Material(
+        color: selected
+            ? const Color(0xFF4FA8FF).withOpacity(0.16)
+            : Colors.transparent,
+        borderRadius: BorderRadius.circular(14),
+        child: ListTile(
+          dense: true,
+          minLeadingWidth: 32,
+          splashColor: const Color(0xFF4FA8FF).withOpacity(0.28),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 18.0),
+          leading: Icon(icon, size: 22, color: Colors.black87),
+          title: Text(
+            title,
+            style: TextStyle(
+              color: Colors.black87,
+              fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
+            ),
+          ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14),
+          ),
+          selected: selected,
+          onTap: () {
+            setState(() {
+              _selectedIndex = index;
+            });
+          },
+        ),
+      ),
     );
   }
+}
+
+class _MenuItemData {
+  final IconData icon;
+  final String title;
+
+  const _MenuItemData(this.icon, this.title);
 }

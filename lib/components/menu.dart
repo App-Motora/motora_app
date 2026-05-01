@@ -1,14 +1,35 @@
 import 'package:flutter/material.dart';
 
 class Menu extends StatefulWidget {
-  const Menu({super.key});
+  final int selectedIndex;
+  // final ValueChanged<int>? onItemSelected;
+
+  const Menu({
+    super.key,
+    this.selectedIndex = 0,
+    // this.onItemSelected,
+  });
 
   @override
   State<Menu> createState() => _MenuState();
 }
 
 class _MenuState extends State<Menu> {
-  int _selectedIndex = 0;
+  late int _selectedIndex;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedIndex = widget.selectedIndex;
+  }
+
+  @override
+  void didUpdateWidget(covariant Menu oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.selectedIndex != oldWidget.selectedIndex) {
+      _selectedIndex = widget.selectedIndex;
+    }
+  }
 
   final List<_MenuItemData> _items = const [
     _MenuItemData(Icons.swap_vert, 'Despesas'),
@@ -125,6 +146,7 @@ class _MenuState extends State<Menu> {
             setState(() {
               _selectedIndex = index;
             });
+            // widget.onItemSelected?.call(index);
           },
         ),
       ),

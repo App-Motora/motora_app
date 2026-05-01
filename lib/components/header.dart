@@ -9,6 +9,7 @@ class Header extends StatefulWidget {
   final double receitas;
   final double despesas;
   final double saldo;
+  final VoidCallback? onMenuPressed;
 
   const Header({
     super.key,
@@ -18,6 +19,7 @@ class Header extends StatefulWidget {
     required this.receitas,
     required this.despesas,
     required this.saldo,
+    this.onMenuPressed,
   });
 
   @override
@@ -49,7 +51,10 @@ class _HeaderState extends State<Header> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Icon(Icons.menu, size: 30),
+              IconButton(
+                icon: const Icon(Icons.menu, size: 30),
+                onPressed: widget.onMenuPressed,
+              ),
               Container(
                 padding: EdgeInsets.symmetric(horizontal: 5),
                 decoration: BoxDecoration(
@@ -72,7 +77,9 @@ class _HeaderState extends State<Header> {
                     },
                     dropdownColor: Colors.white,
                     alignment: Alignment.center,
-                    items: restaurants.map<DropdownMenuItem<String>>((String value) {
+                    items: restaurants.map<DropdownMenuItem<String>>((
+                      String value,
+                    ) {
                       return DropdownMenuItem<String>(
                         value: value,
                         child: Text(value),
@@ -85,11 +92,11 @@ class _HeaderState extends State<Header> {
             ],
           ),
           ShiftSummary(
-            shiftDuration: widget.shiftDuration, 
-            kilometersDriven: widget.kilometersDriven, 
-            receitas: widget.receitas, 
-            despesas: widget.despesas, 
-            saldo: widget.saldo
+            shiftDuration: widget.shiftDuration,
+            kilometersDriven: widget.kilometersDriven,
+            receitas: widget.receitas,
+            despesas: widget.despesas,
+            saldo: widget.saldo,
           ),
           FinancialSummaryCard(
             receitas: widget.receitas,

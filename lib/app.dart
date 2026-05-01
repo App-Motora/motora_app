@@ -22,9 +22,7 @@ class App extends StatelessWidget {
         ),
         disabledColor: Colors.grey.shade300
       ),
-      home: Scaffold(
-        body: HomePage(),
-      ),
+      home: HomePage(),
     );
   }
 }

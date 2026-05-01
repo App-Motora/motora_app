@@ -23,27 +23,44 @@ class _RegistroPageState extends State<RegistroPage> {
         child: Column(
           children: [
             Padding(
-              padding: const EdgeInsets.symmetric(vertical: 250.0, horizontal: 20.0),
+              padding: const EdgeInsets.symmetric(
+                vertical: 250.0,
+                horizontal: 20.0,
+              ),
               child: Form(
                 key: _formKey,
                 child: Column(
                   children: [
                     const Text(
                       'Crie sua conta para começar',
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
                     const SizedBox(height: 30),
-                    
+
                     TextFormField(
                       controller: _nomeController,
                       decoration: InputDecoration(
                         labelText: 'Nome Completo',
+                        floatingLabelStyle: const TextStyle(
+                          color: Colors.black,
+                        ),
                         prefixIcon: const Icon(Icons.person_outline),
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(16),
+                          borderSide: const BorderSide(color: Colors.black),
+                        ),
                         filled: true,
                         fillColor: Colors.white,
                       ),
-                      validator: (value) => (value == null || value.isEmpty) ? 'Informe seu nome' : null,
+                      validator: (value) => (value == null || value.isEmpty)
+                          ? 'Informe seu nome'
+                          : null,
                     ),
                     const SizedBox(height: 20),
 
@@ -52,12 +69,24 @@ class _RegistroPageState extends State<RegistroPage> {
                       keyboardType: TextInputType.emailAddress,
                       decoration: InputDecoration(
                         labelText: 'E-mail',
+                        floatingLabelStyle: const TextStyle(
+                          color: Colors.black,
+                        ),
                         prefixIcon: const Icon(Icons.email_outlined),
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(16),
+                          borderSide: const BorderSide(color: Colors.black),
+                        ),
                         filled: true,
                         fillColor: Colors.white,
                       ),
-                      validator: (value) => (value == null || !value.contains('@')) ? 'Informe um e-mail válido' : null,
+                      validator: (value) =>
+                          (value == null || !value.contains('@'))
+                          ? 'Informe um e-mail válido'
+                          : null,
                     ),
                     const SizedBox(height: 20),
 
@@ -66,12 +95,23 @@ class _RegistroPageState extends State<RegistroPage> {
                       obscureText: true,
                       decoration: InputDecoration(
                         labelText: 'Senha',
+                        floatingLabelStyle: const TextStyle(
+                          color: Colors.black,
+                        ),
                         prefixIcon: const Icon(Icons.lock_outline),
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(16),
+                          borderSide: const BorderSide(color: Colors.black),
+                        ),
                         filled: true,
                         fillColor: Colors.white,
                       ),
-                      validator: (value) => (value == null || value.length < 6) ? 'Mínimo 6 caracteres' : null,
+                      validator: (value) => (value == null || value.length < 6)
+                          ? 'Mínimo 6 caracteres'
+                          : null,
                     ),
                     const SizedBox(height: 20),
 
@@ -80,8 +120,17 @@ class _RegistroPageState extends State<RegistroPage> {
                       obscureText: true,
                       decoration: InputDecoration(
                         labelText: 'Confirmar Senha',
+                        floatingLabelStyle: const TextStyle(
+                          color: Colors.black,
+                        ),
                         prefixIcon: const Icon(Icons.lock_reset),
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(16),
+                          borderSide: const BorderSide(color: Colors.black),
+                        ),
                         filled: true,
                         fillColor: Colors.white,
                       ),
@@ -101,18 +150,20 @@ class _RegistroPageState extends State<RegistroPage> {
                       onPressed: () {
                         if (_formKey.currentState!.validate()) {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Processando cadastro...')),
+                            const SnackBar(
+                              content: Text('Processando cadastro...'),
+                            ),
                           );
-                          Navigator.pop(context); 
+                          Navigator.pop(context);
                         }
                       },
                     ),
-                    
+
                     TextButton(
                       onPressed: () => Navigator.pop(context),
                       child: const Text(
                         'Já possui conta? Faça login',
-                        style: TextStyle(color: Colors.grey),
+                        style: TextStyle(color: Colors.black),
                       ),
                     ),
                   ],

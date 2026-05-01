@@ -41,10 +41,16 @@ class _LoginPageState extends State<LoginPage> {
                       controller: _emailController,
                       decoration: InputDecoration(
                         labelText: 'E-mail',
-                        floatingLabelStyle: const TextStyle(color: Colors.black87,),
+                        floatingLabelStyle: const TextStyle(
+                          color: Colors.black,
+                        ),
                         prefixIcon: const Icon(Icons.email_outlined),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(16),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(16),
+                          borderSide: const BorderSide(color: Colors.black),
                         ),
                         filled: true,
                         fillColor: Colors.white,
@@ -59,9 +65,16 @@ class _LoginPageState extends State<LoginPage> {
                       obscureText: true,
                       decoration: InputDecoration(
                         labelText: 'Senha',
+                        floatingLabelStyle: const TextStyle(
+                          color: Colors.black,
+                        ),
                         prefixIcon: const Icon(Icons.lock_outline),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(16),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(16),
+                          borderSide: const BorderSide(color: Colors.black),
                         ),
                         filled: true,
                         fillColor: Colors.white,
@@ -86,7 +99,7 @@ class _LoginPageState extends State<LoginPage> {
                           Navigator.pushNamed(context, '/registro'),
                       child: const Text(
                         'Não possui conta? Cadastre-se aqui',
-                        style: TextStyle(color: Colors.grey),
+                        style: TextStyle(color: Colors.black),
                       ),
                     ),
                   ],

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:motora_app/components/financial_summary_card.dart';
+import 'package:motora_app/components/shift_summary.dart';
 
 class Header extends StatefulWidget {
   const Header({super.key});
@@ -68,17 +69,7 @@ class _HeaderState extends State<Header> {
               SizedBox(width: 28),
             ],
           ),
-          Container(
-            padding: EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.8),
-              borderRadius: BorderRadius.circular(15),
-            ),
-            child: Text(
-              '04h 15m de turno | 42 km rodados',
-              style: TextStyle(fontWeight: FontWeight.w500, fontSize: 13),
-            ),
-          ),
+          ShiftSummary(),
           FinancialSummaryCard(receitas: 36.25, despesas: 25.00, saldo: 11.25),
         ],
       ),

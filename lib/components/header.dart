@@ -17,7 +17,7 @@ class _HeaderState extends State<Header> {
     'Hambúrguer do Zé',
     'Sushi Express Grande',
   ];
-  
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -33,19 +33,19 @@ class _HeaderState extends State<Header> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Icon(Icons.menu, size: 28),
+              Icon(Icons.menu, size: 30),
               Container(
-                padding: EdgeInsets.symmetric(horizontal: 12),
+                padding: EdgeInsets.symmetric(horizontal: 5),
                 decoration: BoxDecoration(
                   color: Colors.white.withValues(alpha: 0.5),
                   borderRadius: BorderRadius.circular(20),
                 ),
-                child: DropdownButtonHideUnderline( 
+                child: DropdownButtonHideUnderline(
                   child: DropdownButton<String>(
                     value: selectedRestaurant,
                     icon: Icon(Icons.chevron_right, color: Colors.black),
                     style: TextStyle(
-                      fontWeight: FontWeight.bold, 
+                      fontWeight: FontWeight.bold,
                       color: Colors.black,
                       fontSize: 14,
                     ),
@@ -56,7 +56,9 @@ class _HeaderState extends State<Header> {
                     },
                     dropdownColor: Colors.white,
                     alignment: Alignment.center,
-                    items: restaurants.map<DropdownMenuItem<String>>((String value) {
+                    items: restaurants.map<DropdownMenuItem<String>>((
+                      String value,
+                    ) {
                       return DropdownMenuItem<String>(
                         value: value,
                         child: Text(value),

@@ -17,7 +17,7 @@ class App extends StatelessWidget {
         ),
         textSelectionTheme: TextSelectionThemeData(
           cursorColor: Colors.orange,
-          selectionHandleColor: Color(0xFF4FA8FF), // Cor das alças de seleção
+          selectionHandleColor: Color(0xFF4FA8FF), 
           selectionColor: Colors.orange.withValues(alpha: 0.3),
         ),
         disabledColor: Colors.grey.shade300

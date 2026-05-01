@@ -2,7 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:motora_app/components/generic_modal.dart';
 
 class ShiftSummary extends StatelessWidget {
-  const ShiftSummary({super.key});
+  final String shiftDuration;
+  final double kilometersDriven;
+  final double receitas;
+  final double despesas;
+  final double saldo;
+  
+  const ShiftSummary({
+    super.key,
+    required this.shiftDuration,
+    required this.kilometersDriven,
+    required this.receitas,
+    required this.despesas,
+    required this.saldo,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -16,8 +29,8 @@ class ShiftSummary extends StatelessWidget {
               title: 'Informações do Turno',
               content: Column(
                 children: [
-                  Text('Tempo de turno: 04h 15m'),
-                  Text('Quilômetros rodados: 42km'),
+                  Text('Tempo de turno: $shiftDuration'),
+                  Text('Quilômetros rodados: ${kilometersDriven.toStringAsFixed(0)}km'),
                   Text('Restaurante vinculado: Açaí da Praia'),
                   SizedBox(height: 20)
                 ],
@@ -35,7 +48,7 @@ class ShiftSummary extends StatelessWidget {
             borderRadius: BorderRadius.circular(15),
           ),
           child: Text(
-            '04h 15m de turno | 42 km rodados',
+            '$shiftDuration de turno | ${kilometersDriven.toStringAsFixed(0)} km rodados',
             style: TextStyle(fontWeight: FontWeight.w500, fontSize: 13),
           ),
         ),

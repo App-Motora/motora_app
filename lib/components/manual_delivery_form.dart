@@ -1,0 +1,340 @@
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+
+class ManualDeliveryForm extends StatefulWidget {
+  const ManualDeliveryForm({super.key});
+
+  @override
+  State<ManualDeliveryForm> createState() => _ManualDeliveryFormState();
+}
+
+class _ManualDeliveryFormState extends State<ManualDeliveryForm> {
+  static const Color _modalBackgroundColor = Color(0xFFF2EDE4);
+  static const Color _fieldBackgroundColor = Colors.white;
+  static const Color _accentColor = Color(0xFFF3D080);
+  static const Color _textColor = Color(0xFF333333);
+
+  String? restauranteSelecionado = 'Acai da Praia';
+  final List<String> restaurantes = [
+    'Acai da Praia',
+    'Pizzaria do Bairro',
+    'Hamburguer Caseiro',
+  ];
+
+  final TextEditingController _valorController = TextEditingController();
+  final TextEditingController _quilometragemController =
+      TextEditingController();
+  final TextEditingController _dataController = TextEditingController();
+
+  final TextInputFormatter _valorInputFormatter =
+      TextInputFormatter.withFunction((oldValue, newValue) {
+        final RegExp regex = RegExp(r'^\d*([.,]\d{0,2})?$');
+        return regex.hasMatch(newValue.text) ? newValue : oldValue;
+      });
+
+  final TextInputFormatter _quilometragemInputFormatter =
+      TextInputFormatter.withFunction((oldValue, newValue) {
+        final RegExp regex = RegExp(r'^\d*([.,]\d{0,3})?$');
+        return regex.hasMatch(newValue.text) ? newValue : oldValue;
+      });
+
+  @override
+  void dispose() {
+    _valorController.dispose();
+    _quilometragemController.dispose();
+    _dataController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _selecionarData() async {
+    final DateTime now = DateTime.now();
+    final DateTime? dataSelecionada = await showDatePicker(
+      context: context,
+      initialDate: now,
+      firstDate: DateTime(2020),
+      lastDate: DateTime(now.year + 5),
+    );
+
+    if (dataSelecionada == null) return;
+
+    final String dia = dataSelecionada.day.toString().padLeft(2, '0');
+    final String mes = dataSelecionada.month.toString().padLeft(2, '0');
+    final String ano = dataSelecionada.year.toString();
+
+    setState(() {
+      _dataController.text = '$dia/$mes/$ano';
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(20),
+          color: _modalBackgroundColor,
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const SizedBox(width: 24),
+                  const Text(
+                    'Cadastrar Entrega',
+                    style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                      color: _textColor,
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.close, color: Colors.black),
+                    onPressed: () => Navigator.pop(context),
+                  ),
+                ],
+              ),
+              const Text(
+                'Restaurante',
+                style: TextStyle(fontWeight: FontWeight.w500),
+              ),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  Expanded(
+                    child: LayoutBuilder(
+                      builder: (context, constraints) {
+                        return DropdownMenu<String>(
+                          width: constraints.maxWidth,
+                          initialSelection: restauranteSelecionado,
+                          textStyle: const TextStyle(
+                            color: _textColor,
+                            fontSize: 16,
+                          ),
+                          menuStyle: MenuStyle(
+                            backgroundColor: const WidgetStatePropertyAll(
+                              _fieldBackgroundColor,
+                            ),
+                            surfaceTintColor: const WidgetStatePropertyAll(
+                              Colors.transparent,
+                            ),
+                            shape: WidgetStatePropertyAll(
+                              RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                          ),
+                          inputDecorationTheme: InputDecorationTheme(
+                            filled: true,
+                            fillColor: _fieldBackgroundColor,
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 16,
+                            ),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                              borderSide: BorderSide(
+                                color: Colors.grey.shade300,
+                              ),
+                            ),
+                            // focusedBorder: OutlineInputBorder(
+                            //   borderRadius: BorderRadius.circular(8),
+                            //   borderSide: const BorderSide(color: _accentColor),
+                            // ),
+                          ),
+                          dropdownMenuEntries: restaurantes.map((String value) {
+                            final bool isSelected =
+                                value == restauranteSelecionado;
+
+                            return DropdownMenuEntry<String>(
+                              value: value,
+                              label: value,
+                              style: ButtonStyle(
+                                backgroundColor:
+                                    WidgetStateProperty.resolveWith((states) {
+                                      if (isSelected) {
+                                        return const Color(0xFFF1F1F1);
+                                      }
+                                      if (states.contains(
+                                        WidgetState.selected,
+                                      )) {
+                                        return const Color(0xFFF6F6F6);
+                                      }
+                                      if (states.contains(
+                                        WidgetState.hovered,
+                                      )) {
+                                        return const Color(0xFFF8F8F8);
+                                      }
+                                      return _fieldBackgroundColor;
+                                    }),
+                                foregroundColor: const WidgetStatePropertyAll(
+                                  _textColor,
+                                ),
+                                overlayColor: const WidgetStatePropertyAll(
+                                  Color(0x1AF3D080),
+                                ),
+                              ),
+                            );
+                          }).toList(),
+                          onSelected: (String? newValue) {
+                            if (newValue == null) return;
+
+                            setState(() {
+                              restauranteSelecionado = newValue;
+                            });
+                          },
+                        );
+                      },
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: _accentColor,
+                      borderRadius: BorderRadius.circular(25),
+                    ),
+                    child: IconButton(
+                      icon: const Icon(Icons.add, color: Colors.black),
+                      onPressed: () {},
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
+              const Text(
+                'Valor',
+                style: TextStyle(fontWeight: FontWeight.w500),
+              ),
+              const SizedBox(height: 8),
+              _buildTextField(
+                controller: _valorController,
+                hintText: 'Ex: R\$ 18,50',
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
+                inputFormatters: [_valorInputFormatter],
+              ),
+              const SizedBox(height: 20),
+              const Text(
+                'Quilometragem',
+                style: TextStyle(fontWeight: FontWeight.w500),
+              ),
+              const SizedBox(height: 8),
+              _buildTextField(
+                controller: _quilometragemController,
+                hintText: 'Ex: 7.4 km',
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
+                inputFormatters: [_quilometragemInputFormatter],
+              ),
+              const SizedBox(height: 20),
+              const Text('Data', style: TextStyle(fontWeight: FontWeight.w500)),
+              const SizedBox(height: 8),
+              _buildTextField(
+                controller: _dataController,
+                hintText: 'Selecione uma data',
+                readOnly: true,
+                suffixIcon: const Icon(Icons.calendar_today_outlined),
+                onTap: _selecionarData,
+              ),
+              const SizedBox(height: 30),
+              Row(
+                children: [
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      onPressed: () {},
+                      icon: const Icon(
+                        Icons.check_circle_outline,
+                        color: Colors.black,
+                      ),
+                      label: const Text(
+                        'Cadastrar',
+                        style: TextStyle(color: Colors.black),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: _accentColor,
+                        padding: const EdgeInsets.symmetric(vertical: 15),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () => Navigator.pop(context),
+                      style: OutlinedButton.styleFrom(
+                        backgroundColor: Colors.grey.shade200,
+                        side: BorderSide(color: Colors.grey.shade300, width: 1),
+                        padding: const EdgeInsets.symmetric(vertical: 15),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        overlayColor: Colors.grey,
+                      ),
+                      child: const Text(
+                        'Cancelar',
+                        style: TextStyle(color: Colors.black),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTextField({
+    required TextEditingController controller,
+    String? hintText,
+    TextInputType? keyboardType,
+    List<TextInputFormatter>? inputFormatters,
+    bool readOnly = false,
+    Widget? suffixIcon,
+    VoidCallback? onTap,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(8),
+        color: _fieldBackgroundColor,
+      ),
+      child: TextField(
+        controller: controller,
+        keyboardType: keyboardType,
+        inputFormatters: inputFormatters,
+        readOnly: readOnly,
+        onTap: onTap,
+        decoration: InputDecoration(
+          hintText: hintText,
+          suffixIcon: suffixIcon,
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 12,
+            vertical: 16,
+          ),
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8),
+            borderSide: BorderSide(color: Colors.grey.shade300),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8),
+            borderSide: const BorderSide(color: _accentColor),
+          ),
+        ),
+      ),
+    );
+  }
+}

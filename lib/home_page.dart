@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:motora_app/components/activity_card.dart';
 import 'package:motora_app/components/automatic_delivery_form.dart';
 import 'package:motora_app/components/float_button.dart';
+import 'package:motora_app/components/generic_modal.dart';
 import 'package:motora_app/components/header.dart';
+import 'package:motora_app/components/menu.dart';
 import 'package:motora_app/home_page_vazia.dart';
 
 class HomePage extends StatefulWidget {
@@ -13,11 +15,25 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   List activities = [];
+  int _activeMenuIndex = 3;
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
   @override
   Widget build(BuildContext context) {
     bool hasActivities = activities.isNotEmpty;
     return Scaffold(
+      key: _scaffoldKey,
       backgroundColor: const Color(0xFFF5F2E9),
+      drawer: Menu(
+        selectedIndex: _activeMenuIndex,
+        // onItemSelected: (index) {
+        //   setState(() {
+        //     _activeMenuIndex = index;
+        //   });
+        //   Navigator.of(context).pop();
+        //   // TODO: navegue para a tela correspondente aqui.
+        // },
+      ),
       body: SafeArea(
         child: Stack(
           children: [
@@ -32,6 +48,9 @@ class _HomePageState extends State<HomePage> {
                   receitas: hasActivities ? 36.25 : 0.0,
                   despesas: hasActivities ? 25.00 : 0.0,
                   saldo: hasActivities ? 11.25 : 0.0,
+                  onMenuPressed: () {
+                    _scaffoldKey.currentState?.openDrawer();
+                  },
                 ),
 
                 Expanded(
@@ -86,8 +105,26 @@ class _HomePageState extends State<HomePage> {
       children: [
         FloatButton(
           icon: Icons.access_time,
-          color: const Color(0xFF4FA8FF),
-          function: () {},
+          color: Color(0xFF4FA8FF),
+          function: () => showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return GenericModal(
+                title: 'Começar um turno?',
+                content: Column(
+                  children: [
+                    Text('Restaurante vinculado: Açaí da Praia'),
+                    SizedBox(height: 20),
+                  ],
+                ),
+                confirmButtonText: 'Iniciar Turno',
+                confirmButtonIcon: Icon(
+                  Icons.play_arrow_outlined,
+                  color: Colors.black,
+                ),
+              );
+            },
+          ),
         ),
         const SizedBox(height: 12),
         FloatButton(
@@ -97,14 +134,14 @@ class _HomePageState extends State<HomePage> {
         ),
         const SizedBox(height: 12),
         FloatButton(
-          icon: Icons.delivery_dining, 
+          icon: Icons.delivery_dining,
           color: Color(0xFF388E3C),
           function: () => showDialog(
             context: context,
             builder: (BuildContext context) {
               return AutomaticDeliveryForm();
             },
-          ) ,
+          ),
         ),
       ],
     );

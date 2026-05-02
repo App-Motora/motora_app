@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:motora_app/components/primary_button.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class RegistroPage extends StatefulWidget {
   const RegistroPage({super.key});
@@ -133,18 +134,33 @@ class _RegistroPageState extends State<RegistroPage> {
                     label: 'Cadastrar',
                     icon: Icons.check_circle_outline,
                     color: const Color(0xFF388E3C),
-                    onPressed: () {
+                    onPressed: () async { 
                       if (_formKey.currentState!.validate()) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Processando cadastro...'),
-                          ),
-                        );
-                        Navigator.pop(context);
+                        try {
+                          await FirebaseAuth.instance.createUserWithEmailAndPassword(
+                            email: _emailController.text.trim(),
+                            password: _senhaController.text,
+                          );
+                          if (mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('Conta criada com sucesso!'), backgroundColor: Colors.green),
+                            );
+                            Navigator.pop(context); 
+                          }
+                        } on FirebaseAuthException catch (e) {
+                          String message = 'Ocorreu um erro ao cadastrar';
+                          if (e.code == 'email-already-in-use') {
+                            message = 'Este e-mail já está em uso';
+                          } else if (e.code == 'weak-password') {
+                            message = 'A senha é muito fraca';
+                          }                         
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text(message), backgroundColor: Colors.red),
+                          );
+                        }
                       }
                     },
                   ),
-
                   TextButton(
                     onPressed: () => Navigator.pop(context),
                     child: const Text(

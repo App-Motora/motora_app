@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:motora_app/components/primary_button.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -84,10 +85,28 @@ class _LoginPageState extends State<LoginPage> {
                   PrimaryButton(
                     label: 'Entrar',
                     icon: Icons.login,
-                    color: const Color(0xFF4FA8FF), // Azul
-                    onPressed: () {
+                    color: const Color(0xFF4FA8FF), 
+                    onPressed: () async {
                       if (_formKey.currentState!.validate()) {
-                        Navigator.pushReplacementNamed(context, '/home');
+                        try {
+                          await FirebaseAuth.instance.signInWithEmailAndPassword(
+                            email: _emailController.text.trim(),
+                            password: _passwordController.text,
+                          );
+                          if (mounted) {
+                            Navigator.pushReplacementNamed(context, '/home');
+                          }
+                        } on FirebaseAuthException catch (e) {
+                          String message = 'E-mail ou senha incorretos';
+                          if (e.code == 'user-not-found') {
+                            message = 'Usuário não encontrado';
+                          } else if (e.code == 'wrong-password') {
+                            message = 'Senha incorreta';
+                          }
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text(message), backgroundColor: Colors.red),
+                          );
+                        }
                       }
                     },
                   ),

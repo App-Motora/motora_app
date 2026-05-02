@@ -132,7 +132,7 @@ class _AutomaticDeliveryFormState extends State<AutomaticDeliveryForm> {
                   SizedBox(width: 12),
                   Expanded(
                     child: OutlinedButton(
-                      onPressed: () {}, // => Navigator.pop(context),
+                      onPressed: () => Navigator.pop(context), 
                       style: OutlinedButton.styleFrom(
                         backgroundColor: Colors.grey.shade200,
                         side: BorderSide(color: Colors.grey.shade300, width: 1),

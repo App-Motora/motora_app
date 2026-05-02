@@ -58,41 +58,102 @@ class _AutomaticDeliveryFormState extends State<AutomaticDeliveryForm> {
               Row(
                 children: [
                   Expanded(
-                    child: Container(
-                      padding: EdgeInsets.symmetric(horizontal: 12),
-                      decoration: BoxDecoration(
-                        border: Border.all(color: Colors.grey.shade300),
-                        borderRadius: BorderRadius.circular(8),
-                        color: Colors.white,
-                      ),
-                      child: DropdownButtonHideUnderline(
-                        child: DropdownButton<String>(
-                          value: restauranteSelecionado,
-                          isExpanded: true,
-                          dropdownColor: Colors.white,
-                          items: restaurantes.map((String value) {
-                            return DropdownMenuItem<String>(
+                    child: LayoutBuilder(
+                      builder: (context, constraints) {
+                        return DropdownMenu<String>(
+                          width: constraints.maxWidth,
+                          initialSelection: restauranteSelecionado,
+                          textStyle: const TextStyle(
+                            color: Colors.black,
+                            fontSize: 15,
+                          ),
+                          menuStyle: MenuStyle(
+                            backgroundColor: const WidgetStatePropertyAll(
+                              Colors.white,
+                            ),
+                            surfaceTintColor: const WidgetStatePropertyAll(
+                              Colors.transparent,
+                            ),
+                            shape: WidgetStatePropertyAll(
+                              RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                          ),
+                          inputDecorationTheme: InputDecorationTheme(
+                            filled: true,
+                            fillColor: Colors.white,
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 16,
+                            ),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                              borderSide: BorderSide(
+                                color: Colors.grey.shade300,
+                              ),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                              borderSide: const BorderSide(color: Colors.black),
+                            ),
+                          ),
+                          dropdownMenuEntries: restaurantes.map((String value) {
+                            final bool isSelected =
+                                value == restauranteSelecionado;
+
+                            return DropdownMenuEntry<String>(
                               value: value,
-                              child: Text(value),
+                              label: value,
+                              style: ButtonStyle(
+                                backgroundColor:
+                                    WidgetStateProperty.resolveWith((states) {
+                                      if (isSelected) {
+                                        return const Color(0xFFF1F1F1);
+                                      }
+                                      if (states.contains(
+                                        WidgetState.selected,
+                                      )) {
+                                        return const Color(0xFFF6F6F6);
+                                      }
+                                      if (states.contains(
+                                        WidgetState.hovered,
+                                      )) {
+                                        return const Color(0xFFF8F8F8);
+                                      }
+                                      return Colors.white;
+                                    }),
+                                foregroundColor: const WidgetStatePropertyAll(
+                                  Colors.black,
+                                ),
+                                overlayColor: const WidgetStatePropertyAll(
+                                  Color(0x1AF3D080),
+                                ),
+                              ),
                             );
                           }).toList(),
-                          onChanged: (newValue) {
+                          onSelected: (String? newValue) {
+                            if (newValue == null) return;
+
                             setState(() {
                               restauranteSelecionado = newValue;
                             });
                           },
-                        ),
-                      ),
+                        );
+                      },
                     ),
                   ),
-                  SizedBox(width: 10),
+                  const SizedBox(width: 10),
                   Container(
                     decoration: BoxDecoration(
-                      color: Color(0xFFF3D080),
+                      color: const Color(0xFFF3D080),
                       borderRadius: BorderRadius.circular(25),
                     ),
                     child: IconButton(
-                      icon: Icon(Icons.add, color: Colors.black),
+                      icon: const Icon(Icons.add, color: Colors.black),
                       onPressed: () {},
                     ),
                   ),

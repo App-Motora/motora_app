@@ -30,13 +30,13 @@ class _GenericModalState extends State<GenericModal> {
           color: Color(0xFFF2EDE4),
         ),
         child: Padding(
-          padding: EdgeInsets.all(20.0),
+          padding: EdgeInsets.fromLTRB(10, 15, 10, 15),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   SizedBox(width: 24),
                   Text(
@@ -59,9 +59,7 @@ class _GenericModalState extends State<GenericModal> {
                 children: [
                   Expanded(
                     child: ElevatedButton.icon(
-                      onPressed: () {
-                        // Navigator.pop(context);
-                      },
+                      onPressed: () {},
                       icon: widget.confirmButtonIcon ?? SizedBox.shrink(),
                       label: Text(
                         widget.confirmButtonText,

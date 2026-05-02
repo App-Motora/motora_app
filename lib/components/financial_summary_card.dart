@@ -21,7 +21,7 @@ class FinancialSummaryCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: Offset(0, 4),
           ),
@@ -30,17 +30,9 @@ class FinancialSummaryCard extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          _buildColumn(
-            'Receitas',
-            receitas,
-            Color(0xFF4FA8FF),
-          ), // Azul do print
-          _buildColumn(
-            'Despesas',
-            despesas,
-            Color(0xFFFF7E55),
-          ), // Laranja/Vermelho
-          _buildColumn('Saldo', saldo, Color(0xFF4CAF50)), // Verde
+          _buildColumn('Receitas', receitas, Color(0xFF4FA8FF)),
+          _buildColumn('Despesas', despesas, Color(0xFFFF7E55)),
+          _buildColumn('Saldo', saldo, Color(0xFF4CAF50)),
         ],
       ),
     );

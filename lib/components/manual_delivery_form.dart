@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:motora_app/models/delivery_model.dart';
+import 'package:motora_app/services/firestore_service.dart';
+import 'package:intl/intl.dart';
 
 class ManualDeliveryForm extends StatefulWidget {
   const ManualDeliveryForm({super.key});
@@ -251,7 +255,32 @@ class _ManualDeliveryFormState extends State<ManualDeliveryForm> {
                 children: [
                   Expanded(
                     child: ElevatedButton.icon(
-                      onPressed: () {},
+                      onPressed: () async {
+                        try {
+                          DateTime dataFormatada = DateFormat('dd/MM/yyyy').parse(_dataController.text);
+
+                          final novaEntrega = Entrega(
+                            restaurante: restauranteSelecionado!,
+                            valor: double.parse(_valorController.text.replaceAll(',', '.')),
+                            quilometragem: double.parse(_quilometragemController.text.replaceAll(',', '.')),
+                            data: dataFormatada,
+                            userId: FirebaseAuth.instance.currentUser!.uid,
+                          );
+
+                          await FirestoreService().salvarEntregaManual(novaEntrega);
+
+                          if (mounted) {
+                            Navigator.pop(context);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('Entrega cadastrada com sucesso!'), backgroundColor: Colors.green),
+                            );
+                          }
+                        } catch (e) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Erro ao cadastrar. Verifique os campos.'), backgroundColor: Colors.red),
+                          );
+                        }
+                      },
                       icon: const Icon(
                         Icons.check_circle_outline,
                         color: Colors.black,

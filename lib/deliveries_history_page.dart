@@ -3,6 +3,9 @@ import 'package:motora_app/components/activity_card.dart';
 import 'package:motora_app/components/float_button.dart';
 import 'package:motora_app/components/menu.dart';
 import 'package:motora_app/components/manual_delivery_form.dart';
+import 'package:motora_app/models/delivery_model.dart';
+import 'package:motora_app/services/firestore_service.dart';
+import 'package:intl/intl.dart';
 
 class DeliveriesHistoryPage extends StatefulWidget {
   const DeliveriesHistoryPage({super.key});
@@ -16,43 +19,6 @@ class _DeliveriesHistoryPageState extends State<DeliveriesHistoryPage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   final TextEditingController txtPesquisa = TextEditingController();
 
-  final List<List<Map<String, dynamic>>> todasEntregas = [
-    [
-      {
-        'time': '14:32',
-        'title': 'Entrega - Açaí da Praia',
-        'subtitle': '12.5 km rodados',
-        'amount': 12.50,
-        'isPositive': true,
-      },
-      {
-        'time': '15:34',
-        'title': 'Entrega - Açaí da Praia',
-        'subtitle': '3 km rodados',
-        'amount': 10.30,
-        'isPositive': true,
-      },
-    ],
-    [
-      {
-        'time': '15:34',
-        'title': 'Entrega - Açaí da Praia',
-        'subtitle': '3 km rodados',
-        'amount': 10.30,
-        'isPositive': true,
-      },
-    ],
-    [
-      {
-        'time': '15:34',
-        'title': 'Entrega - Açaí da Praia',
-        'subtitle': '3 km rodados',
-        'amount': 10.30,
-        'isPositive': true,
-      },
-    ],
-  ];
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -64,32 +30,44 @@ class _DeliveriesHistoryPageState extends State<DeliveriesHistoryPage> {
           children: [
             _buildTopBar(),
             Expanded(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: ListView(
-                  physics: const BouncingScrollPhysics(),
-                  children: [
-                    const SizedBox(height: 20),
-                    const Text(
-                      'Histórico',
-                      style: TextStyle(
-                        fontSize: 28,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 18),
-                    _buildSearchField(),
-                    const SizedBox(height: 24),
-                    for (int i = 0; i < todasEntregas.length; i++)
-                      if (todasEntregas[i].isNotEmpty) ...[
-                        _buildSection(
-                          i == 0 ? 'Hoje' : 'Ontem',
-                          todasEntregas[i],
+              child: StreamBuilder<List<Entrega>>(
+                stream: FirestoreService().buscarEntregas(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator(color: Color(0xFF388E3C)));
+                  }
+
+                  if (snapshot.hasError) {
+                    return const Center(child: Text('Erro ao carregar o histórico.'));
+                  }
+
+                  if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                    return const Center(
+                      child: Text('Nenhuma entrega registrada ainda.', style: TextStyle(fontSize: 16)),
+                    );
+                  }
+                  final entregas = snapshot.data!;
+
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: ListView(
+                      physics: const BouncingScrollPhysics(),
+                      children: [
+                        const SizedBox(height: 20),
+                        const Text(
+                          'Histórico',
+                          style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
                         ),
+                        const SizedBox(height: 18),
+                        _buildSearchField(),
+                        const SizedBox(height: 24),
+                        
+                        _buildSectionReal('Todas as Entregas', entregas),
                         const SizedBox(height: 22),
                       ],
-                  ],
-                ),
+                    ),
+                  );
+                },
               ),
             ),
           ],
@@ -152,7 +130,7 @@ class _DeliveriesHistoryPageState extends State<DeliveriesHistoryPage> {
     );
   }
 
-  Widget _buildSection(String title, List<Map<String, dynamic>> activities) {
+  Widget _buildSectionReal(String title, List<Entrega> entregas) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -161,17 +139,19 @@ class _DeliveriesHistoryPageState extends State<DeliveriesHistoryPage> {
           style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 16),
-        ...activities.map(
-          (activity) => ActivityCard(
+        ...entregas.map((entrega) {
+          final horaFormatada = DateFormat('HH:mm').format(entrega.data);
+
+          return ActivityCard(
             icon: Icons.location_on,
             iconBackgroundColor: const Color(0xFF388E3C),
-            time: activity['time'] as String,
-            title: activity['title'] as String,
-            subtitle: activity['subtitle'] as String,
-            amount: activity['amount'] as double,
-            isPositive: activity['isPositive'] as bool,
-          ),
-        ),
+            time: horaFormatada,
+            title: 'Entrega - ${entrega.restaurante}',
+            subtitle: '${entrega.quilometragem} km rodados',
+            amount: entrega.valor,
+            isPositive: true,
+          );
+        }), 
       ],
     );
   }

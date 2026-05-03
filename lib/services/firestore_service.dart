@@ -17,4 +17,23 @@ class FirestoreService {
       throw Exception('Erro ao salvar entrega: $e');
     }
   }
+  Stream<List<Entrega>> buscarEntregas() {
+    return _db
+        .collection('usuarios')
+        .doc(_uid)
+        .collection('entregas')
+        .orderBy('data', descending: true) 
+        .snapshots()
+        .map((snapshot) => snapshot.docs.map((doc) {
+              final data = doc.data();
+              return Entrega(
+                id: doc.id,
+                restaurante: data['restaurante'],
+                valor: data['valor'].toDouble(),
+                quilometragem: data['quilometragem'].toDouble(),
+                data: (data['data'] as Timestamp).toDate(), 
+                userId: data['userId'],
+              );
+            }).toList());
+  }
 }

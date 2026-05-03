@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:motora_app/components/activity_card.dart';
 import 'package:motora_app/components/float_button.dart';
 import 'package:motora_app/components/menu.dart';
+import 'package:motora_app/components/manual_delivery_form.dart';
 
 class DeliveriesHistoryPage extends StatefulWidget {
   const DeliveriesHistoryPage({super.key});
@@ -57,9 +58,7 @@ class _DeliveriesHistoryPageState extends State<DeliveriesHistoryPage> {
     return Scaffold(
       key: _scaffoldKey,
       backgroundColor: const Color(0xFFF5F2E9),
-      drawer: Menu(
-        selectedIndex: _activeMenuIndex,
-      ),
+      drawer: Menu(selectedIndex: _activeMenuIndex),
       body: SafeArea(
         child: Column(
           children: [
@@ -101,7 +100,12 @@ class _DeliveriesHistoryPageState extends State<DeliveriesHistoryPage> {
         child: FloatButton(
           icon: Icons.add,
           color: const Color(0xFF388E3C),
-          function: () {},
+          function: () => showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return ManualDeliveryForm();
+            },
+          ),
         ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,

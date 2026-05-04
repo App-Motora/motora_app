@@ -6,7 +6,11 @@ import 'package:motora_app/services/firestore_service.dart';
 import 'package:intl/intl.dart';
 
 class ManualDeliveryForm extends StatefulWidget {
-  const ManualDeliveryForm({super.key});
+  final Entrega? entrega;
+
+  const ManualDeliveryForm({super.key, this.entrega});
+
+  bool get isEditing => entrega != null;
 
   @override
   State<ManualDeliveryForm> createState() => _ManualDeliveryFormState();
@@ -43,6 +47,28 @@ class _ManualDeliveryFormState extends State<ManualDeliveryForm> {
       });
 
   @override
+  void initState() {
+    super.initState();
+
+    final entrega = widget.entrega;
+    if (entrega == null) return;
+
+    restauranteSelecionado = entrega.restaurante;
+    if (!restaurantes.contains(entrega.restaurante)) {
+      restaurantes.add(entrega.restaurante);
+    }
+
+    _valorController.text = entrega.valor
+        .toStringAsFixed(2)
+        .replaceAll('.', ',');
+    _quilometragemController.text = entrega.quilometragem.toString().replaceAll(
+      '.',
+      ',',
+    );
+    _dataController.text = DateFormat('dd/MM/yyyy').format(entrega.data);
+  }
+
+  @override
   void dispose() {
     _valorController.dispose();
     _quilometragemController.dispose();
@@ -52,9 +78,19 @@ class _ManualDeliveryFormState extends State<ManualDeliveryForm> {
 
   Future<void> _selecionarData() async {
     final DateTime now = DateTime.now();
+    DateTime initialDate = widget.entrega?.data ?? now;
+
+    if (_dataController.text.isNotEmpty) {
+      try {
+        initialDate = DateFormat(
+          'dd/MM/yyyy',
+        ).parseStrict(_dataController.text);
+      } catch (_) {}
+    }
+
     final DateTime? dataSelecionada = await showDatePicker(
       context: context,
-      initialDate: now,
+      initialDate: initialDate,
       firstDate: DateTime(2020),
       lastDate: DateTime(now.year + 5),
     );
@@ -89,9 +125,9 @@ class _ManualDeliveryFormState extends State<ManualDeliveryForm> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   const SizedBox(width: 24),
-                  const Text(
-                    'Cadastrar Entrega',
-                    style: TextStyle(
+                  Text(
+                    widget.isEditing ? 'Editar Entrega' : 'Cadastrar Entrega',
+                    style: const TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.bold,
                       color: _textColor,
@@ -257,27 +293,59 @@ class _ManualDeliveryFormState extends State<ManualDeliveryForm> {
                     child: ElevatedButton.icon(
                       onPressed: () async {
                         try {
-                          DateTime dataFormatada = DateFormat('dd/MM/yyyy').parse(_dataController.text);
+                          final dataFormatada = DateFormat(
+                            'dd/MM/yyyy',
+                          ).parseStrict(_dataController.text);
 
-                          final novaEntrega = Entrega(
+                          final entrega = Entrega(
+                            id: widget.entrega?.id,
                             restaurante: restauranteSelecionado!,
-                            valor: double.parse(_valorController.text.replaceAll(',', '.')),
-                            quilometragem: double.parse(_quilometragemController.text.replaceAll(',', '.')),
+                            valor: double.parse(
+                              _valorController.text.replaceAll(',', '.'),
+                            ),
+                            quilometragem: double.parse(
+                              _quilometragemController.text.replaceAll(
+                                ',',
+                                '.',
+                              ),
+                            ),
                             data: dataFormatada,
                             userId: FirebaseAuth.instance.currentUser!.uid,
                           );
 
-                          await FirestoreService().salvarEntregaManual(novaEntrega);
-
-                          if (mounted) {
-                            Navigator.pop(context);
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Entrega cadastrada com sucesso!'), backgroundColor: Colors.green),
+                          if (widget.isEditing) {
+                            await FirestoreService().atualizarEntrega(entrega);
+                          } else {
+                            await FirestoreService().salvarEntregaManual(
+                              entrega,
                             );
                           }
-                        } catch (e) {
+
+                          if (!context.mounted) return;
+
+                          Navigator.pop(context);
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Erro ao cadastrar. Verifique os campos.'), backgroundColor: Colors.red),
+                            SnackBar(
+                              content: Text(
+                                widget.isEditing
+                                    ? 'Entrega atualizada com sucesso!'
+                                    : 'Entrega cadastrada com sucesso!',
+                              ),
+                              backgroundColor: Colors.green,
+                            ),
+                          );
+                        } catch (e) {
+                          if (!context.mounted) return;
+
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                widget.isEditing
+                                    ? 'Erro ao atualizar. Verifique os campos.'
+                                    : 'Erro ao cadastrar. Verifique os campos.',
+                              ),
+                              backgroundColor: Colors.red,
+                            ),
                           );
                         }
                       },
@@ -285,9 +353,9 @@ class _ManualDeliveryFormState extends State<ManualDeliveryForm> {
                         Icons.check_circle_outline,
                         color: Colors.black,
                       ),
-                      label: const Text(
-                        'Cadastrar',
-                        style: TextStyle(color: Colors.black),
+                      label: Text(
+                        widget.isEditing ? 'Salvar' : 'Cadastrar',
+                        style: const TextStyle(color: Colors.black),
                       ),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: _accentColor,

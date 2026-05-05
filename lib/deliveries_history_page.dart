@@ -356,137 +356,6 @@ class _DeliveriesHistoryPageState extends State<DeliveriesHistoryPage> {
     );
   }
 
-  void _abrirAcoesEntrega(BuildContext context, Entrega entrega) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: const Color(0xFFF5F2E9),
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      useSafeArea: true,
-      builder: (modalContext) {
-        return Padding(
-          padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: 44,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: Colors.black26,
-                  borderRadius: BorderRadius.circular(999),
-                ),
-              ),
-              const SizedBox(height: 16),
-              ListTile(
-                leading: const Icon(Icons.edit, color: Color(0xFF388E3C)),
-                title: const Text('Editar entrega'),
-                subtitle: Text(entrega.restaurante),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                onTap: () {
-                  Navigator.pop(modalContext);
-                  _abrirEditarEntrega(entrega);
-                },
-              ),
-              ListTile(
-                leading: const Icon(
-                  Icons.delete_outline,
-                  color: Color(0xFFCC3300),
-                ),
-                title: const Text('Excluir entrega'),
-                subtitle: const Text('Remover esta entrega do histórico'),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                onTap: () {
-                  Navigator.pop(modalContext);
-                  _confirmarExclusaoEntrega(entrega);
-                },
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  void _abrirEditarEntrega(Entrega entrega) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) => ManualDeliveryForm(entrega: entrega),
-    );
-  }
-
-  Future<void> _confirmarExclusaoEntrega(Entrega entrega) async {
-    final entregaId = entrega.id;
-
-    if (entregaId == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Não foi possível identificar esta entrega.'),
-          backgroundColor: Colors.red,
-        ),
-      );
-      return;
-    }
-
-    final confirmar = await showDialog<bool>(
-      context: context,
-      builder: (dialogContext) {
-        return AlertDialog(
-          backgroundColor: const Color(0xFFF5F2E9),
-          title: const Text('Excluir entrega?'),
-          content: Text(
-            'A entrega de ${entrega.restaurante} será removida do histórico.',
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(dialogContext, false),
-              child: const Text(
-                'Cancelar',
-                style: TextStyle(color: Colors.black87),
-              ),
-            ),
-            TextButton(
-              onPressed: () => Navigator.pop(dialogContext, true),
-              child: const Text(
-                'Excluir',
-                style: TextStyle(color: Color(0xFFCC3300)),
-              ),
-            ),
-          ],
-        );
-      },
-    );
-
-    if (confirmar != true) return;
-
-    try {
-      await FirestoreService().excluirEntrega(entregaId);
-
-      if (!mounted) return;
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Entrega excluída com sucesso!'),
-          backgroundColor: Colors.green,
-        ),
-      );
-    } catch (e) {
-      if (!mounted) return;
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Erro ao excluir entrega.'),
-          backgroundColor: Colors.red,
-        ),
-      );
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -785,7 +654,29 @@ class _DeliveriesHistoryPageState extends State<DeliveriesHistoryPage> {
             subtitle: '${entrega.quilometragem} km rodados',
             amount: entrega.valor,
             isPositive: true,
-            onLongPress: () => _abrirAcoesEntrega(context, entrega),
+            actions: ActivityCardActionConfig(
+              editTitle: 'Editar entrega',
+              editSubtitle: entrega.restaurante,
+              deleteTitle: 'Excluir entrega',
+              deleteSubtitle: 'Remover esta entrega do histórico',
+              deleteConfirmationTitle: 'Excluir entrega?',
+              deleteConfirmationMessage:
+                  'A entrega de ${entrega.restaurante} será removida do histórico.',
+              deleteSuccessMessage: 'Entrega excluída com sucesso!',
+              deleteErrorMessage: 'Erro ao excluir entrega.',
+              editBuilder: (context) => ManualDeliveryForm(entrega: entrega),
+              onDelete: () async {
+                final entregaId = entrega.id;
+
+                if (entregaId == null) {
+                  throw const ActivityCardActionException(
+                    'Não foi possível identificar esta entrega.',
+                  );
+                }
+
+                await FirestoreService().excluirEntrega(entregaId);
+              },
+            ),
           );
         }),
       ],

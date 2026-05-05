@@ -30,18 +30,22 @@ class _GenericModalState extends State<GenericModal> {
           color: Color(0xFFF2EDE4),
         ),
         child: Padding(
-          padding: EdgeInsets.all(20.0),
+          padding: EdgeInsets.fromLTRB(10, 15, 10, 15),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   SizedBox(width: 24),
                   Text(
                     widget.title,
-                    style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Color(0xFF333333)),
+                    style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF333333),
+                    ),
                   ),
                   IconButton(
                     icon: Icon(Icons.close, color: Colors.black),
@@ -55,38 +59,46 @@ class _GenericModalState extends State<GenericModal> {
                 children: [
                   Expanded(
                     child: ElevatedButton.icon(
-                      onPressed: () {
-                        // Navigator.pop(context);
-                      },
+                      onPressed: () {},
                       icon: widget.confirmButtonIcon ?? SizedBox.shrink(),
-                      label: Text(widget.confirmButtonText, style: TextStyle(color: Colors.black)),
+                      label: Text(
+                        widget.confirmButtonText,
+                        style: TextStyle(color: Colors.black),
+                      ),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Color(0xFFF3D080),
                         padding: EdgeInsets.symmetric(vertical: 15),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
                       ),
                     ),
                   ),
                   SizedBox(width: 12),
                   Expanded(
                     child: OutlinedButton(
-                      onPressed: () {}, // => Navigator.pop(context),
+                      onPressed: () => Navigator.pop(context),
                       style: OutlinedButton.styleFrom(
                         backgroundColor: Colors.grey.shade200,
                         side: BorderSide(color: Colors.grey.shade300, width: 1),
                         padding: EdgeInsets.symmetric(vertical: 15),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
                         overlayColor: Colors.grey,
                       ),
-                      child: Text('Cancelar', style: TextStyle(color: Colors.black)),
+                      child: Text(
+                        'Cancelar',
+                        style: TextStyle(color: Colors.black),
+                      ),
                     ),
                   ),
                 ],
               ),
-            ]
-          )
-        )
-      )
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

@@ -7,7 +7,7 @@ class ShiftSummary extends StatelessWidget {
   final double receitas;
   final double despesas;
   final double saldo;
-  
+
   const ShiftSummary({
     super.key,
     required this.shiftDuration,
@@ -30,9 +30,11 @@ class ShiftSummary extends StatelessWidget {
               content: Column(
                 children: [
                   Text('Tempo de turno: $shiftDuration'),
-                  Text('Quilômetros rodados: ${kilometersDriven.toStringAsFixed(0)}km'),
+                  Text(
+                    'Quilômetros rodados: ${kilometersDriven.toStringAsFixed(0)}km',
+                  ),
                   Text('Restaurante vinculado: Açaí da Praia'),
-                  SizedBox(height: 20)
+                  SizedBox(height: 20),
                 ],
               ),
               confirmButtonText: 'Finalizar Turno',

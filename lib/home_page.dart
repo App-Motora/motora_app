@@ -15,7 +15,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   List activities = [];
-  int _activeMenuIndex = 3;
+  int _activeMenuIndex = 0;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
@@ -26,13 +26,6 @@ class _HomePageState extends State<HomePage> {
       backgroundColor: const Color(0xFFF5F2E9),
       drawer: Menu(
         selectedIndex: _activeMenuIndex,
-        // onItemSelected: (index) {
-        //   setState(() {
-        //     _activeMenuIndex = index;
-        //   });
-        //   Navigator.of(context).pop();
-        //   // TODO: navegue para a tela correspondente aqui.
-        // },
       ),
       body: SafeArea(
         child: Stack(

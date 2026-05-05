@@ -40,10 +40,7 @@ class _HeaderState extends State<Header> {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      decoration: BoxDecoration(
-        color: Color(0xFFF7E18B),
-        borderRadius: BorderRadius.vertical(bottom: Radius.circular(24)),
-      ),
+      decoration: BoxDecoration(color: Color(0xFFF7E18B)),
       padding: EdgeInsets.only(top: 15, left: 20, right: 20, bottom: 15),
       child: Column(
         spacing: 10,

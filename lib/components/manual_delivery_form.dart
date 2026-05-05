@@ -185,9 +185,6 @@ class _ManualDeliveryFormState extends State<ManualDeliveryForm> {
                                 color: Colors.grey.shade300,
                               ),
                             ),
-                            // focusedBorder: OutlineInputBorder(
-                            //   borderRadius: BorderRadius.circular(8),
-                            //   borderSide: const BorderSide(color: _accentColor),
                             // ),
                           ),
                           dropdownMenuEntries: restaurantes.map((String value) {

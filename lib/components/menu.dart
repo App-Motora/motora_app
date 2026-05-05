@@ -122,13 +122,13 @@ class _MenuState extends State<Menu> {
       padding: const EdgeInsets.symmetric(horizontal: 18.0, vertical: 6.0),
       child: Material(
         color: selected
-            ? const Color(0xFF4FA8FF).withOpacity(0.16)
+            ? const Color(0xFF4FA8FF).withValues(alpha: 0.16)
             : Colors.transparent,
         borderRadius: BorderRadius.circular(14),
         child: ListTile(
           dense: true,
           minLeadingWidth: 32,
-          splashColor: const Color(0xFF4FA8FF).withOpacity(0.28),
+          splashColor: const Color(0xFF4FA8FF).withValues(alpha: 0.28),
           contentPadding: const EdgeInsets.symmetric(horizontal: 18.0),
           leading: Icon(icon, size: 22, color: Colors.black87),
           title: Text(

@@ -79,6 +79,9 @@ class _ManualDeliveryFormState extends State<ManualDeliveryForm> {
   Future<void> _selecionarData() async {
     final DateTime now = DateTime.now();
     DateTime initialDate = widget.entrega?.data ?? now;
+    if (initialDate.isAfter(now)) {
+      initialDate = now;
+    }
 
     if (_dataController.text.isNotEmpty) {
       try {
@@ -92,7 +95,7 @@ class _ManualDeliveryFormState extends State<ManualDeliveryForm> {
       context: context,
       initialDate: initialDate,
       firstDate: DateTime(2020),
-      lastDate: DateTime(now.year + 5),
+      lastDate: now,
     );
 
     if (dataSelecionada == null) return;

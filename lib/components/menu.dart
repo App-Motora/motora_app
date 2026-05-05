@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:motora_app/login_page.dart';
 
 class Menu extends StatefulWidget {
   final int selectedIndex;
-  final ValueChanged<int>? onItemSelected;
 
-  const Menu({super.key, this.selectedIndex = 0, this.onItemSelected});
+  const Menu({super.key, this.selectedIndex = 0});
 
   @override
   State<Menu> createState() => _MenuState();
@@ -28,19 +29,73 @@ class _MenuState extends State<Menu> {
   }
 
   final List<_MenuItemData> _items = const [
-    _MenuItemData(Icons.history, 'Histórico de Atividades', '/home'),
-    _MenuItemData(Icons.swap_vert, 'Despesas', null),
-    _MenuItemData(Icons.delivery_dining, 'Entregas', '/deliveries_history'),
-    _MenuItemData(Icons.analytics, 'Relatórios', null),
-    _MenuItemData(Icons.restaurant, 'Restaurantes', null),
+    _MenuItemData(Icons.swap_vert, 'Despesas'),
+    _MenuItemData(Icons.delivery_dining, 'Entregas'),
+    _MenuItemData(Icons.analytics, 'Relatórios'),
+    _MenuItemData(Icons.history, 'Histórico de Atividades'),
+    _MenuItemData(Icons.restaurant, 'Restaurantes'),
   ];
+
+  void _mostrarConfirmacaoSaida(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: Colors.white,
+          surfaceTintColor: Colors.transparent,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          title: const Text(
+            'Confirmar Saída',
+            textAlign: TextAlign.center,
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+          content: const Text(
+            'Você deseja realmente sair da sua conta?',
+            textAlign: TextAlign.center,
+            style: TextStyle(color: Colors.black87),
+          ),
+          actionsAlignment: MainAxisAlignment.center,
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text(
+                'Cancelar',
+                style: TextStyle(color: Colors.black),
+              ),
+            ),
+            TextButton(
+              onPressed: () async {
+                await FirebaseAuth.instance.signOut();
+                if (context.mounted) {
+                  Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(builder: (context) => const LoginPage()),
+                    (route) => false,
+                  );
+                }
+              },
+              child: const Text(
+                'Sair',
+                style: TextStyle(
+                  color: Colors.redAccent,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
       width: MediaQuery.of(context).size.width * 0.65,
       child: Drawer(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
         backgroundColor: Colors.white,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -49,23 +104,23 @@ class _MenuState extends State<Menu> {
               width: double.infinity,
               color: const Color(0xFFF7E18B),
               padding: const EdgeInsets.fromLTRB(20.0, 26.0, 20.0, 18.0),
-              child: Row(
+              child: const Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   CircleAvatar(
                     radius: 26,
                     backgroundColor: Colors.white,
-                    child: const Icon(
+                    child: Icon(
                       Icons.person,
                       color: Color(0xFFF7E18B),
                       size: 28,
                     ),
                   ),
-                  const SizedBox(width: 16),
+                  SizedBox(width: 16),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      children: const [
+                      children: [
                         Text(
                           'Fulano',
                           style: TextStyle(
@@ -91,10 +146,40 @@ class _MenuState extends State<Menu> {
                 },
               ),
             ),
-
             const Divider(height: 0, thickness: 1),
+            Padding(
+              padding: const EdgeInsets.only(top: 16.0, bottom: 8.0),
+              child: Center(
+                child: InkWell(
+                  onTap: () => _mostrarConfirmacaoSaida(context),
+                  borderRadius: BorderRadius.circular(14),
+                  child: const Padding(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 16.0,
+                      vertical: 8.0,
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.logout, size: 22, color: Colors.redAccent),
+                        SizedBox(width: 8),
+                        Text(
+                          'Sair',
+                          style: TextStyle(
+                            color: Colors.redAccent,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 16,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+
             const Padding(
-              padding: EdgeInsets.symmetric(vertical: 18.0),
+              padding: EdgeInsets.only(bottom: 18.0),
               child: Center(
                 child: Text(
                   'Motora App',
@@ -118,13 +203,13 @@ class _MenuState extends State<Menu> {
       padding: const EdgeInsets.symmetric(horizontal: 18.0, vertical: 6.0),
       child: Material(
         color: selected
-            ? const Color(0xFF4FA8FF).withOpacity(0.16)
+            ? const Color(0xFF4FA8FF).withValues(alpha: 0.16)
             : Colors.transparent,
         borderRadius: BorderRadius.circular(14),
         child: ListTile(
           dense: true,
           minLeadingWidth: 32,
-          splashColor: const Color(0xFF4FA8FF).withOpacity(0.28),
+          splashColor: const Color(0xFF4FA8FF).withValues(alpha: 0.28),
           contentPadding: const EdgeInsets.symmetric(horizontal: 18.0),
           leading: Icon(icon, size: 22, color: Colors.black87),
           title: Text(
@@ -142,11 +227,6 @@ class _MenuState extends State<Menu> {
             setState(() {
               _selectedIndex = index;
             });
-            if (widget.onItemSelected != null) {
-              widget.onItemSelected?.call(index);
-            } else {
-              _navigateToRoute(index, context);
-            }
           },
         ),
       ),
@@ -157,20 +237,6 @@ class _MenuState extends State<Menu> {
 class _MenuItemData {
   final IconData icon;
   final String title;
-  final String? routeName;
 
-  const _MenuItemData(this.icon, this.title, this.routeName);
-}
-
-extension on _MenuState {
-  void _navigateToRoute(int index, BuildContext context) {
-    final route = _items[index].routeName;
-    if (route == null) return;
-
-    final currentRoute = ModalRoute.of(context)?.settings.name;
-    Navigator.of(context).pop();
-    if (currentRoute != route) {
-      Navigator.of(context).pushReplacementNamed(route);
-    }
-  }
+  const _MenuItemData(this.icon, this.title);
 }

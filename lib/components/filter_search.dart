@@ -75,6 +75,8 @@ class FilterSearch<T> extends StatefulWidget {
   final void Function(T) onLongPress;
   final String searchHint;
   final String sectionTitle;
+  final String categoryFilterLabel;
+  final ActivityCardActionConfig Function(T) activityCardActions;
 
   const FilterSearch({
     super.key,
@@ -89,6 +91,8 @@ class FilterSearch<T> extends StatefulWidget {
     required this.onLongPress,
     this.searchHint = 'Pesquise',
     this.sectionTitle = 'Itens',
+    this.categoryFilterLabel = 'Categoria',
+    required this.activityCardActions
   });
 
   @override
@@ -169,9 +173,9 @@ class _FilterSearchState<T> extends State<FilterSearch<T>> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
-                        'Filtrar por Categoria',
-                        style: TextStyle(
+                      Text(
+                        'Filtrar por ${widget.categoryFilterLabel}',
+                        style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
                         ),
@@ -500,8 +504,8 @@ class _FilterSearchState<T> extends State<FilterSearch<T>> {
           ),
           label: Text(
             _categoriasSelecionadas.isEmpty
-                ? 'Categoria'
-                : 'Categoria (${_categoriasSelecionadas.length})',
+                ? widget.categoryFilterLabel
+                : '${widget.categoryFilterLabel} (${_categoriasSelecionadas.length})',
             style: TextStyle(
               color: _categoriasSelecionadas.isNotEmpty
                   ? Colors.white
@@ -601,7 +605,7 @@ class _FilterSearchState<T> extends State<FilterSearch<T>> {
             subtitle: widget.getSubtitle(item),
             amount: widget.getAmount(item),
             isPositive: widget.getIsPositive(item),
-            onLongPress: () => widget.onLongPress(item),
+            actions: widget.activityCardActions(item),
           );
         }),
       ],

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:motora_app/components/activity_card.dart';
 import 'package:motora_app/components/filter_search.dart';
 import 'package:motora_app/components/float_button.dart';
 import 'package:motora_app/components/menu.dart';
@@ -190,6 +191,8 @@ class _DeliveriesHistoryPageState extends State<DeliveriesHistoryPage> {
                     onLongPress: (entrega) => _abrirAcoesEntrega(context, entrega),
                     searchHint: 'Pesquise a entrega',
                     sectionTitle: 'Histórico',
+                    categoryFilterLabel: 'Restaurante',
+                    activityCardActions:(entrega) => _activityActionsConfig(entrega)
                   );
                 },
               ),
@@ -231,6 +234,32 @@ class _DeliveriesHistoryPageState extends State<DeliveriesHistoryPage> {
           const SizedBox(width: 48),
         ],
       ),
+    );
+  }
+
+  ActivityCardActionConfig _activityActionsConfig(Entrega entrega) {
+    return ActivityCardActionConfig(
+      editTitle: 'Editar entrega',
+      editSubtitle: entrega.restaurante,
+      deleteTitle: 'Excluir entrega',
+      deleteSubtitle: 'Remover esta entrega do histórico',
+      deleteConfirmationTitle: 'Excluir entrega?',
+      deleteConfirmationMessage:
+          'A entrega de ${entrega.restaurante} será removida do histórico.',
+      deleteSuccessMessage: 'Entrega excluída com sucesso!',
+      deleteErrorMessage: 'Erro ao excluir entrega.',
+      editBuilder: (context) => ManualDeliveryForm(entrega: entrega),
+      onDelete: () async {
+        final entregaId = entrega.id;
+
+        if (entregaId == null) {
+          throw const ActivityCardActionException(
+            'Não foi possível identificar esta entrega.',
+          );
+        }
+
+        await FirestoreService().excluirEntrega(entregaId);
+      },
     );
   }
 }

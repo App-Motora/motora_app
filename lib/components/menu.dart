@@ -4,8 +4,9 @@ import 'package:motora_app/login_page.dart';
 
 class Menu extends StatefulWidget {
   final int selectedIndex;
+  final ValueChanged<int>? onItemSelected;
 
-  const Menu({super.key, this.selectedIndex = 0});
+  const Menu({super.key, this.selectedIndex = 0, this.onItemSelected});
 
   @override
   State<Menu> createState() => _MenuState();
@@ -29,11 +30,11 @@ class _MenuState extends State<Menu> {
   }
 
   final List<_MenuItemData> _items = const [
-    _MenuItemData(Icons.swap_vert, 'Despesas'),
-    _MenuItemData(Icons.delivery_dining, 'Entregas'),
-    _MenuItemData(Icons.analytics, 'Relatórios'),
-    _MenuItemData(Icons.history, 'Histórico de Atividades'),
-    _MenuItemData(Icons.restaurant, 'Restaurantes'),
+    _MenuItemData(Icons.history, 'Histórico de Atividades', '/home'),
+    _MenuItemData(Icons.swap_vert, 'Despesas', null),
+    _MenuItemData(Icons.delivery_dining, 'Entregas', '/deliveries_history'),
+    _MenuItemData(Icons.analytics, 'Relatórios', null),
+    _MenuItemData(Icons.restaurant, 'Restaurantes', null),
   ];
 
   void _mostrarConfirmacaoSaida(BuildContext context) {
@@ -227,6 +228,11 @@ class _MenuState extends State<Menu> {
             setState(() {
               _selectedIndex = index;
             });
+            if (widget.onItemSelected != null) {
+              widget.onItemSelected?.call(index);
+            } else {
+              _navigateToRoute(index, context);
+            }
           },
         ),
       ),
@@ -237,6 +243,20 @@ class _MenuState extends State<Menu> {
 class _MenuItemData {
   final IconData icon;
   final String title;
+  final String? routeName;
 
-  const _MenuItemData(this.icon, this.title);
+  const _MenuItemData(this.icon, this.title, this.routeName);
+}
+
+extension on _MenuState {
+  void _navigateToRoute(int index, BuildContext context) {
+    final route = _items[index].routeName;
+    if (route == null) return;
+
+    final currentRoute = ModalRoute.of(context)?.settings.name;
+    Navigator.of(context).pop();
+    if (currentRoute != route) {
+      Navigator.of(context).pushReplacementNamed(route);
+    }
+  }
 }

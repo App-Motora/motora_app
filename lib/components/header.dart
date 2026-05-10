@@ -27,9 +27,9 @@ class Header extends StatefulWidget {
 }
 
 class _HeaderState extends State<Header> {
-  String selectedRestaurant = 'Açaí da Praia';
+  String restauranteSelecionado = 'Açaí da Praia';
 
-  final List<String> restaurants = [
+  final List<String> restaurantes = [
     'Açaí da Praia',
     'Pizzaria Central',
     'Hambúrguer do Zé',
@@ -41,52 +41,82 @@ class _HeaderState extends State<Header> {
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(color: Color(0xFFF7E18B)),
-      padding: EdgeInsets.only(top: 15, left: 20, right: 20, bottom: 15),
+      padding: EdgeInsets.only(top: 15, left: 15, right: 15, bottom: 15),
       child: Column(
         spacing: 10,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              IconButton(
-                icon: const Icon(Icons.menu, size: 30),
-                onPressed: widget.onMenuPressed,
-              ),
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: 5),
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.5),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: DropdownButtonHideUnderline(
-                  child: DropdownButton<String>(
-                    value: selectedRestaurant,
-                    icon: Icon(Icons.chevron_right, color: Colors.black),
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
-                      fontSize: 14,
-                    ),
-                    onChanged: (String? newValue) {
-                      setState(() {
-                        selectedRestaurant = newValue!;
-                      });
-                    },
-                    dropdownColor: Colors.white,
-                    alignment: Alignment.center,
-                    items: restaurants.map<DropdownMenuItem<String>>((
-                      String value,
-                    ) {
-                      return DropdownMenuItem<String>(
-                        value: value,
-                        child: Text(value),
-                      );
-                    }).toList(),
+          SizedBox(
+            width: double.infinity,
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: IconButton(
+                    icon: const Icon(Icons.menu, size: 30),
+                    onPressed: widget.onMenuPressed,
                   ),
                 ),
-              ),
-              SizedBox(width: 28),
-            ],
+                Center(
+                  child: DropdownMenu<String>(
+                    inputDecorationTheme: InputDecorationThemeData(
+                      filled: true,
+                      fillColor: Colors.white.withValues(alpha: 0.5),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(20),
+                        borderSide: BorderSide.none,
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(20),
+                        borderSide: BorderSide.none,
+                      ),
+                    ),
+                    initialSelection: restauranteSelecionado,
+                    dropdownMenuEntries: restaurantes.map((String value) {
+                      final bool isSelected =
+                        value == restauranteSelecionado;
+                              
+                      return DropdownMenuEntry<String>(
+                        value: value,
+                        label: value,
+                        style: ButtonStyle(
+                          backgroundColor:
+                              WidgetStateProperty.resolveWith((states) {
+                                if (isSelected) {
+                                  return const Color(0xFFF1F1F1);
+                                }
+                                if (states.contains(
+                                  WidgetState.selected,
+                                )) {
+                                  return const Color(0xFFF6F6F6);
+                                }
+                                if (states.contains(
+                                  WidgetState.hovered,
+                                )) {
+                                  return const Color(0xFFF8F8F8);
+                                }
+                                return Colors.white;
+                              }),
+                          foregroundColor: const WidgetStatePropertyAll(
+                            Colors.black,
+                          ),
+                          overlayColor: const WidgetStatePropertyAll(
+                            Color(0x1AF3D080),
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                    onSelected: (String? newValue) {
+                      if (newValue == null) return;
+                              
+                      setState(() {
+                        restauranteSelecionado = newValue;
+                      });
+                    },
+                  ),
+                ),
+              ],
+            ),
           ),
           ShiftSummary(
             shiftDuration: widget.shiftDuration,

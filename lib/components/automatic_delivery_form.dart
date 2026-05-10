@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:motora_app/controllers/delivery_tracking_controller.dart';
 import 'package:motora_app/models/delivery_tracking_result_model.dart';
+import 'package:motora_app/services/google_maps_service.dart';
 
 class AutomaticDeliveryForm extends StatefulWidget {
   const AutomaticDeliveryForm({super.key});
@@ -25,6 +26,7 @@ class _AutomaticDeliveryFormState extends State<AutomaticDeliveryForm> {
 
   String? restauranteSelecionado = 'Açaí da Praia';
   DeliveryTrackingResult? _finishedResult;
+  bool _isFinishing = false;
 
   final List<String> restaurantes = [
     'Açaí da Praia',
@@ -74,17 +76,46 @@ class _AutomaticDeliveryFormState extends State<AutomaticDeliveryForm> {
   }
 
   Future<void> _finishDelivery() async {
+    setState(() {
+      _isFinishing = true; // Inicia o loading
+    });
+
     try {
-      final result = await _trackingController.finish();
+      // 1. Pega o resultado bruto do GPS
+      final rawResult = await _trackingController.finish();
+
+      // 2. Instancia o serviço e chama o Google Maps passando a rota bruta
+      final googleMapsService = GoogleMapsService();
+      final quilometragemLimpa = await googleMapsService.calcularDistanciaReal(
+        rawResult.path,
+      );
+
+      // 3. Sobrescreve o resultado bruto com a nova distância em metros
+      final resultCorrigido = DeliveryTrackingResult(
+        restaurant: rawResult.restaurant,
+        paymentProfile: rawResult.paymentProfile,
+        totalDistanceMeters:
+            quilometragemLimpa * 1000, // Converte KM de volta para Metros
+        startedAt: rawResult.startedAt,
+        endedAt: rawResult.endedAt,
+        path: rawResult.path,
+      );
 
       if (!mounted) return;
 
+      // 4. Mostra a tela final (ResultView) com o dado validado
       setState(() {
-        _finishedResult = result;
+        _finishedResult = resultCorrigido;
       });
-    } catch (_) {
+    } catch (e) {
       if (!mounted) return;
-      _showMessage('Não foi possível finalizar a entrega.', Colors.red);
+      _showMessage('Erro ao processar rota com o Google Maps.', Colors.red);
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isFinishing = false; // Encerra o loading
+        });
+      }
     }
   }
 
@@ -432,14 +463,25 @@ class _AutomaticDeliveryFormState extends State<AutomaticDeliveryForm> {
             const SizedBox(width: 12),
             Expanded(
               child: OutlinedButton.icon(
-                onPressed: _finishDelivery,
-                icon: const Icon(
-                  Icons.stop_circle_outlined,
-                  color: Color(0xFFCC3300),
-                ),
-                label: const Text(
-                  'Finalizar',
-                  style: TextStyle(color: Color(0xFFCC3300)),
+                // Desabilita o clique se estiver carregando
+                onPressed: _isFinishing ? null : _finishDelivery,
+                // Troca o ícone por um círculo de progresso
+                icon: _isFinishing
+                    ? const SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Color(0xFFCC3300),
+                        ),
+                      )
+                    : const Icon(
+                        Icons.stop_circle_outlined,
+                        color: Color(0xFFCC3300),
+                      ),
+                label: Text(
+                  _isFinishing ? 'Calculando...' : 'Finalizar',
+                  style: const TextStyle(color: Color(0xFFCC3300)),
                 ),
                 style: OutlinedButton.styleFrom(
                   backgroundColor: Colors.white,

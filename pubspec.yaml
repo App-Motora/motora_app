@@ -12,6 +12,7 @@ dependencies:
   firebase_core: ^4.7.0
   flutter:
     sdk: flutter
+  geolocator: ^14.0.2
   intl: ^0.20.2
 
 dev_dependencies:

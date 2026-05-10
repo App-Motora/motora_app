@@ -1,12 +1,31 @@
 import 'package:flutter/material.dart';
+import 'package:motora_app/controllers/delivery_tracking_controller.dart';
+import 'package:motora_app/models/delivery_tracking_result_model.dart';
 
 class AutomaticDeliveryForm extends StatefulWidget {
+  const AutomaticDeliveryForm({super.key});
+
   @override
   State<AutomaticDeliveryForm> createState() => _AutomaticDeliveryFormState();
 }
 
 class _AutomaticDeliveryFormState extends State<AutomaticDeliveryForm> {
+  static const Color _modalBackgroundColor = Color(0xFFF2EDE4);
+  static const Color _fieldBackgroundColor = Colors.white;
+  static const Color _disabledFieldColor = Color(0xFFE4E1DA);
+  static const Color _accentColor = Color(0xFFF3D080);
+  static const Color _successColor = Color(0xFF388E3C);
+  static const Color _textColor = Color(0xFF333333);
+
+  final DeliveryTrackingController _trackingController =
+      DeliveryTrackingController();
+  final TextEditingController _pagamentoController = TextEditingController(
+    text: 'R\$ 3,00/km',
+  );
+
   String? restauranteSelecionado = 'Açaí da Praia';
+  DeliveryTrackingResult? _finishedResult;
+
   final List<String> restaurantes = [
     'Açaí da Praia',
     'Pizzaria do Bairro',
@@ -114,185 +133,206 @@ class _AutomaticDeliveryFormState extends State<AutomaticDeliveryForm> {
 
   @override
   Widget build(BuildContext context) {
+    final title = _dialogTitle;
+
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(20),
-          color: Color(0xFFF2EDE4),
+          color: _modalBackgroundColor,
         ),
-        child: Padding(
-          padding: EdgeInsets.all(20.0),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  SizedBox(width: 24),
-                  Text(
-                    'Iniciar Entrega',
-                    style: TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF333333),
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const SizedBox(width: 24),
+                    Flexible(
+                      child: Text(
+                        title,
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                          color: _textColor,
+                        ),
+                      ),
                     ),
-                  ),
-                  IconButton(
-                    icon: Icon(Icons.close, color: Colors.black),
-                    onPressed: () => Navigator.pop(context),
-                  ),
-                ],
-              ),
-              Text(
-                'Restaurante',
-                style: TextStyle(fontWeight: FontWeight.w500),
-              ),
-              SizedBox(height: 8),
-              Row(
-                children: [
-                  Expanded(
-                    child: LayoutBuilder(
-                      builder: (context, constraints) {
-                        return DropdownMenu<String>(
-                          width: constraints.maxWidth,
-                          initialSelection: restauranteSelecionado,
-                          textStyle: const TextStyle(
-                            color: Colors.black,
-                            fontSize: 15,
-                          ),
-                          menuStyle: MenuStyle(
-                            backgroundColor: const WidgetStatePropertyAll(
-                              Colors.white,
-                            ),
-                            surfaceTintColor: const WidgetStatePropertyAll(
-                              Colors.transparent,
-                            ),
-                            shape: WidgetStatePropertyAll(
-                              RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                            ),
-                          ),
-                          inputDecorationTheme: InputDecorationTheme(
-                            filled: true,
-                            fillColor: Colors.white,
-                            contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 16,
-                            ),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8),
-                              borderSide: BorderSide(
-                                color: Colors.grey.shade300,
-                              ),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8),
-                              borderSide: const BorderSide(color: Colors.black),
-                            ),
-                          ),
-                          dropdownMenuEntries: restaurantes.map((String value) {
-                            final bool isSelected =
-                                value == restauranteSelecionado;
-
-                            return DropdownMenuEntry<String>(
-                              value: value,
-                              label: value,
-                              style: ButtonStyle(
-                                backgroundColor:
-                                    WidgetStateProperty.resolveWith((states) {
-                                      if (isSelected) {
-                                        return const Color(0xFFF1F1F1);
-                                      }
-                                      if (states.contains(
-                                        WidgetState.selected,
-                                      )) {
-                                        return const Color(0xFFF6F6F6);
-                                      }
-                                      if (states.contains(
-                                        WidgetState.hovered,
-                                      )) {
-                                        return const Color(0xFFF8F8F8);
-                                      }
-                                      return Colors.white;
-                                    }),
-                                foregroundColor: const WidgetStatePropertyAll(
-                                  Colors.black,
-                                ),
-                                overlayColor: const WidgetStatePropertyAll(
-                                  Color(0x1AF3D080),
-                                ),
-                              ),
-                            );
-                          }).toList(),
-                          onSelected: (String? newValue) {
-                            if (newValue == null) return;
-
-                            setState(() {
-                              restauranteSelecionado = newValue;
-                            });
-                          },
-                        );
-                      },
+                    IconButton(
+                      icon: const Icon(Icons.close, color: Colors.black),
+                      onPressed: _closeDialog,
                     ),
-                  ),
-                  const SizedBox(width: 10),
-                  Container(
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFF3D080),
-                      borderRadius: BorderRadius.circular(25),
-                    ),
-                    child: IconButton(
-                      icon: const Icon(Icons.add, color: Colors.black),
-                      onPressed: () {},
-                    ),
-                  ),
-                ],
-              ),
-
-              SizedBox(height: 20),
-
-              Text(
-                'Perfil de Pagamento',
-                style: TextStyle(fontWeight: FontWeight.w500),
-              ),
-              SizedBox(height: 8),
-              Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(8),
-                  color: Colors.white,
+                  ],
                 ),
-                child: TextField(
-                  controller: _pagamentoController,
-                  decoration: InputDecoration(
-                    contentPadding: EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 16,
+                const SizedBox(height: 8),
+                _buildDialogBody(),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  String get _dialogTitle {
+    if (_finishedResult != null) return 'Entrega finalizada';
+    if (_trackingController.isTracking) return 'Entrega em andamento';
+    return 'Iniciar Entrega';
+  }
+
+  Widget _buildDialogBody() {
+    if (_finishedResult != null) {
+      return _buildResultView(_finishedResult!);
+    }
+
+    if (_trackingController.isTracking) {
+      return _buildTrackingView();
+    }
+
+    return _buildStartForm();
+  }
+
+  Widget _buildStartForm() {
+    final isStarting = _trackingController.isStarting;
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Restaurante',
+          style: TextStyle(fontWeight: FontWeight.w500),
+        ),
+        const SizedBox(height: 8),
+        Row(
+          children: [
+            Expanded(
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  return DropdownMenu<String>(
+                    enabled: !isStarting,
+                    width: constraints.maxWidth,
+                    initialSelection: restauranteSelecionado,
+                    textStyle: const TextStyle(
+                      color: Colors.black,
+                      fontSize: 15,
                     ),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
+                    menuStyle: MenuStyle(
+                      backgroundColor: const WidgetStatePropertyAll(
+                        Colors.white,
+                      ),
+                      surfaceTintColor: const WidgetStatePropertyAll(
+                        Colors.transparent,
+                      ),
+                      shape: WidgetStatePropertyAll(
+                        RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
                     ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide(color: Colors.grey.shade300),
+                    inputDecorationTheme: InputDecorationTheme(
+                      filled: true,
+                      fillColor: _fieldBackgroundColor,
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 16,
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(color: Colors.grey.shade300),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: const BorderSide(color: Colors.black),
+                      ),
                     ),
-                  ),
-                ),
+                    dropdownMenuEntries: restaurantes.map((String value) {
+                      final isSelected = value == restauranteSelecionado;
+
+                      return DropdownMenuEntry<String>(
+                        value: value,
+                        label: value,
+                        style: ButtonStyle(
+                          backgroundColor: WidgetStateProperty.resolveWith((
+                            states,
+                          ) {
+                            if (isSelected) return const Color(0xFFF1F1F1);
+                            if (states.contains(WidgetState.selected)) {
+                              return const Color(0xFFF6F6F6);
+                            }
+                            if (states.contains(WidgetState.hovered)) {
+                              return const Color(0xFFF8F8F8);
+                            }
+                            return Colors.white;
+                          }),
+                          foregroundColor: const WidgetStatePropertyAll(
+                            Colors.black,
+                          ),
+                          overlayColor: const WidgetStatePropertyAll(
+                            Color(0x1AF3D080),
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                    onSelected: (String? newValue) {
+                      if (newValue == null) return;
+
+                      setState(() {
+                        restauranteSelecionado = newValue;
+                      });
+                    },
+                  );
+                },
               ),
-
-              SizedBox(height: 30),
-
-              Row(
-                children: [
-                  Expanded(
-                    child: ElevatedButton.icon(
-                      onPressed: () {},
-                      icon: Icon(
+            ),
+            const SizedBox(width: 10),
+            Container(
+              decoration: BoxDecoration(
+                color: isStarting ? Colors.grey.shade300 : _accentColor,
+                borderRadius: BorderRadius.circular(25),
+              ),
+              child: IconButton(
+                icon: const Icon(Icons.add, color: Colors.black),
+                onPressed: isStarting ? null : () {},
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 20),
+        const Text(
+          'Perfil de Pagamento',
+          style: TextStyle(fontWeight: FontWeight.w500),
+        ),
+        const SizedBox(height: 8),
+        _buildEditableTextField(
+          controller: _pagamentoController,
+          enabled: !isStarting,
+        ),
+        const SizedBox(height: 30),
+        Row(
+          children: [
+            Expanded(
+              child: ElevatedButton.icon(
+                onPressed: isStarting ? null : _startDelivery,
+                icon: isStarting
+                    ? const SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Colors.black,
+                        ),
+                      )
+                    : const Icon(
                         Icons.play_arrow_outlined,
                         color: Colors.black,
                       ),
@@ -520,6 +560,36 @@ class _AutomaticDeliveryFormState extends State<AutomaticDeliveryForm> {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildReadOnlyInfo(String label, String value) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label, style: const TextStyle(fontWeight: FontWeight.w500)),
+        const SizedBox(height: 8),
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+          decoration: BoxDecoration(
+            color: _disabledFieldColor,
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: Colors.grey.shade300),
+          ),
+          child: Text(value, style: TextStyle(color: Colors.grey.shade700)),
+        ),
+      ],
+    );
+  }
+
+  ButtonStyle _secondaryButtonStyle() {
+    return OutlinedButton.styleFrom(
+      backgroundColor: Colors.grey.shade200,
+      side: BorderSide(color: Colors.grey.shade300, width: 1),
+      padding: const EdgeInsets.symmetric(vertical: 15),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      overlayColor: Colors.grey,
     );
   }
 }

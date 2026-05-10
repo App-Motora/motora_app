@@ -12,12 +12,9 @@ class App extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        inputDecorationTheme: InputDecorationTheme(
-          border: OutlineInputBorder(),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8),
-            borderSide: BorderSide(color: Colors.grey.shade600),
-          ),
+        inputDecorationTheme: _buildInputDecorationTheme(),
+        dropdownMenuTheme: DropdownMenuThemeData(
+          inputDecorationTheme: _buildInputDecorationTheme()
         ),
         textSelectionTheme: TextSelectionThemeData(
           cursorColor: Colors.orange,
@@ -34,6 +31,32 @@ class App extends StatelessWidget {
         '/home': (context) => const HomePage(),
         '/deliveries_history': (context) => const DeliveriesHistoryPage(),
       },
+    );
+  }
+
+  Widget _buildInputDecorationTheme() {
+    return InputDecorationTheme(
+      filled: true,
+      fillColor: Colors.white,
+      contentPadding: const EdgeInsets.symmetric(
+        horizontal: 12,
+        vertical: 16,
+      ),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8),
+        borderSide: BorderSide(color: Colors.grey.shade300),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8),
+        borderSide: const BorderSide(
+          color: Color(0xFFF3D080), // Cor amarela usada nos formulários
+          width: 1.5,
+        ),
+      ),
+      hintStyle: const TextStyle(color: Colors.black38),
     );
   }
 }

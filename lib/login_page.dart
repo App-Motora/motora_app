@@ -42,16 +42,7 @@ class _LoginPageState extends State<LoginPage> {
                       floatingLabelStyle: const TextStyle(
                         color: Colors.black,
                       ),
-                      prefixIcon: const Icon(Icons.email_outlined),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
-                        borderSide: const BorderSide(color: Colors.black),
-                      ),
-                      filled: true,
-                      fillColor: Colors.white,
+                      prefixIcon: const Icon(Icons.email_outlined)
                     ),
                     validator: (value) => (value == null || value.isEmpty)
                         ? 'Informe seu e-mail'
@@ -67,15 +58,6 @@ class _LoginPageState extends State<LoginPage> {
                         color: Colors.black,
                       ),
                       prefixIcon: const Icon(Icons.lock_outline),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
-                        borderSide: const BorderSide(color: Colors.black),
-                      ),
-                      filled: true,
-                      fillColor: Colors.white,
                     ),
                     validator: (value) => (value == null || value.length < 6)
                         ? 'Senha deve ter no mínimo 6 caracteres'

@@ -172,24 +172,6 @@ class _ManualDeliveryFormState extends State<ManualDeliveryForm> {
                               ),
                             ),
                           ),
-                          inputDecorationTheme: InputDecorationTheme(
-                            filled: true,
-                            fillColor: _fieldBackgroundColor,
-                            contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 16,
-                            ),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8),
-                              borderSide: BorderSide(
-                                color: Colors.grey.shade300,
-                              ),
-                            ),
-                            // ),
-                          ),
                           dropdownMenuEntries: restaurantes.map((String value) {
                             final bool isSelected =
                                 value == restauranteSelecionado;
@@ -403,34 +385,19 @@ class _ManualDeliveryFormState extends State<ManualDeliveryForm> {
     Widget? suffixIcon,
     VoidCallback? onTap,
   }) {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(8),
-        color: _fieldBackgroundColor,
-      ),
-      child: TextField(
-        controller: controller,
-        keyboardType: keyboardType,
-        inputFormatters: inputFormatters,
-        readOnly: readOnly,
-        onTap: onTap,
-        decoration: InputDecoration(
-          hintText: hintText,
-          suffixIcon: suffixIcon,
-          contentPadding: const EdgeInsets.symmetric(
-            horizontal: 12,
-            vertical: 16,
-          ),
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8),
-            borderSide: BorderSide(color: Colors.grey.shade300),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8),
-            borderSide: const BorderSide(color: _accentColor),
-          ),
-        ),
+    return TextField(
+      controller: controller,
+      keyboardType: keyboardType,
+      inputFormatters: inputFormatters,
+      readOnly: readOnly,
+      onTap: onTap,
+      decoration: InputDecoration(
+        hintText: hintText,
+        suffixIcon: suffixIcon,
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 12,
+          vertical: 16,
+        )
       ),
     );
   }

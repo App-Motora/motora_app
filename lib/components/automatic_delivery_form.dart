@@ -80,27 +80,6 @@ class _AutomaticDeliveryFormState extends State<AutomaticDeliveryForm> {
                               ),
                             ),
                           ),
-                          inputDecorationTheme: InputDecorationTheme(
-                            filled: true,
-                            fillColor: Colors.white,
-                            contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 16,
-                            ),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8),
-                              borderSide: BorderSide(
-                                color: Colors.grey.shade300,
-                              ),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8),
-                              borderSide: const BorderSide(color: Colors.black),
-                            ),
-                          ),
                           dropdownMenuEntries: restaurantes.map((String value) {
                             final bool isSelected =
                                 value == restauranteSelecionado;

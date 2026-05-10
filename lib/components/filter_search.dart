@@ -457,34 +457,19 @@ class _FilterSearchState<T> extends State<FilterSearch<T>> {
         setState(() => _queryAtiva = value.trim());
       },
       decoration: InputDecoration(
-        filled: true,
-        fillColor: Colors.white,
         hintText: widget.searchHint,
-        hintStyle: const TextStyle(color: Colors.black38),
         contentPadding: const EdgeInsets.symmetric(
           vertical: 16,
           horizontal: 16,
         ),
         suffixIcon: IconButton(
-          icon: const Icon(Icons.search, color: Color(0xFF388E3C)),
+          icon: const Icon(Icons.search),
           tooltip: 'Buscar',
           onPressed: () {
             FocusScope.of(context).unfocus();
             setState(() => _queryAtiva = txtPesquisa.text.trim());
           },
-        ),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(18),
-          borderSide: BorderSide.none,
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(18),
-          borderSide: BorderSide.none,
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(18),
-          borderSide: const BorderSide(color: Color(0xFF388E3C), width: 1.5),
-        ),
+        )
       ),
     );
   }

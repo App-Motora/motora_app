@@ -41,15 +41,6 @@ class _RegistroPageState extends State<RegistroPage> {
                       labelText: 'Nome Completo',
                       floatingLabelStyle: const TextStyle(color: Colors.black),
                       prefixIcon: const Icon(Icons.person_outline),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
-                        borderSide: const BorderSide(color: Colors.black),
-                      ),
-                      filled: true,
-                      fillColor: Colors.white,
                     ),
                     validator: (value) => (value == null || value.isEmpty)
                         ? 'Informe seu nome'
@@ -63,16 +54,7 @@ class _RegistroPageState extends State<RegistroPage> {
                     decoration: InputDecoration(
                       labelText: 'E-mail',
                       floatingLabelStyle: const TextStyle(color: Colors.black),
-                      prefixIcon: const Icon(Icons.email_outlined),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
-                        borderSide: const BorderSide(color: Colors.black),
-                      ),
-                      filled: true,
-                      fillColor: Colors.white,
+                      prefixIcon: const Icon(Icons.email_outlined)
                     ),
                     validator: (value) =>
                         (value == null || !value.contains('@'))
@@ -87,16 +69,7 @@ class _RegistroPageState extends State<RegistroPage> {
                     decoration: InputDecoration(
                       labelText: 'Senha',
                       floatingLabelStyle: const TextStyle(color: Colors.black),
-                      prefixIcon: const Icon(Icons.lock_outline),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
-                        borderSide: const BorderSide(color: Colors.black),
-                      ),
-                      filled: true,
-                      fillColor: Colors.white,
+                      prefixIcon: const Icon(Icons.lock_outline)
                     ),
                     validator: (value) => (value == null || value.length < 6)
                         ? 'Mínimo 6 caracteres'
@@ -110,16 +83,7 @@ class _RegistroPageState extends State<RegistroPage> {
                     decoration: InputDecoration(
                       labelText: 'Confirmar Senha',
                       floatingLabelStyle: const TextStyle(color: Colors.black),
-                      prefixIcon: const Icon(Icons.lock_reset),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
-                        borderSide: const BorderSide(color: Colors.black),
-                      ),
-                      filled: true,
-                      fillColor: Colors.white,
+                      prefixIcon: const Icon(Icons.lock_reset)
                     ),
                     validator: (value) {
                       if (value != _senhaController.text) {

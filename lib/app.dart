@@ -14,7 +14,24 @@ class App extends StatelessWidget {
       theme: ThemeData(
         inputDecorationTheme: _buildInputDecorationTheme(),
         dropdownMenuTheme: DropdownMenuThemeData(
-          inputDecorationTheme: _buildInputDecorationTheme()
+          inputDecorationTheme: _buildInputDecorationTheme(),
+          menuStyle: MenuStyle(
+            backgroundColor: const WidgetStatePropertyAll(
+              Colors.white,
+            ),
+            surfaceTintColor: const WidgetStatePropertyAll(
+              Colors.transparent,
+            ),
+            shape: WidgetStatePropertyAll(
+              RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+          ),
+          textStyle: const TextStyle(
+            color: Color(0xFF333333),
+            fontSize: 16,
+          ),
         ),
         textSelectionTheme: TextSelectionThemeData(
           cursorColor: Colors.orange,

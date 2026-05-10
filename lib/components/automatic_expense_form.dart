@@ -78,23 +78,6 @@ class _AutomaticExpenseFormState extends State<AutomaticExpenseForm> {
                         return DropdownMenu<String>(
                           width: constraints.maxWidth,
                           initialSelection: categoriaSelecionada,
-                          textStyle: const TextStyle(
-                            color: _textColor,
-                            fontSize: 16,
-                          ),
-                          menuStyle: MenuStyle(
-                            backgroundColor: const WidgetStatePropertyAll(
-                              _fieldBackgroundColor,
-                            ),
-                            surfaceTintColor: const WidgetStatePropertyAll(
-                              Colors.transparent,
-                            ),
-                            shape: WidgetStatePropertyAll(
-                              RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                            ),
-                          ),
                           dropdownMenuEntries: categoriasDespesa.map((
                             String value,
                           ) {

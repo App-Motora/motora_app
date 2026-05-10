@@ -63,23 +63,6 @@ class _AutomaticDeliveryFormState extends State<AutomaticDeliveryForm> {
                         return DropdownMenu<String>(
                           width: constraints.maxWidth,
                           initialSelection: restauranteSelecionado,
-                          textStyle: const TextStyle(
-                            color: Colors.black,
-                            fontSize: 15,
-                          ),
-                          menuStyle: MenuStyle(
-                            backgroundColor: const WidgetStatePropertyAll(
-                              Colors.white,
-                            ),
-                            surfaceTintColor: const WidgetStatePropertyAll(
-                              Colors.transparent,
-                            ),
-                            shape: WidgetStatePropertyAll(
-                              RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                            ),
-                          ),
                           dropdownMenuEntries: restaurantes.map((String value) {
                             final bool isSelected =
                                 value == restauranteSelecionado;

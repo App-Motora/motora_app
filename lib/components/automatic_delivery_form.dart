@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:motora_app/controllers/delivery_tracking_controller.dart';
+import 'package:motora_app/models/delivery_model.dart';
 import 'package:motora_app/models/delivery_tracking_result_model.dart';
 import 'package:motora_app/services/google_maps_service.dart';
+import 'package:motora_app/services/firestore_service.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class AutomaticDeliveryForm extends StatefulWidget {
   const AutomaticDeliveryForm({super.key});
@@ -81,41 +84,44 @@ class _AutomaticDeliveryFormState extends State<AutomaticDeliveryForm> {
     });
 
     try {
-      // 1. Pega o resultado bruto do GPS
+      // 1. Encerra o GPS e pega os dados brutos
       final rawResult = await _trackingController.finish();
 
-      // 2. Instancia o serviço e chama o Google Maps passando a rota bruta
+      // 2. Consulta o Google Maps para alinhar a rota e dar a KM real
       final googleMapsService = GoogleMapsService();
       final quilometragemLimpa = await googleMapsService.calcularDistanciaReal(
         rawResult.path,
       );
 
-      // 3. Sobrescreve o resultado bruto com a nova distância em metros
-      final resultCorrigido = DeliveryTrackingResult(
-        restaurant: rawResult.restaurant,
-        paymentProfile: rawResult.paymentProfile,
-        totalDistanceMeters:
-            quilometragemLimpa * 1000, // Converte KM de volta para Metros
-        startedAt: rawResult.startedAt,
-        endedAt: rawResult.endedAt,
-        path: rawResult.path,
+      // 3. Calcula o valor da entrega (exemplo: R$ 3,00 por km)
+      // Você pode extrair o número do seu _pagamentoController se desejar
+      final valorCalculado = quilometragemLimpa * 3.0;
+
+      // 4. Cria o objeto do Modelo de Entrega para o banco
+      final novaEntregaAutomatica = Entrega(
+        id: '', // O Firestore gera o ID automaticamente no .add()
+        restaurante: rawResult.restaurant,
+        valor: valorCalculado,
+        quilometragem: double.parse(quilometragemLimpa.toStringAsFixed(2)),
+        data: rawResult.endedAt,
+        userId: FirebaseAuth.instance.currentUser?.uid ?? '',
       );
 
+      // 5. SALVA NO FIRESTORE
+      await FirestoreService().salvarEntregaAutomatica(novaEntregaAutomatica);
+
       if (!mounted) return;
 
-      // 4. Mostra a tela final (ResultView) com o dado validado
+      // 6. Atualiza a tela para mostrar o resumo final ao usuário
       setState(() {
-        _finishedResult = resultCorrigido;
+        _finishedResult =
+            rawResult; // Você pode atualizar a distância no result se quiser mostrar a corrigida
       });
+
+      _showMessage('Entrega salva com sucesso!', _successColor);
     } catch (e) {
       if (!mounted) return;
-      _showMessage('Erro ao processar rota com o Google Maps.', Colors.red);
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isFinishing = false; // Encerra o loading
-        });
-      }
+      _showMessage('Erro ao processar ou salvar entrega: $e', Colors.red);
     }
   }
 

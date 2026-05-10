@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../models/delivery_model.dart';
 
+
 class FirestoreService {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
   String get _uid => FirebaseAuth.instance.currentUser!.uid;
@@ -68,5 +69,19 @@ class FirestoreService {
             );
           }).toList(),
         );
+  }
+
+  Future<void> salvarEntregaAutomatica(Entrega entrega) async {
+    try {
+      await FirebaseFirestore.instance.collection('entregas').add({
+        'restaurante': entrega.restaurante,
+        'valor': entrega.valor,
+        'quilometragem': entrega.quilometragem,
+        'data': entrega.data,
+        'userId': entrega.userId,
+      });
+    } catch (e) {
+      throw Exception('Erro ao salvar no Firestore: $e');
+    }
   }
 }

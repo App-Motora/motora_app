@@ -73,15 +73,13 @@ class FirestoreService {
 
   Future<void> salvarEntregaAutomatica(Entrega entrega) async {
     try {
-      await FirebaseFirestore.instance.collection('entregas').add({
-        'restaurante': entrega.restaurante,
-        'valor': entrega.valor,
-        'quilometragem': entrega.quilometragem,
-        'data': entrega.data,
-        'userId': entrega.userId,
-      });
+      await _db
+          .collection('usuarios')
+          .doc(_uid)
+          .collection('entregas')
+          .add(entrega.toMap());
     } catch (e) {
-      throw Exception('Erro ao salvar no Firestore: $e');
+      throw Exception('Erro ao salvar entrega automática: $e');
     }
   }
 }

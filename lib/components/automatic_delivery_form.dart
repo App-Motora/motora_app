@@ -94,12 +94,11 @@ class _AutomaticDeliveryFormState extends State<AutomaticDeliveryForm> {
       );
 
       // 3. Calcula o valor da entrega (exemplo: R$ 3,00 por km)
-      // Você pode extrair o número do seu _pagamentoController se desejar
       final valorCalculado = quilometragemLimpa * 3.0;
 
-      // 4. Cria o objeto do Modelo de Entrega para o banco
-      final novaEntregaAutomatica = Entrega(
-        id: '', // O Firestore gera o ID automaticamente no .add()
+      // 4. Cria o objeto do Modelo de Entrega (Nome ajustado para novaEntrega)
+      final novaEntrega = Entrega(
+        id: '', // O Firestore gera o ID automaticamente
         restaurante: rawResult.restaurant,
         valor: valorCalculado,
         quilometragem: double.parse(quilometragemLimpa.toStringAsFixed(2)),
@@ -107,21 +106,29 @@ class _AutomaticDeliveryFormState extends State<AutomaticDeliveryForm> {
         userId: FirebaseAuth.instance.currentUser?.uid ?? '',
       );
 
-      // 5. SALVA NO FIRESTORE
-      await FirestoreService().salvarEntregaAutomatica(novaEntregaAutomatica);
+      // 5. SALVA NO FIRESTORE (Passando a variável com o nome correto)
+      await FirestoreService().salvarEntregaAutomatica(novaEntrega);
 
       if (!mounted) return;
 
       // 6. Atualiza a tela para mostrar o resumo final ao usuário
       setState(() {
-        _finishedResult =
-            rawResult; // Você pode atualizar a distância no result se quiser mostrar a corrigida
+        _finishedResult = rawResult; 
       });
 
       _showMessage('Entrega salva com sucesso!', _successColor);
+      
     } catch (e) {
       if (!mounted) return;
       _showMessage('Erro ao processar ou salvar entrega: $e', Colors.red);
+      
+    } finally {
+      // 7. Garante que o botão de "Calculando..." pare de girar, mesmo se der erro
+      if (mounted) {
+        setState(() {
+          _isFinishing = false; 
+        });
+      }
     }
   }
 

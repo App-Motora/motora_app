@@ -4,6 +4,7 @@ import 'package:motora_app/components/filter_search.dart';
 import 'package:motora_app/components/float_button.dart';
 import 'package:motora_app/components/menu.dart';
 import 'package:motora_app/components/manual_delivery_form.dart';
+import 'package:motora_app/constants/app_colors.dart';
 import 'package:motora_app/models/delivery_model.dart';
 import 'package:motora_app/services/firestore_service.dart';
 
@@ -21,7 +22,7 @@ class _DeliveriesHistoryPageState extends State<DeliveriesHistoryPage> {
   void _abrirAcoesEntrega(BuildContext context, Entrega entrega) {
     showModalBottomSheet(
       context: context,
-      backgroundColor: const Color(0xFFF5F2E9),
+      backgroundColor: AppColors.corFundo,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -99,7 +100,7 @@ class _DeliveriesHistoryPageState extends State<DeliveriesHistoryPage> {
       context: context,
       builder: (dialogContext) {
         return AlertDialog(
-          backgroundColor: const Color(0xFFF5F2E9),
+          backgroundColor: AppColors.corFundo,
           title: const Text('Excluir entrega?'),
           content: Text(
             'A entrega de ${entrega.restaurante} será removida do histórico.',
@@ -109,14 +110,14 @@ class _DeliveriesHistoryPageState extends State<DeliveriesHistoryPage> {
               onPressed: () => Navigator.pop(dialogContext, false),
               child: const Text(
                 'Cancelar',
-                style: TextStyle(color: Colors.black87),
+                style: TextStyle(color: AppColors.corTexto),
               ),
             ),
             TextButton(
               onPressed: () => Navigator.pop(dialogContext, true),
               child: const Text(
                 'Excluir',
-                style: TextStyle(color: Color(0xFFCC3300)),
+                style: TextStyle(color: AppColors.corExcluir),
               ),
             ),
           ],
@@ -134,7 +135,7 @@ class _DeliveriesHistoryPageState extends State<DeliveriesHistoryPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Entrega excluída com sucesso!'),
-          backgroundColor: Colors.green,
+          backgroundColor: AppColors.corSucesso,
         ),
       );
     } catch (e) {
@@ -143,7 +144,7 @@ class _DeliveriesHistoryPageState extends State<DeliveriesHistoryPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Erro ao excluir entrega.'),
-          backgroundColor: Colors.red,
+          backgroundColor: AppColors.corErro,
         ),
       );
     }
@@ -153,7 +154,7 @@ class _DeliveriesHistoryPageState extends State<DeliveriesHistoryPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldKey,
-      backgroundColor: const Color(0xFFF5F2E9),
+      backgroundColor: AppColors.corFundo,
       drawer: Menu(selectedIndex: _activeMenuIndex),
       body: SafeArea(
         child: Column(
@@ -166,7 +167,7 @@ class _DeliveriesHistoryPageState extends State<DeliveriesHistoryPage> {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const Center(
                       child: CircularProgressIndicator(
-                        color: Color(0xFF388E3C),
+                        color: AppColors.corEntrega,
                       ),
                     );
                   }
@@ -204,7 +205,7 @@ class _DeliveriesHistoryPageState extends State<DeliveriesHistoryPage> {
         padding: const EdgeInsets.only(bottom: 8, right: 4),
         child: FloatButton(
           icon: Icons.add,
-          color: const Color(0xFF388E3C),
+          color: AppColors.corEntrega,
           function: () => showDialog(
             context: context,
             builder: (BuildContext context) => ManualDeliveryForm(),
@@ -218,7 +219,7 @@ class _DeliveriesHistoryPageState extends State<DeliveriesHistoryPage> {
   Widget _buildTopBar() {
     return Container(
       width: double.infinity,
-      decoration: const BoxDecoration(color: Color(0xFFF7E18B)),
+      decoration: const BoxDecoration(color: AppColors.corPrincipal),
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,

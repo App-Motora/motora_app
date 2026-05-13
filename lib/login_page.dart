@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:motora_app/components/primary_button.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:motora_app/constants/app_colors.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -17,7 +18,7 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F2E9),
+      backgroundColor: AppColors.corFundo,
       body: Center(
         child: SingleChildScrollView(
           child: Padding(
@@ -39,8 +40,8 @@ class _LoginPageState extends State<LoginPage> {
                     controller: _emailController,
                     decoration: InputDecoration(
                       labelText: 'E-mail',
-                      floatingLabelStyle: const TextStyle(
-                        color: Colors.black,
+                      floatingLabelStyle: TextStyle(
+                        color: AppColors.corTexto,
                       ),
                       prefixIcon: const Icon(Icons.email_outlined)
                     ),
@@ -54,8 +55,8 @@ class _LoginPageState extends State<LoginPage> {
                     obscureText: true,
                     decoration: InputDecoration(
                       labelText: 'Senha',
-                      floatingLabelStyle: const TextStyle(
-                        color: Colors.black,
+                      floatingLabelStyle: TextStyle(
+                        color: AppColors.corTexto,
                       ),
                       prefixIcon: const Icon(Icons.lock_outline),
                     ),
@@ -67,7 +68,7 @@ class _LoginPageState extends State<LoginPage> {
                   PrimaryButton(
                     label: 'Entrar',
                     icon: Icons.login,
-                    color: const Color(0xFF4FA8FF), 
+                    color: AppColors.corSecundaria,
                     onPressed: () async {
                       if (_formKey.currentState!.validate()) {
                         try {
@@ -86,7 +87,7 @@ class _LoginPageState extends State<LoginPage> {
                             message = 'Senha incorreta';
                           }
                           ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text(message), backgroundColor: Colors.red),
+                            SnackBar(content: Text(message), backgroundColor: AppColors.corErro),
                           );
                         }
                       }
@@ -95,9 +96,9 @@ class _LoginPageState extends State<LoginPage> {
                   TextButton(
                     onPressed: () =>
                         Navigator.pushNamed(context, '/registro'),
-                    child: const Text(
+                    child: Text(
                       'Não possui conta? Cadastre-se aqui',
-                      style: TextStyle(color: Colors.black),
+                      style: TextStyle(color: AppColors.corTexto),
                     ),
                   ),
                 ],

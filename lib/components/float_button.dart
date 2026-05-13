@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:motora_app/constants/app_colors.dart';
 
 class FloatButton extends StatelessWidget {
   final IconData icon;
@@ -6,11 +7,11 @@ class FloatButton extends StatelessWidget {
   final VoidCallback function;
 
   const FloatButton({
-    Key? key,
+    super.key,
     required this.icon,
     required this.color,
     required this.function,
-  }) : super(key: key);
+  });
 
 @override
   Widget build (BuildContext context) {
@@ -22,14 +23,14 @@ class FloatButton extends StatelessWidget {
         shape: BoxShape.circle,
         boxShadow: [
           BoxShadow(
-            color: Colors.black26,
+            color: AppColors.corSombra,
             blurRadius: 10,
             offset: Offset(0, 4),
           ),
         ],
       ),
       child: IconButton(
-        icon: Icon(icon, color: Colors.white),
+        icon: Icon(icon, color: AppColors.corIconeClaro),
         onPressed: () => function(),
       ),
     );

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:motora_app/components/activity_card.dart';
 import 'package:intl/intl.dart';
+import 'package:motora_app/constants/app_colors.dart';
 
 enum FiltroDatas { hoje, ontem, estaSemana, esteMes }
 
@@ -156,7 +157,7 @@ class _FilterSearchState<T> extends State<FilterSearch<T>> {
 
     showModalBottomSheet(
       context: context,
-      backgroundColor: const Color(0xFFF5F2E9),
+      backgroundColor: AppColors.corFundo,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -186,12 +187,12 @@ class _FilterSearchState<T> extends State<FilterSearch<T>> {
                               setModalState(() => selecaoTemporaria.clear()),
                           child: const Text(
                             'Limpar',
-                            style: TextStyle(color: Color(0xFF388E3C)),
+                            style: TextStyle(color: AppColors.corSecundaria),
                           ),
                         ),
                     ],
                   ),
-                  const Divider(color: Color(0xFFF7E18B), thickness: 2),
+                  const Divider(color: AppColors.corBordaFocadaInputs, thickness: 2),
                   const SizedBox(height: 8),
                   if (categorias.isEmpty)
                     const Padding(
@@ -205,8 +206,8 @@ class _FilterSearchState<T> extends State<FilterSearch<T>> {
                       return CheckboxListTile(
                         title: Text(categoria),
                         value: selecaoTemporaria.contains(categoria),
-                        activeColor: const Color(0xFF388E3C),
-                        checkColor: Colors.white,
+                        activeColor: AppColors.corSecundaria,
+                        checkColor: AppColors.corFundoMenu,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
                         ),
@@ -232,8 +233,8 @@ class _FilterSearchState<T> extends State<FilterSearch<T>> {
                         Navigator.pop(context);
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF388E3C),
-                        foregroundColor: Colors.white,
+                        backgroundColor: AppColors.corSecundaria,
+                        foregroundColor: AppColors.corFundoMenu,
                         minimumSize: const Size.fromHeight(48),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
@@ -256,7 +257,7 @@ class _FilterSearchState<T> extends State<FilterSearch<T>> {
 
     showModalBottomSheet(
       context: context,
-      backgroundColor: const Color(0xFFF5F2E9),
+      backgroundColor: AppColors.corFundo,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -286,12 +287,12 @@ class _FilterSearchState<T> extends State<FilterSearch<T>> {
                               setModalState(() => selecaoTemporaria = null),
                           child: const Text(
                             'Limpar',
-                            style: TextStyle(color: Color(0xFF388E3C)),
+                            style: TextStyle(color: AppColors.corSecundaria),
                           ),
                         ),
                     ],
                   ),
-                  const Divider(color: Color(0xFFF7E18B), thickness: 2),
+                  const Divider(color: AppColors.corBordaFocadaInputs, thickness: 2),
                   const SizedBox(height: 12),
                   GridView.count(
                     crossAxisCount: 2,
@@ -310,13 +311,13 @@ class _FilterSearchState<T> extends State<FilterSearch<T>> {
                           duration: const Duration(milliseconds: 180),
                           decoration: BoxDecoration(
                             color: isSelected
-                                ? const Color(0xFF388E3C)
-                                : Colors.white,
+                                ? AppColors.corSecundaria
+                                : AppColors.corFundoMenu,
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(
                               color: isSelected
-                                  ? const Color(0xFF388E3C)
-                                  : Colors.grey.shade300,
+                                  ? AppColors.corSecundaria
+                                  : AppColors.corBordaInputs,
                               width: isSelected ? 2 : 1,
                             ),
                           ),
@@ -327,8 +328,8 @@ class _FilterSearchState<T> extends State<FilterSearch<T>> {
                                 opcao.icon,
                                 size: 18,
                                 color: isSelected
-                                    ? Colors.white
-                                    : Colors.black54,
+                                    ? AppColors.corFundoMenu
+                                    : AppColors.corIcone,
                               ),
                               const SizedBox(width: 8),
                               Text(
@@ -339,8 +340,8 @@ class _FilterSearchState<T> extends State<FilterSearch<T>> {
                                       ? FontWeight.bold
                                       : FontWeight.normal,
                                   color: isSelected
-                                      ? Colors.white
-                                      : Colors.black87,
+                                      ? AppColors.corFundoMenu
+                                      : AppColors.corTexto,
                                 ),
                               ),
                             ],
@@ -359,8 +360,8 @@ class _FilterSearchState<T> extends State<FilterSearch<T>> {
                         Navigator.pop(context);
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF388E3C),
-                        foregroundColor: Colors.white,
+                        backgroundColor: AppColors.corSecundaria,
+                        foregroundColor: AppColors.corFundoMenu,
                         minimumSize: const Size.fromHeight(48),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
@@ -417,7 +418,7 @@ class _FilterSearchState<T> extends State<FilterSearch<T>> {
               ),
             )
           else if (itensFiltrados.isEmpty)
-            const Padding(
+            Padding(
               padding: EdgeInsets.only(top: 40),
               child: Center(
                 child: Column(
@@ -425,7 +426,7 @@ class _FilterSearchState<T> extends State<FilterSearch<T>> {
                     Icon(
                       Icons.search_off,
                       size: 48,
-                      color: Colors.black26,
+                      color: AppColors.corHintInputs,
                     ),
                     SizedBox(height: 12),
                     Text(
@@ -433,7 +434,7 @@ class _FilterSearchState<T> extends State<FilterSearch<T>> {
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 16,
-                        color: Colors.black54,
+                        color: AppColors.corHintInputs,
                       ),
                     ),
                   ],
@@ -484,8 +485,8 @@ class _FilterSearchState<T> extends State<FilterSearch<T>> {
             Icons.category,
             size: 16,
             color: _categoriasSelecionadas.isNotEmpty
-                ? Colors.white
-                : Colors.black54,
+                ? AppColors.corFundoMenu
+                : AppColors.corIcone,
           ),
           label: Text(
             _categoriasSelecionadas.isEmpty
@@ -493,8 +494,8 @@ class _FilterSearchState<T> extends State<FilterSearch<T>> {
                 : '${widget.categoryFilterLabel} (${_categoriasSelecionadas.length})',
             style: TextStyle(
               color: _categoriasSelecionadas.isNotEmpty
-                  ? Colors.white
-                  : Colors.black87,
+                  ? AppColors.corFundoMenu
+                  : AppColors.corTexto,
               fontWeight: _categoriasSelecionadas.isNotEmpty
                   ? FontWeight.bold
                   : FontWeight.normal,
@@ -502,12 +503,12 @@ class _FilterSearchState<T> extends State<FilterSearch<T>> {
           ),
           selected: _categoriasSelecionadas.isNotEmpty,
           onSelected: (_) => _abrirFiltroCategoria(context, categorias),
-          selectedColor: const Color(0xFF388E3C),
-          checkmarkColor: Colors.white,
-          backgroundColor: Colors.white,
+          selectedColor: AppColors.corSecundaria,
+          checkmarkColor: AppColors.corFundoMenu,
+          backgroundColor: AppColors.corFundoMenu,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(8),
-            side: BorderSide(color: Colors.grey.shade300),
+            side: BorderSide(color: AppColors.corBordaInputs),
           ),
         ),
 
@@ -515,12 +516,12 @@ class _FilterSearchState<T> extends State<FilterSearch<T>> {
           avatar: Icon(
             Icons.calendar_today,
             size: 16,
-            color: _filtroDatasAtivo != null ? Colors.white : Colors.black54,
+            color: _filtroDatasAtivo != null ? AppColors.corFundoMenu : AppColors.corIcone,
           ),
           label: Text(
             _filtroDatasAtivo?.label ?? 'Data',
             style: TextStyle(
-              color: _filtroDatasAtivo != null ? Colors.white : Colors.black87,
+              color: _filtroDatasAtivo != null ? AppColors.corFundoMenu : AppColors.corTexto,
               fontWeight: _filtroDatasAtivo != null
                   ? FontWeight.bold
                   : FontWeight.normal,
@@ -528,12 +529,12 @@ class _FilterSearchState<T> extends State<FilterSearch<T>> {
           ),
           selected: _filtroDatasAtivo != null,
           onSelected: (_) => _abrirFiltroDatas(context),
-          selectedColor: const Color(0xFF388E3C),
-          checkmarkColor: Colors.white,
-          backgroundColor: Colors.white,
+          selectedColor: AppColors.corSecundaria,
+          checkmarkColor: AppColors.corFundoMenu,
+          backgroundColor: AppColors.corFundoMenu,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(8),
-            side: BorderSide(color: Colors.grey.shade300),
+            side: BorderSide(color: AppColors.corBordaInputs),
           ),
         ),
       ],
@@ -547,15 +548,15 @@ class _FilterSearchState<T> extends State<FilterSearch<T>> {
         children: [
           Text(
             '$count ${count == 1 ? 'item encontrado' : 'itens encontrados'}',
-            style: const TextStyle(fontSize: 13, color: Colors.black54),
+            style: TextStyle(fontSize: 13, color: AppColors.corHintInputs),
           ),
           const Spacer(),
           TextButton.icon(
             onPressed: _limparFiltros,
-            icon: const Icon(Icons.close, size: 14, color: Color(0xFFCC3300)),
+            icon: const Icon(Icons.close, size: 14, color: AppColors.corExcluir),
             label: const Text(
               'Limpar filtros',
-              style: TextStyle(fontSize: 13, color: Color(0xFFCC3300)),
+              style: TextStyle(fontSize: 13, color: AppColors.corExcluir),
             ),
             style: TextButton.styleFrom(
               padding: const EdgeInsets.symmetric(horizontal: 4),

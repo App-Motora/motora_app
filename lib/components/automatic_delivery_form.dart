@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:motora_app/constants/app_colors.dart';
 import 'package:motora_app/controllers/delivery_tracking_controller.dart';
 import 'package:motora_app/models/delivery_model.dart';
 import 'package:motora_app/models/delivery_tracking_result_model.dart';
@@ -138,7 +139,7 @@ class _AutomaticDeliveryFormState extends State<AutomaticDeliveryForm> {
         context: context,
         builder: (context) {
           return AlertDialog(
-            backgroundColor: _modalBackgroundColor,
+            backgroundColor: AppColors.corFundo,
             title: const Text('Cancelar entrega?'),
             content: const Text(
               'A entrega em andamento será encerrada sem gerar o path final.',
@@ -148,14 +149,14 @@ class _AutomaticDeliveryFormState extends State<AutomaticDeliveryForm> {
                 onPressed: () => Navigator.pop(context, false),
                 child: const Text(
                   'Voltar',
-                  style: TextStyle(color: Colors.black87),
+                  style: TextStyle(color: AppColors.corTexto),
                 ),
               ),
               TextButton(
                 onPressed: () => Navigator.pop(context, true),
                 child: const Text(
                   'Cancelar',
-                  style: TextStyle(color: Color(0xFFCC3300)),
+                  style: TextStyle(color: AppColors.corExcluir),
                 ),
               ),
             ],
@@ -184,7 +185,7 @@ class _AutomaticDeliveryFormState extends State<AutomaticDeliveryForm> {
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(20),
-          color: _modalBackgroundColor,
+          color: AppColors.corFundo,
         ),
         child: SingleChildScrollView(
           child: Padding(
@@ -204,12 +205,12 @@ class _AutomaticDeliveryFormState extends State<AutomaticDeliveryForm> {
                         style: const TextStyle(
                           fontSize: 22,
                           fontWeight: FontWeight.bold,
-                          color: _textColor,
+                          color: AppColors.corTexto,
                         ),
                       ),
                     ),
                     IconButton(
-                      icon: const Icon(Icons.close, color: Colors.black),
+                      icon: const Icon(Icons.close, color: AppColors.corIcone),
                       onPressed: _closeDialog,
                     ),
                   ],
@@ -264,7 +265,7 @@ class _AutomaticDeliveryFormState extends State<AutomaticDeliveryForm> {
                     width: constraints.maxWidth,
                     initialSelection: restauranteSelecionado,
                     textStyle: const TextStyle(
-                      color: Colors.black,
+                      color: AppColors.corTexto,
                       fontSize: 15,
                     ),
                     menuStyle: MenuStyle(
@@ -280,51 +281,13 @@ class _AutomaticDeliveryFormState extends State<AutomaticDeliveryForm> {
                         ),
                       ),
                     ),
-                    inputDecorationTheme: InputDecorationTheme(
-                      filled: true,
-                      fillColor: _fieldBackgroundColor,
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 16,
-                      ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        borderSide: BorderSide(color: Colors.grey.shade300),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        borderSide: const BorderSide(color: Colors.black),
-                      ),
-                    ),
                     dropdownMenuEntries: restaurantes.map((String value) {
                       final isSelected = value == restauranteSelecionado;
 
                       return DropdownMenuEntry<String>(
                         value: value,
                         label: value,
-                        style: ButtonStyle(
-                          backgroundColor: WidgetStateProperty.resolveWith((
-                            states,
-                          ) {
-                            if (isSelected) return const Color(0xFFF1F1F1);
-                            if (states.contains(WidgetState.selected)) {
-                              return const Color(0xFFF6F6F6);
-                            }
-                            if (states.contains(WidgetState.hovered)) {
-                              return const Color(0xFFF8F8F8);
-                            }
-                            return Colors.white;
-                          }),
-                          foregroundColor: const WidgetStatePropertyAll(
-                            Colors.black,
-                          ),
-                          overlayColor: const WidgetStatePropertyAll(
-                            Color(0x1AF3D080),
-                          ),
-                        ),
+                        style: AppColors.dropdownMenuItemStyle(isSelected)
                       );
                     }).toList(),
                     onSelected: (String? newValue) {
@@ -341,11 +304,11 @@ class _AutomaticDeliveryFormState extends State<AutomaticDeliveryForm> {
             const SizedBox(width: 10),
             Container(
               decoration: BoxDecoration(
-                color: isStarting ? Colors.grey.shade300 : _accentColor,
+                color: isStarting ? AppColors.corBordaInputs : AppColors.corBordaFocadaInputs,
                 borderRadius: BorderRadius.circular(25),
               ),
               child: IconButton(
-                icon: const Icon(Icons.add, color: Colors.black),
+                icon: const Icon(Icons.add, color: AppColors.corIcone),
                 onPressed: isStarting ? null : () {},
               ),
             ),
@@ -373,19 +336,19 @@ class _AutomaticDeliveryFormState extends State<AutomaticDeliveryForm> {
                         height: 18,
                         child: CircularProgressIndicator(
                           strokeWidth: 2,
-                          color: Colors.black,
+                          color: AppColors.corIcone,
                         ),
                       )
                     : const Icon(
                         Icons.play_arrow_outlined,
-                        color: Colors.black,
+                        color: AppColors.corIcone,
                       ),
                 label: Text(
                   isStarting ? 'Iniciando...' : 'Iniciar Entrega',
-                  style: const TextStyle(color: Colors.black),
+                  style: const TextStyle(color: AppColors.corTexto),
                 ),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: _accentColor,
+                  backgroundColor: AppColors.corBordaFocadaInputs,
                   padding: const EdgeInsets.symmetric(vertical: 15),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
@@ -400,7 +363,7 @@ class _AutomaticDeliveryFormState extends State<AutomaticDeliveryForm> {
                 style: _secondaryButtonStyle(),
                 child: const Text(
                   'Cancelar',
-                  style: TextStyle(color: Colors.black),
+                  style: TextStyle(color: AppColors.corTexto),
                 ),
               ),
             ),
@@ -437,14 +400,9 @@ class _AutomaticDeliveryFormState extends State<AutomaticDeliveryForm> {
                 style: const TextStyle(
                   fontSize: 44,
                   fontWeight: FontWeight.bold,
-                  color: _successColor,
+                  color: AppColors.corSucesso,
                 ),
               ),
-              // const SizedBox(height: 4),
-              // Text(
-              //   '${controller.path.length} pontos capturados',
-              //   style: TextStyle(color: Colors.grey.shade700),
-              // ),
             ],
           ),
         ),
@@ -458,14 +416,14 @@ class _AutomaticDeliveryFormState extends State<AutomaticDeliveryForm> {
                     : controller.pause,
                 icon: Icon(
                   controller.isPaused ? Icons.play_arrow : Icons.pause,
-                  color: Colors.black,
+                  color: AppColors.corIcone,
                 ),
                 label: Text(
                   controller.isPaused ? 'Retomar' : 'Pausar',
-                  style: const TextStyle(color: Colors.black),
+                  style: const TextStyle(color: AppColors.corTexto),
                 ),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: _accentColor,
+                  backgroundColor: AppColors.corBordaFocadaInputs,
                   padding: const EdgeInsets.symmetric(vertical: 15),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
@@ -485,20 +443,20 @@ class _AutomaticDeliveryFormState extends State<AutomaticDeliveryForm> {
                         height: 18,
                         child: CircularProgressIndicator(
                           strokeWidth: 2,
-                          color: Color(0xFFCC3300),
+                          color: AppColors.corErro,
                         ),
                       )
                     : const Icon(
                         Icons.stop_circle_outlined,
-                        color: Color(0xFFCC3300),
+                        color: AppColors.corErro,
                       ),
                 label: Text(
                   _isFinishing ? 'Calculando...' : 'Finalizar',
-                  style: const TextStyle(color: Color(0xFFCC3300)),
+                  style: const TextStyle(color: AppColors.corErro),
                 ),
                 style: OutlinedButton.styleFrom(
                   backgroundColor: Colors.white,
-                  side: const BorderSide(color: Color(0xFFCC3300), width: 1),
+                  side: const BorderSide(color: AppColors.corErro, width: 1),
                   padding: const EdgeInsets.symmetric(vertical: 15),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
@@ -512,7 +470,7 @@ class _AutomaticDeliveryFormState extends State<AutomaticDeliveryForm> {
           const SizedBox(height: 12),
           Text(
             controller.errorMessage!,
-            style: const TextStyle(color: Color(0xFFCC3300)),
+            style: const TextStyle(color: AppColors.corErro),
           ),
         ],
       ],
@@ -545,41 +503,21 @@ class _AutomaticDeliveryFormState extends State<AutomaticDeliveryForm> {
                 style: const TextStyle(
                   fontSize: 40,
                   fontWeight: FontWeight.bold,
-                  color: _successColor,
+                  color: AppColors.corSucesso,
                 ),
               ),
             ],
           ),
         ),
         const SizedBox(height: 20),
-        // const Text('Path bruto', style: TextStyle(fontWeight: FontWeight.w600)),
-        // const SizedBox(height: 8),
-        // Container(
-        //   width: double.infinity,
-        //   padding: const EdgeInsets.all(12),
-        //   decoration: BoxDecoration(
-        //     color: Colors.white,
-        //     borderRadius: BorderRadius.circular(8),
-        //     border: Border.all(color: Colors.grey.shade300),
-        //   ),
-        //   child: SingleChildScrollView(
-        //     scrollDirection: Axis.horizontal,
-        //     child: SelectableText(
-        //       rawPath,
-        //       maxLines: 1,
-        //       style: const TextStyle(fontSize: 13),
-        //     ),
-        //   ),
-        // ),
-        // const SizedBox(height: 24),
         SizedBox(
           width: double.infinity,
           child: ElevatedButton.icon(
             onPressed: () => Navigator.pop(context, result),
-            icon: const Icon(Icons.check_circle_outline, color: Colors.black),
-            label: const Text('Fechar', style: TextStyle(color: Colors.black)),
+            icon: const Icon(Icons.check_circle_outline, color: AppColors.corIcone),
+            label: const Text('Fechar', style: TextStyle(color: AppColors.corTexto)),
             style: ElevatedButton.styleFrom(
-              backgroundColor: _accentColor,
+              backgroundColor: AppColors.corBordaFocadaInputs,
               padding: const EdgeInsets.symmetric(vertical: 15),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(10),
@@ -598,22 +536,11 @@ class _AutomaticDeliveryFormState extends State<AutomaticDeliveryForm> {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(8),
-        color: enabled ? _fieldBackgroundColor : _disabledFieldColor,
+        color: enabled ? AppColors.corInputs : AppColors.corBordaInputs,
       ),
       child: TextField(
         controller: controller,
         enabled: enabled,
-        decoration: InputDecoration(
-          contentPadding: const EdgeInsets.symmetric(
-            horizontal: 12,
-            vertical: 16,
-          ),
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8),
-            borderSide: BorderSide(color: Colors.grey.shade300),
-          ),
-        ),
       ),
     );
   }
@@ -628,11 +555,11 @@ class _AutomaticDeliveryFormState extends State<AutomaticDeliveryForm> {
           width: double.infinity,
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
           decoration: BoxDecoration(
-            color: _disabledFieldColor,
+            color: AppColors.corBordaInputs,
             borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: Colors.grey.shade300),
+            border: Border.all(color: AppColors.corBordaInputs),
           ),
-          child: Text(value, style: TextStyle(color: Colors.grey.shade700)),
+          child: Text(value, style: TextStyle(color: AppColors.corTexto)),
         ),
       ],
     );
@@ -640,11 +567,11 @@ class _AutomaticDeliveryFormState extends State<AutomaticDeliveryForm> {
 
   ButtonStyle _secondaryButtonStyle() {
     return OutlinedButton.styleFrom(
-      backgroundColor: Colors.grey.shade200,
-      side: BorderSide(color: Colors.grey.shade300, width: 1),
+      backgroundColor: AppColors.corInputs,
+      side: BorderSide(color: AppColors.corBordaInputs, width: 1),
       padding: const EdgeInsets.symmetric(vertical: 15),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-      overlayColor: Colors.grey,
+      overlayColor: AppColors.corOverlayBotaoCancelar,
     );
   }
 }

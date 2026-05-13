@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:motora_app/components/generic_modal.dart';
+import 'package:motora_app/constants/app_colors.dart';
 
 class ShiftSummary extends StatelessWidget {
   final String shiftDuration;
@@ -20,7 +21,7 @@ class ShiftSummary extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: Colors.transparent,
+      color: AppColors.corMaterial,
       child: InkWell(
         onTap: () => showDialog(
           context: context,
@@ -38,7 +39,7 @@ class ShiftSummary extends StatelessWidget {
                 ],
               ),
               confirmButtonText: 'Finalizar Turno',
-              confirmButtonIcon: Icon(Icons.pause, color: Colors.black),
+              confirmButtonIcon: Icon(Icons.pause, color: AppColors.corIcone),
             );
           },
         ),
@@ -46,7 +47,7 @@ class ShiftSummary extends StatelessWidget {
         child: Container(
           padding: EdgeInsets.all(10),
           decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.8),
+            color: AppColors.corInputs.withValues(alpha: 0.8),
             borderRadius: BorderRadius.circular(15),
           ),
           child: Text(

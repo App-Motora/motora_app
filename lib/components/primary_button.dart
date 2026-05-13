@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:motora_app/constants/app_colors.dart';
 
 class PrimaryButton extends StatelessWidget {
   final String label;
@@ -22,7 +23,7 @@ class PrimaryButton extends StatelessWidget {
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
           backgroundColor: color,
-          foregroundColor: Colors.white,
+          foregroundColor: AppColors.corInputs,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),

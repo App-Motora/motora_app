@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:motora_app/constants/app_colors.dart';
 import 'package:motora_app/models/delivery_model.dart';
 import 'package:motora_app/services/firestore_service.dart';
 import 'package:intl/intl.dart';
@@ -116,7 +117,7 @@ class _ManualDeliveryFormState extends State<ManualDeliveryForm> {
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(20),
-          color: _modalBackgroundColor,
+          color: AppColors.corFundo,
         ),
         child: Padding(
           padding: const EdgeInsets.all(20.0),
@@ -133,11 +134,11 @@ class _ManualDeliveryFormState extends State<ManualDeliveryForm> {
                     style: const TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.bold,
-                      color: _textColor,
+                      color: AppColors.corTexto,
                     ),
                   ),
                   IconButton(
-                    icon: const Icon(Icons.close, color: Colors.black),
+                    icon: const Icon(Icons.close, color: AppColors.corIcone),
                     onPressed: () => Navigator.pop(context),
                   ),
                 ],
@@ -156,12 +157,12 @@ class _ManualDeliveryFormState extends State<ManualDeliveryForm> {
                           width: constraints.maxWidth,
                           initialSelection: restauranteSelecionado,
                           textStyle: const TextStyle(
-                            color: _textColor,
+                            color: AppColors.corTexto,
                             fontSize: 16,
                           ),
                           menuStyle: MenuStyle(
                             backgroundColor: const WidgetStatePropertyAll(
-                              _fieldBackgroundColor,
+                              AppColors.corInputs,
                             ),
                             surfaceTintColor: const WidgetStatePropertyAll(
                               Colors.transparent,
@@ -179,31 +180,7 @@ class _ManualDeliveryFormState extends State<ManualDeliveryForm> {
                             return DropdownMenuEntry<String>(
                               value: value,
                               label: value,
-                              style: ButtonStyle(
-                                backgroundColor:
-                                    WidgetStateProperty.resolveWith((states) {
-                                      if (isSelected) {
-                                        return const Color(0xFFF1F1F1);
-                                      }
-                                      if (states.contains(
-                                        WidgetState.selected,
-                                      )) {
-                                        return const Color(0xFFF6F6F6);
-                                      }
-                                      if (states.contains(
-                                        WidgetState.hovered,
-                                      )) {
-                                        return const Color(0xFFF8F8F8);
-                                      }
-                                      return _fieldBackgroundColor;
-                                    }),
-                                foregroundColor: const WidgetStatePropertyAll(
-                                  _textColor,
-                                ),
-                                overlayColor: const WidgetStatePropertyAll(
-                                  Color(0x1AF3D080),
-                                ),
-                              ),
+                              style: AppColors.dropdownMenuItemStyle(isSelected),
                             );
                           }).toList(),
                           onSelected: (String? newValue) {
@@ -220,11 +197,11 @@ class _ManualDeliveryFormState extends State<ManualDeliveryForm> {
                   const SizedBox(width: 10),
                   Container(
                     decoration: BoxDecoration(
-                      color: _accentColor,
+                      color: AppColors.corPrincipal,
                       borderRadius: BorderRadius.circular(25),
                     ),
                     child: IconButton(
-                      icon: const Icon(Icons.add, color: Colors.black),
+                      icon: const Icon(Icons.add, color: AppColors.corIcone),
                       onPressed: () {},
                     ),
                   ),
@@ -313,7 +290,7 @@ class _ManualDeliveryFormState extends State<ManualDeliveryForm> {
                                     ? 'Entrega atualizada com sucesso!'
                                     : 'Entrega cadastrada com sucesso!',
                               ),
-                              backgroundColor: Colors.green,
+                              backgroundColor: AppColors.corSucesso,
                             ),
                           );
                         } catch (e) {
@@ -326,21 +303,21 @@ class _ManualDeliveryFormState extends State<ManualDeliveryForm> {
                                     ? 'Erro ao atualizar. Verifique os campos.'
                                     : 'Erro ao cadastrar. Verifique os campos.',
                               ),
-                              backgroundColor: Colors.red,
+                              backgroundColor: AppColors.corErro,
                             ),
                           );
                         }
                       },
                       icon: const Icon(
                         Icons.check_circle_outline,
-                        color: Colors.black,
+                        color: AppColors.corIcone,
                       ),
                       label: Text(
                         widget.isEditing ? 'Salvar' : 'Cadastrar',
-                        style: const TextStyle(color: Colors.black),
+                        style: const TextStyle(color: AppColors.corTexto),
                       ),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: _accentColor,
+                        backgroundColor: AppColors.corPrincipal,
                         padding: const EdgeInsets.symmetric(vertical: 15),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),
@@ -353,17 +330,17 @@ class _ManualDeliveryFormState extends State<ManualDeliveryForm> {
                     child: OutlinedButton(
                       onPressed: () => Navigator.pop(context),
                       style: OutlinedButton.styleFrom(
-                        backgroundColor: Colors.grey.shade200,
-                        side: BorderSide(color: Colors.grey.shade300, width: 1),
+                        backgroundColor: AppColors.corInputs,
+                        side: BorderSide(color: AppColors.corBordaInputs, width: 1),
                         padding: const EdgeInsets.symmetric(vertical: 15),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),
                         ),
-                        overlayColor: Colors.grey,
+                        overlayColor: AppColors.corOverlayBotaoCancelar,
                       ),
                       child: const Text(
                         'Cancelar',
-                        style: TextStyle(color: Colors.black),
+                        style: TextStyle(color: AppColors.corTexto),
                       ),
                     ),
                   ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:motora_app/components/primary_button.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:motora_app/constants/app_colors.dart';
 
 class RegistroPage extends StatefulWidget {
   const RegistroPage({super.key});
@@ -19,7 +20,7 @@ class _RegistroPageState extends State<RegistroPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F2E9),
+      backgroundColor: AppColors.corFundo,
       body: Center(
         child: SingleChildScrollView(
           child: Padding(
@@ -39,7 +40,7 @@ class _RegistroPageState extends State<RegistroPage> {
                     controller: _nomeController,
                     decoration: InputDecoration(
                       labelText: 'Nome Completo',
-                      floatingLabelStyle: const TextStyle(color: Colors.black),
+                      floatingLabelStyle: TextStyle(color: AppColors.corTexto),
                       prefixIcon: const Icon(Icons.person_outline),
                     ),
                     validator: (value) => (value == null || value.isEmpty)
@@ -53,7 +54,7 @@ class _RegistroPageState extends State<RegistroPage> {
                     keyboardType: TextInputType.emailAddress,
                     decoration: InputDecoration(
                       labelText: 'E-mail',
-                      floatingLabelStyle: const TextStyle(color: Colors.black),
+                      floatingLabelStyle: TextStyle(color: AppColors.corTexto),
                       prefixIcon: const Icon(Icons.email_outlined)
                     ),
                     validator: (value) =>
@@ -68,7 +69,7 @@ class _RegistroPageState extends State<RegistroPage> {
                     obscureText: true,
                     decoration: InputDecoration(
                       labelText: 'Senha',
-                      floatingLabelStyle: const TextStyle(color: Colors.black),
+                      floatingLabelStyle: TextStyle(color: AppColors.corTexto),
                       prefixIcon: const Icon(Icons.lock_outline)
                     ),
                     validator: (value) => (value == null || value.length < 6)
@@ -82,7 +83,7 @@ class _RegistroPageState extends State<RegistroPage> {
                     obscureText: true,
                     decoration: InputDecoration(
                       labelText: 'Confirmar Senha',
-                      floatingLabelStyle: const TextStyle(color: Colors.black),
+                      floatingLabelStyle: TextStyle(color: AppColors.corTexto),
                       prefixIcon: const Icon(Icons.lock_reset)
                     ),
                     validator: (value) {
@@ -97,7 +98,7 @@ class _RegistroPageState extends State<RegistroPage> {
                   PrimaryButton(
                     label: 'Cadastrar',
                     icon: Icons.check_circle_outline,
-                    color: const Color(0xFF388E3C),
+                    color: AppColors.corSecundaria,
                     onPressed: () async { 
                       if (_formKey.currentState!.validate()) {
                         try {
@@ -107,7 +108,7 @@ class _RegistroPageState extends State<RegistroPage> {
                           );
                           if (mounted) {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Conta criada com sucesso!'), backgroundColor: Colors.green),
+                              const SnackBar(content: Text('Conta criada com sucesso!'), backgroundColor: AppColors.corSucesso),
                             );
                             Navigator.pop(context); 
                           }
@@ -119,7 +120,7 @@ class _RegistroPageState extends State<RegistroPage> {
                             message = 'A senha é muito fraca';
                           }                         
                           ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text(message), backgroundColor: Colors.red),
+                            SnackBar(content: Text(message), backgroundColor: AppColors.corErro),
                           );
                         }
                       }
@@ -127,9 +128,9 @@ class _RegistroPageState extends State<RegistroPage> {
                   ),
                   TextButton(
                     onPressed: () => Navigator.pop(context),
-                    child: const Text(
+                    child: Text(
                       'Já possui conta? Faça login',
-                      style: TextStyle(color: Colors.black),
+                      style: TextStyle(color: AppColors.corTexto),
                     ),
                   ),
                 ],

@@ -5,6 +5,7 @@ import 'package:motora_app/components/float_button.dart';
 import 'package:motora_app/components/generic_modal.dart';
 import 'package:motora_app/components/header.dart';
 import 'package:motora_app/components/menu.dart';
+import 'package:motora_app/constants/app_colors.dart';
 import 'package:motora_app/home_page_vazia.dart';
 
 class HomePage extends StatefulWidget {
@@ -15,7 +16,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   List activities = [];
-  int _activeMenuIndex = 0;
+  final int _activeMenuIndex = 0;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
@@ -23,7 +24,7 @@ class _HomePageState extends State<HomePage> {
     bool hasActivities = activities.isNotEmpty;
     return Scaffold(
       key: _scaffoldKey,
-      backgroundColor: const Color(0xFFF5F2E9),
+      backgroundColor: AppColors.corFundo,
       drawer: Menu(
         selectedIndex: _activeMenuIndex,
       ),
@@ -81,7 +82,7 @@ class _HomePageState extends State<HomePage> {
           const SizedBox(height: 20),
           ActivityCard(
             icon: Icons.location_on,
-            iconBackgroundColor: const Color(0xFF388E3C),
+            iconBackgroundColor: AppColors.corEntrega,
             time: '14:32',
             title: 'Entrega - Açaí da Praia',
             subtitle: '12.5 km rodados',
@@ -98,7 +99,7 @@ class _HomePageState extends State<HomePage> {
       children: [
         FloatButton(
           icon: Icons.access_time,
-          color: Color(0xFF4FA8FF),
+          color: AppColors.corSecundaria,
           function: () => showDialog(
             context: context,
             builder: (BuildContext context) {
@@ -113,7 +114,7 @@ class _HomePageState extends State<HomePage> {
                 confirmButtonText: 'Iniciar Turno',
                 confirmButtonIcon: Icon(
                   Icons.play_arrow_outlined,
-                  color: Colors.black,
+                  color: AppColors.corIcone,
                 ),
               );
             },
@@ -122,13 +123,13 @@ class _HomePageState extends State<HomePage> {
         const SizedBox(height: 12),
         FloatButton(
           icon: Icons.swap_vert,
-          color: const Color(0xFFFF7E55),
+          color: AppColors.corDespesa,
           function: () {},
         ),
         const SizedBox(height: 12),
         FloatButton(
           icon: Icons.delivery_dining,
-          color: Color(0xFF388E3C),
+          color: AppColors.corEntrega,
           function: () => showDialog(
             context: context,
             builder: (BuildContext context) {

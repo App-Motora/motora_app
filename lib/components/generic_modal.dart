@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:motora_app/constants/app_colors.dart';
 
 class GenericModal extends StatefulWidget {
   final String title;
@@ -27,7 +28,7 @@ class _GenericModalState extends State<GenericModal> {
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(20),
-          color: Color(0xFFF2EDE4),
+          color: AppColors.corFundo,
         ),
         child: Padding(
           padding: EdgeInsets.fromLTRB(10, 15, 10, 15),
@@ -44,11 +45,11 @@ class _GenericModalState extends State<GenericModal> {
                     style: TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.bold,
-                      color: Color(0xFF333333),
+                      color: AppColors.corTexto,
                     ),
                   ),
                   IconButton(
-                    icon: Icon(Icons.close, color: Colors.black),
+                    icon: Icon(Icons.close, color: AppColors.corIcone),
                     onPressed: () => Navigator.pop(context),
                   ),
                 ],
@@ -63,10 +64,10 @@ class _GenericModalState extends State<GenericModal> {
                       icon: widget.confirmButtonIcon ?? SizedBox.shrink(),
                       label: Text(
                         widget.confirmButtonText,
-                        style: TextStyle(color: Colors.black),
+                        style: TextStyle(color: AppColors.corTexto),
                       ),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Color(0xFFF3D080),
+                        backgroundColor: AppColors.corBordaFocadaInputs,
                         padding: EdgeInsets.symmetric(vertical: 15),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),
@@ -79,17 +80,17 @@ class _GenericModalState extends State<GenericModal> {
                     child: OutlinedButton(
                       onPressed: () => Navigator.pop(context),
                       style: OutlinedButton.styleFrom(
-                        backgroundColor: Colors.grey.shade200,
-                        side: BorderSide(color: Colors.grey.shade300, width: 1),
+                        backgroundColor: AppColors.corInputs,
+                        side: BorderSide(color: AppColors.corBordaInputs, width: 1),
                         padding: EdgeInsets.symmetric(vertical: 15),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),
                         ),
-                        overlayColor: Colors.grey,
+                        overlayColor: AppColors.corOverlayBotaoCancelar,
                       ),
                       child: Text(
                         'Cancelar',
-                        style: TextStyle(color: Colors.black),
+                        style: TextStyle(color: AppColors.corTexto),
                       ),
                     ),
                   ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:motora_app/components/financial_summary_card.dart';
 import 'package:motora_app/components/shift_summary.dart';
+import 'package:motora_app/constants/app_colors.dart';
 
 class Header extends StatefulWidget {
   final String restaurantName;
@@ -40,7 +41,7 @@ class _HeaderState extends State<Header> {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      decoration: BoxDecoration(color: Color(0xFFF7E18B)),
+      decoration: BoxDecoration(color: AppColors.corPrincipal),
       padding: EdgeInsets.only(top: 15, left: 15, right: 15, bottom: 15),
       child: Column(
         spacing: 10,
@@ -61,7 +62,7 @@ class _HeaderState extends State<Header> {
                   child: DropdownMenu<String>(
                     inputDecorationTheme: InputDecorationThemeData(
                       filled: true,
-                      fillColor: Colors.white.withValues(alpha: 0.5),
+                      fillColor: AppColors.corInputs.withValues(alpha: 0.5),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(20),
                         borderSide: BorderSide.none,
@@ -79,31 +80,7 @@ class _HeaderState extends State<Header> {
                       return DropdownMenuEntry<String>(
                         value: value,
                         label: value,
-                        style: ButtonStyle(
-                          backgroundColor:
-                              WidgetStateProperty.resolveWith((states) {
-                                if (isSelected) {
-                                  return const Color(0xFFF1F1F1);
-                                }
-                                if (states.contains(
-                                  WidgetState.selected,
-                                )) {
-                                  return const Color(0xFFF6F6F6);
-                                }
-                                if (states.contains(
-                                  WidgetState.hovered,
-                                )) {
-                                  return const Color(0xFFF8F8F8);
-                                }
-                                return Colors.white;
-                              }),
-                          foregroundColor: const WidgetStatePropertyAll(
-                            Colors.black,
-                          ),
-                          overlayColor: const WidgetStatePropertyAll(
-                            Color(0x1AF3D080),
-                          ),
-                        ),
+                        style: AppColors.dropdownMenuItemStyle(isSelected),
                       );
                     }).toList(),
                     onSelected: (String? newValue) {

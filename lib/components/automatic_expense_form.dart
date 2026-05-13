@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:motora_app/constants/app_colors.dart';
 
 class AutomaticExpenseForm extends StatefulWidget {
   const AutomaticExpenseForm({super.key});
@@ -8,11 +9,6 @@ class AutomaticExpenseForm extends StatefulWidget {
 }
 
 class _AutomaticExpenseFormState extends State<AutomaticExpenseForm> {
-  static const Color _modalBackgroundColor = Color(0xFFF2EDE4);
-  static const Color _fieldBackgroundColor = Colors.white;
-  static const Color _accentColor = Color(0xFFF3D080);
-  static const Color _textColor = Color(0xFF333333);
-
   String? categoriaSelecionada = 'Combustivel';
   final List<String> categoriasDespesa = [
     'Combustivel',
@@ -39,7 +35,7 @@ class _AutomaticExpenseFormState extends State<AutomaticExpenseForm> {
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(20),
-          color: _modalBackgroundColor,
+          color: AppColors.corFundo,
         ),
         child: Padding(
           padding: const EdgeInsets.all(20.0),
@@ -56,11 +52,11 @@ class _AutomaticExpenseFormState extends State<AutomaticExpenseForm> {
                     style: TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.bold,
-                      color: _textColor,
+                      color: AppColors.corTexto,
                     ),
                   ),
                   IconButton(
-                    icon: const Icon(Icons.close, color: Colors.black),
+                    icon: const Icon(Icons.close, color: AppColors.corIcone),
                     onPressed: () => Navigator.pop(context),
                   ),
                 ],
@@ -87,31 +83,7 @@ class _AutomaticExpenseFormState extends State<AutomaticExpenseForm> {
                             return DropdownMenuEntry<String>(
                               value: value,
                               label: value,
-                              style: ButtonStyle(
-                                backgroundColor:
-                                    WidgetStateProperty.resolveWith((states) {
-                                      if (isSelected) {
-                                        return const Color(0xFFF1F1F1);
-                                      }
-                                      if (states.contains(
-                                        WidgetState.selected,
-                                      )) {
-                                        return const Color(0xFFF6F6F6);
-                                      }
-                                      if (states.contains(
-                                        WidgetState.hovered,
-                                      )) {
-                                        return const Color(0xFFF8F8F8);
-                                      }
-                                      return _fieldBackgroundColor;
-                                    }),
-                                foregroundColor: const WidgetStatePropertyAll(
-                                  _textColor,
-                                ),
-                                overlayColor: const WidgetStatePropertyAll(
-                                  Color(0x1AF3D080),
-                                ),
-                              ),
+                              style: AppColors.dropdownMenuItemStyle(isSelected),
                             );
                           }).toList(),
                           onSelected: (String? newValue) {
@@ -128,11 +100,11 @@ class _AutomaticExpenseFormState extends State<AutomaticExpenseForm> {
                   const SizedBox(width: 10),
                   Container(
                     decoration: BoxDecoration(
-                      color: _accentColor,
+                      color: AppColors.corPrincipal,
                       borderRadius: BorderRadius.circular(25),
                     ),
                     child: IconButton(
-                      icon: const Icon(Icons.add, color: Colors.black),
+                      icon: const Icon(Icons.add, color: AppColors.corIcone),
                       onPressed: () {},
                     ),
                   ),
@@ -163,14 +135,14 @@ class _AutomaticExpenseFormState extends State<AutomaticExpenseForm> {
                       onPressed: () {},
                       icon: const Icon(
                         Icons.check_circle_outline,
-                        color: Colors.black,
+                        color: AppColors.corIcone,
                       ),
                       label: const Text(
                         'Salvar Despesa',
-                        style: TextStyle(color: Colors.black),
+                        style: TextStyle(color: AppColors.corTexto),
                       ),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFFF3D080),
+                        backgroundColor: AppColors.corBordaFocadaInputs,
                         padding: const EdgeInsets.symmetric(vertical: 15),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),
@@ -183,17 +155,17 @@ class _AutomaticExpenseFormState extends State<AutomaticExpenseForm> {
                     child: OutlinedButton(
                       onPressed: () => Navigator.pop(context),
                       style: OutlinedButton.styleFrom(
-                        backgroundColor: Colors.grey.shade200,
-                        side: BorderSide(color: Colors.grey.shade300, width: 1),
+                        backgroundColor: AppColors.corInputs,
+                        side: BorderSide(color: AppColors.corBordaInputs, width: 1),
                         padding: const EdgeInsets.symmetric(vertical: 15),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),
                         ),
-                        overlayColor: Colors.grey,
+                        overlayColor: AppColors.corOverlayBotaoCancelar,
                       ),
                       child: const Text(
                         'Cancelar',
-                        style: TextStyle(color: Colors.black),
+                        style: TextStyle(color: AppColors.corTexto),
                       ),
                     ),
                   ),

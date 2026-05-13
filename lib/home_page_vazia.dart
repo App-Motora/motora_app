@@ -3,6 +3,7 @@ import 'package:motora_app/components/automatic_expense_form.dart';
 import 'package:motora_app/components/generic_modal.dart';
 import 'package:motora_app/components/primary_button.dart';
 import 'package:motora_app/components/automatic_delivery_form.dart';
+import 'package:motora_app/constants/app_colors.dart';
 
 class HomePageVazia extends StatelessWidget {
   const HomePageVazia({super.key});
@@ -20,14 +21,14 @@ class HomePageVazia extends StatelessWidget {
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
-              color: Color(0xFF2D2D2D),
+              color: AppColors.corTexto,
             ),
           ),
           const SizedBox(height: 20),
           PrimaryButton(
             label: 'Iniciar Turno',
             icon: Icons.history,
-            color: const Color(0xFF4FA8FF),
+            color: AppColors.corSecundaria,
             onPressed: () => showDialog(
               context: context,
               builder: (BuildContext context) {
@@ -40,7 +41,7 @@ class HomePageVazia extends StatelessWidget {
                     ],
                   ),
                   confirmButtonText: 'Iniciar Turno',
-                  confirmButtonIcon: Icon(Icons.play_arrow_outlined, color: Colors.black),
+                  confirmButtonIcon: Icon(Icons.play_arrow_outlined, color: AppColors.corIcone),
                 );
               },
             ),
@@ -49,7 +50,7 @@ class HomePageVazia extends StatelessWidget {
           PrimaryButton(
             label: 'Registrar Entrega',
             icon: Icons.delivery_dining,
-            color: const Color(0xFF388E3C),
+            color: AppColors.corEntrega,
             onPressed: () => showDialog(
               context: context,
               builder: (BuildContext context) {
@@ -61,7 +62,7 @@ class HomePageVazia extends StatelessWidget {
           PrimaryButton(
             label: 'Registrar Despesa',
             icon: Icons.swap_vert,
-            color: const Color(0xFFFF7E55),
+            color: AppColors.corDespesa,
             onPressed: () => showDialog(
               context: context,
               builder: (BuildContext context) {

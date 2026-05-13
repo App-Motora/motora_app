@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:motora_app/constants/app_colors.dart';
 
 typedef ActivityCardEditBuilder = Widget Function(BuildContext context);
 typedef ActivityCardDeleteCallback = Future<void> Function();
@@ -45,8 +46,8 @@ class ActivityCardActionConfig {
     this.deleteErrorMessage = 'Erro ao excluir item.',
     this.editIcon = Icons.edit,
     this.deleteIcon = Icons.delete_outline,
-    this.editIconColor = const Color(0xFF388E3C),
-    this.deleteIconColor = const Color(0xFFCC3300),
+    this.editIconColor = AppColors.corEditar,
+    this.deleteIconColor = AppColors.corExcluir,
   });
 
   bool get hasActions => editBuilder != null || onDelete != null;
@@ -77,7 +78,7 @@ class ActivityCard extends StatelessWidget {
     super.key,
     required this.icon,
     required this.iconBackgroundColor,
-    this.iconColor = Colors.white,
+    this.iconColor = AppColors.corIconeClaro,
     required this.time,
     required this.title,
     this.subtitle,
@@ -95,7 +96,7 @@ class ActivityCard extends StatelessWidget {
 
     showModalBottomSheet(
       context: context,
-      backgroundColor: const Color(0xFFF5F2E9),
+      backgroundColor: AppColors.corFundo,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -110,7 +111,7 @@ class ActivityCard extends StatelessWidget {
                 width: 44,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: Colors.black26,
+                  color: AppColors.corHintInputs,
                   borderRadius: BorderRadius.circular(999),
                 ),
               ),
@@ -181,7 +182,7 @@ class ActivityCard extends StatelessWidget {
               onPressed: () => Navigator.pop(dialogContext, false),
               child: Text(
                 config.deleteCancelButtonText,
-                style: const TextStyle(color: Colors.black87),
+                style: TextStyle(color: AppColors.corTexto),
               ),
             ),
             TextButton(
@@ -206,7 +207,7 @@ class ActivityCard extends StatelessWidget {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(config.deleteSuccessMessage),
-          backgroundColor: Colors.green,
+          backgroundColor: AppColors.corSucesso,
         ),
       );
     } catch (error) {
@@ -215,7 +216,7 @@ class ActivityCard extends StatelessWidget {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(config.resolveDeleteErrorMessage(error)),
-          backgroundColor: Colors.red,
+          backgroundColor: AppColors.corErro,
         ),
       );
     }
@@ -231,18 +232,18 @@ class ActivityCard extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: Material(
-        color: Colors.white,
+        color: AppColors.corInputs,
         borderRadius: borderRadius,
         clipBehavior: Clip.antiAlias,
         elevation: 1,
-        shadowColor: Colors.black.withValues(alpha: 0.10),
+        shadowColor: AppColors.corSombra,
         surfaceTintColor: Colors.transparent,
         child: InkWell(
           onTap: onTap,
           onLongPress: cardLongPress,
           borderRadius: borderRadius,
-          splashColor: Colors.grey.withValues(alpha: 0.22),
-          highlightColor: Colors.grey.withValues(alpha: 0.12),
+          splashColor: AppColors.corBordaInputs,
+          highlightColor: AppColors.corHintInputs,
           child: Padding(
             padding: const EdgeInsets.all(12),
             child: Row(
@@ -265,14 +266,14 @@ class ActivityCard extends StatelessWidget {
                           const Icon(
                             Icons.access_time,
                             size: 12,
-                            color: Colors.grey,
+                            color: AppColors.corIcone,
                           ),
                           const SizedBox(width: 4),
                           Text(
                             time,
                             style: const TextStyle(
                               fontSize: 12,
-                              color: Colors.grey,
+                              color: AppColors.corTexto,
                             ),
                           ),
                         ],
@@ -289,9 +290,9 @@ class ActivityCard extends StatelessWidget {
                         const SizedBox(height: 2),
                         Text(
                           subtitle!,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 14,
-                            color: Colors.grey,
+                            color: AppColors.corHintInputs,
                           ),
                         ),
                       ],
@@ -304,8 +305,8 @@ class ActivityCard extends StatelessWidget {
                     fontWeight: FontWeight.bold,
                     fontSize: 18,
                     color: isPositive
-                        ? const Color(0xFF4CAF50)
-                        : const Color(0xFFFF7E55),
+                        ? AppColors.corEntrega
+                        : AppColors.corDespesa,
                   ),
                 ),
               ],

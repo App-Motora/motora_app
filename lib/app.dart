@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:motora_app/constants/app_colors.dart';
 import 'package:motora_app/deliveries_history_page.dart';
 import 'package:motora_app/home_page.dart';
 import 'package:motora_app/login_page.dart';
@@ -17,7 +18,7 @@ class App extends StatelessWidget {
           inputDecorationTheme: _buildInputDecorationTheme(),
           menuStyle: MenuStyle(
             backgroundColor: const WidgetStatePropertyAll(
-              Colors.white,
+              AppColors.corInputs,
             ),
             surfaceTintColor: const WidgetStatePropertyAll(
               Colors.transparent,
@@ -29,16 +30,16 @@ class App extends StatelessWidget {
             ),
           ),
           textStyle: const TextStyle(
-            color: Color(0xFF333333),
+            color: AppColors.corTexto,
             fontSize: 16,
           ),
         ),
         textSelectionTheme: TextSelectionThemeData(
-          cursorColor: Colors.orange,
-          selectionHandleColor: Color(0xFF4FA8FF),
-          selectionColor: Colors.orange.withValues(alpha: 0.3),
+          cursorColor: AppColors.corCursorSelecao,
+          selectionHandleColor: AppColors.corSecundaria,
+          selectionColor: AppColors.corCursorSelecao.withValues(alpha: 0.3),
         ),
-        disabledColor: Colors.grey.shade300,
+        disabledColor: AppColors.corBordaInputs,
       ),
 
       initialRoute: '/login',
@@ -54,7 +55,7 @@ class App extends StatelessWidget {
   Widget _buildInputDecorationTheme() {
     return InputDecorationTheme(
       filled: true,
-      fillColor: Colors.white,
+      fillColor: AppColors.corInputs,
       contentPadding: const EdgeInsets.symmetric(
         horizontal: 12,
         vertical: 16,
@@ -64,16 +65,16 @@ class App extends StatelessWidget {
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
-        borderSide: BorderSide(color: Colors.grey.shade300),
+        borderSide: BorderSide(color: AppColors.corBordaInputs),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
         borderSide: const BorderSide(
-          color: Color(0xFFF3D080), // Cor amarela usada nos formulários
+          color: AppColors.corBordaFocadaInputs,
           width: 1.5,
         ),
       ),
-      hintStyle: const TextStyle(color: Colors.black38),
+      hintStyle: TextStyle(color: AppColors.corHintInputs),
     );
   }
 }

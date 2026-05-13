@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:motora_app/constants/app_colors.dart';
 import 'package:motora_app/login_page.dart';
 
 class Menu extends StatefulWidget {
@@ -42,8 +43,8 @@ class _MenuState extends State<Menu> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          backgroundColor: Colors.white,
-          surfaceTintColor: Colors.transparent,
+          backgroundColor: AppColors.corFundoMenu,
+          surfaceTintColor: AppColors.corMaterial,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),
@@ -55,7 +56,7 @@ class _MenuState extends State<Menu> {
           content: const Text(
             'Você deseja realmente sair da sua conta?',
             textAlign: TextAlign.center,
-            style: TextStyle(color: Colors.black87),
+            style: TextStyle(color: AppColors.corTexto),
           ),
           actionsAlignment: MainAxisAlignment.center,
           actions: [
@@ -63,7 +64,7 @@ class _MenuState extends State<Menu> {
               onPressed: () => Navigator.pop(context),
               child: const Text(
                 'Cancelar',
-                style: TextStyle(color: Colors.black),
+                style: TextStyle(color: AppColors.corTexto),
               ),
             ),
             TextButton(
@@ -80,7 +81,7 @@ class _MenuState extends State<Menu> {
               child: const Text(
                 'Sair',
                 style: TextStyle(
-                  color: Colors.redAccent,
+                  color: AppColors.corSair,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -97,13 +98,13 @@ class _MenuState extends State<Menu> {
       width: MediaQuery.of(context).size.width * 0.65,
       child: Drawer(
         shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.corFundoMenu,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
               width: double.infinity,
-              color: const Color(0xFFF7E18B),
+              color: AppColors.corPrincipal,
               padding: const EdgeInsets.fromLTRB(20.0, 26.0, 20.0, 18.0),
               child: const Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
@@ -113,7 +114,7 @@ class _MenuState extends State<Menu> {
                     backgroundColor: Colors.white,
                     child: Icon(
                       Icons.person,
-                      color: Color(0xFFF7E18B),
+                      color: AppColors.corPrincipal,
                       size: 28,
                     ),
                   ),
@@ -127,7 +128,7 @@ class _MenuState extends State<Menu> {
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
-                            color: Colors.black,
+                            color: AppColors.corTexto,
                           ),
                         ),
                       ],
@@ -136,7 +137,7 @@ class _MenuState extends State<Menu> {
                 ],
               ),
             ),
-            const Divider(height: 0, thickness: 1, color: Color(0xFFE8E8E8)),
+            Divider(height: 0, thickness: 1, color: AppColors.corBordaInputs),
             Expanded(
               child: ListView.builder(
                 padding: const EdgeInsets.only(top: 14.0, bottom: 20.0),
@@ -162,12 +163,12 @@ class _MenuState extends State<Menu> {
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.logout, size: 22, color: Colors.redAccent),
+                        Icon(Icons.logout, size: 22, color: AppColors.corSair),
                         SizedBox(width: 8),
                         Text(
                           'Sair',
                           style: TextStyle(
-                            color: Colors.redAccent,
+                            color: AppColors.corSair,
                             fontWeight: FontWeight.w600,
                             fontSize: 16,
                           ),
@@ -185,7 +186,7 @@ class _MenuState extends State<Menu> {
                 child: Text(
                   'Motora App',
                   style: TextStyle(
-                    color: Colors.black87,
+                    color: AppColors.corTexto,
                     fontWeight: FontWeight.bold,
                     fontSize: 16,
                   ),
@@ -204,19 +205,19 @@ class _MenuState extends State<Menu> {
       padding: const EdgeInsets.symmetric(horizontal: 18.0, vertical: 6.0),
       child: Material(
         color: selected
-            ? const Color(0xFF4FA8FF).withValues(alpha: 0.16)
-            : Colors.transparent,
+            ? AppColors.corSecundaria.withValues(alpha: 0.16)
+            : AppColors.corMaterial,
         borderRadius: BorderRadius.circular(14),
         child: ListTile(
           dense: true,
           minLeadingWidth: 32,
-          splashColor: const Color(0xFF4FA8FF).withValues(alpha: 0.28),
+          splashColor: AppColors.corSecundaria.withValues(alpha: 0.28),
           contentPadding: const EdgeInsets.symmetric(horizontal: 18.0),
-          leading: Icon(icon, size: 22, color: Colors.black87),
+          leading: Icon(icon, size: 22, color: AppColors.corTexto),
           title: Text(
             title,
             style: TextStyle(
-              color: Colors.black87,
+              color: AppColors.corTexto,
               fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
             ),
           ),

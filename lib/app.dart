@@ -21,7 +21,7 @@ class App extends StatelessWidget {
               AppColors.corInputs,
             ),
             surfaceTintColor: const WidgetStatePropertyAll(
-              Colors.transparent,
+              AppColors.corInputs,
             ),
             shape: WidgetStatePropertyAll(
               RoundedRectangleBorder(

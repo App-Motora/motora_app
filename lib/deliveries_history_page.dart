@@ -37,13 +37,13 @@ class _DeliveriesHistoryPageState extends State<DeliveriesHistoryPage> {
                 width: 44,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: Colors.black26,
+                  color: AppColors.corSombra,
                   borderRadius: BorderRadius.circular(999),
                 ),
               ),
               const SizedBox(height: 16),
               ListTile(
-                leading: const Icon(Icons.edit, color: Color(0xFF388E3C)),
+                leading: const Icon(Icons.edit, color: AppColors.corEditar),
                 title: const Text('Editar entrega'),
                 subtitle: Text(entrega.restaurante),
                 shape: RoundedRectangleBorder(
@@ -57,7 +57,7 @@ class _DeliveriesHistoryPageState extends State<DeliveriesHistoryPage> {
               ListTile(
                 leading: const Icon(
                   Icons.delete_outline,
-                  color: Color(0xFFCC3300),
+                  color: AppColors.corExcluir,
                 ),
                 title: const Text('Excluir entrega'),
                 subtitle: const Text('Remover esta entrega do histórico'),
@@ -90,7 +90,7 @@ class _DeliveriesHistoryPageState extends State<DeliveriesHistoryPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Não foi possível identificar esta entrega.'),
-          backgroundColor: Colors.red,
+          backgroundColor: AppColors.corErro,
         ),
       );
       return;

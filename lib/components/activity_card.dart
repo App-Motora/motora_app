@@ -174,7 +174,7 @@ class ActivityCard extends StatelessWidget {
       context: context,
       builder: (dialogContext) {
         return AlertDialog(
-          backgroundColor: const Color(0xFFF5F2E9),
+          backgroundColor: AppColors.corFundo,
           title: Text(config.deleteConfirmationTitle),
           content: Text(config.deleteConfirmationMessage),
           actions: [
@@ -237,7 +237,7 @@ class ActivityCard extends StatelessWidget {
         clipBehavior: Clip.antiAlias,
         elevation: 1,
         shadowColor: AppColors.corSombra,
-        surfaceTintColor: Colors.transparent,
+        surfaceTintColor: AppColors.corInputs,
         child: InkWell(
           onTap: onTap,
           onLongPress: cardLongPress,

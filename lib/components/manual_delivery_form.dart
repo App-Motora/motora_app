@@ -18,11 +18,6 @@ class ManualDeliveryForm extends StatefulWidget {
 }
 
 class _ManualDeliveryFormState extends State<ManualDeliveryForm> {
-  static const Color _modalBackgroundColor = Color(0xFFF2EDE4);
-  static const Color _fieldBackgroundColor = Colors.white;
-  static const Color _accentColor = Color(0xFFF3D080);
-  static const Color _textColor = Color(0xFF333333);
-
   String? restauranteSelecionado = 'Acai da Praia';
   final List<String> restaurantes = [
     'Acai da Praia',

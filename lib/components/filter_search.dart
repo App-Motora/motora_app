@@ -585,7 +585,7 @@ class _FilterSearchState<T> extends State<FilterSearch<T>> {
 
           return ActivityCard(
             icon: Icons.location_on,
-            iconBackgroundColor: const Color(0xFF388E3C),
+            iconBackgroundColor: AppColors.corEntrega,
             time: dataFormatada,
             title: widget.getTitle(item),
             subtitle: widget.getSubtitle(item),

@@ -15,13 +15,6 @@ class AutomaticDeliveryForm extends StatefulWidget {
 }
 
 class _AutomaticDeliveryFormState extends State<AutomaticDeliveryForm> {
-  static const Color _modalBackgroundColor = Color(0xFFF2EDE4);
-  static const Color _fieldBackgroundColor = Colors.white;
-  static const Color _disabledFieldColor = Color(0xFFE4E1DA);
-  static const Color _accentColor = Color(0xFFF3D080);
-  static const Color _successColor = Color(0xFF388E3C);
-  static const Color _textColor = Color(0xFF333333);
-
   final DeliveryTrackingController _trackingController =
       DeliveryTrackingController();
   final TextEditingController _pagamentoController = TextEditingController(
@@ -62,7 +55,7 @@ class _AutomaticDeliveryFormState extends State<AutomaticDeliveryForm> {
     final paymentProfile = _pagamentoController.text.trim();
 
     if (restaurant == null || paymentProfile.isEmpty) {
-      _showMessage('Informe restaurante e perfil de pagamento.', Colors.red);
+      _showMessage('Informe restaurante e perfil de pagamento.', AppColors.corErro);
       return;
     }
 
@@ -75,7 +68,7 @@ class _AutomaticDeliveryFormState extends State<AutomaticDeliveryForm> {
 
     final errorMessage = _trackingController.errorMessage;
     if (errorMessage != null) {
-      _showMessage(errorMessage, Colors.red);
+      _showMessage(errorMessage, AppColors.corErro);
     }
   }
 
@@ -117,11 +110,11 @@ class _AutomaticDeliveryFormState extends State<AutomaticDeliveryForm> {
         _finishedResult = rawResult; 
       });
 
-      _showMessage('Entrega salva com sucesso!', _successColor);
+      _showMessage('Entrega salva com sucesso!', AppColors.corSucesso);
       
     } catch (e) {
       if (!mounted) return;
-      _showMessage('Erro ao processar ou salvar entrega: $e', Colors.red);
+      _showMessage('Erro ao processar ou salvar entrega: $e', AppColors.corErro);
       
     } finally {
       // 7. Garante que o botão de "Calculando..." pare de girar, mesmo se der erro

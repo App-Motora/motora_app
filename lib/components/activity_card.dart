@@ -1,5 +1,65 @@
 import 'package:flutter/material.dart';
 
+typedef ActivityCardEditBuilder = Widget Function(BuildContext context);
+typedef ActivityCardDeleteCallback = Future<void> Function();
+
+class ActivityCardActionException implements Exception {
+  final String message;
+
+  const ActivityCardActionException(this.message);
+
+  @override
+  String toString() => message;
+}
+
+class ActivityCardActionConfig {
+  final ActivityCardEditBuilder? editBuilder;
+  final ActivityCardDeleteCallback? onDelete;
+  final String editTitle;
+  final String? editSubtitle;
+  final String deleteTitle;
+  final String? deleteSubtitle;
+  final String deleteConfirmationTitle;
+  final String deleteConfirmationMessage;
+  final String deleteConfirmButtonText;
+  final String deleteCancelButtonText;
+  final String deleteSuccessMessage;
+  final String deleteErrorMessage;
+  final IconData editIcon;
+  final IconData deleteIcon;
+  final Color editIconColor;
+  final Color deleteIconColor;
+
+  const ActivityCardActionConfig({
+    this.editBuilder,
+    this.onDelete,
+    this.editTitle = 'Editar',
+    this.editSubtitle,
+    this.deleteTitle = 'Excluir',
+    this.deleteSubtitle,
+    this.deleteConfirmationTitle = 'Excluir item?',
+    this.deleteConfirmationMessage = 'Esta acao nao podera ser desfeita.',
+    this.deleteConfirmButtonText = 'Excluir',
+    this.deleteCancelButtonText = 'Cancelar',
+    this.deleteSuccessMessage = 'Item excluido com sucesso!',
+    this.deleteErrorMessage = 'Erro ao excluir item.',
+    this.editIcon = Icons.edit,
+    this.deleteIcon = Icons.delete_outline,
+    this.editIconColor = const Color(0xFF388E3C),
+    this.deleteIconColor = const Color(0xFFCC3300),
+  });
+
+  bool get hasActions => editBuilder != null || onDelete != null;
+
+  String resolveDeleteErrorMessage(Object error) {
+    if (error is ActivityCardActionException) {
+      return error.message;
+    }
+
+    return deleteErrorMessage;
+  }
+}
+
 class ActivityCard extends StatelessWidget {
   final IconData icon;
   final Color iconBackgroundColor;
@@ -9,9 +69,12 @@ class ActivityCard extends StatelessWidget {
   final String? subtitle;
   final double amount;
   final bool isPositive;
+  final VoidCallback? onTap;
+  final VoidCallback? onLongPress;
+  final ActivityCardActionConfig? actions;
 
   const ActivityCard({
-    Key? key,
+    super.key,
     required this.icon,
     required this.iconBackgroundColor,
     this.iconColor = Colors.white,
@@ -20,76 +83,235 @@ class ActivityCard extends StatelessWidget {
     this.subtitle,
     required this.amount,
     required this.isPositive,
-  }) : super(key: key);
+    this.onTap,
+    this.onLongPress,
+    this.actions,
+  });
+
+  void _abrirAcoes(BuildContext context) {
+    final config = actions;
+
+    if (config == null || !config.hasActions) return;
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: const Color(0xFFF5F2E9),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      useSafeArea: true,
+      builder: (modalContext) {
+        return Padding(
+          padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 44,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.black26,
+                  borderRadius: BorderRadius.circular(999),
+                ),
+              ),
+              const SizedBox(height: 16),
+              if (config.editBuilder != null)
+                ListTile(
+                  leading: Icon(config.editIcon, color: config.editIconColor),
+                  title: Text(config.editTitle),
+                  subtitle: config.editSubtitle == null
+                      ? null
+                      : Text(config.editSubtitle!),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  onTap: () {
+                    Navigator.pop(modalContext);
+                    _abrirEditar(context);
+                  },
+                ),
+              if (config.onDelete != null)
+                ListTile(
+                  leading: Icon(
+                    config.deleteIcon,
+                    color: config.deleteIconColor,
+                  ),
+                  title: Text(config.deleteTitle),
+                  subtitle: config.deleteSubtitle == null
+                      ? null
+                      : Text(config.deleteSubtitle!),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  onTap: () {
+                    Navigator.pop(modalContext);
+                    _confirmarExclusao(context);
+                  },
+                ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void _abrirEditar(BuildContext context) {
+    final builder = actions?.editBuilder;
+
+    if (builder == null) return;
+
+    showDialog(context: context, builder: builder);
+  }
+
+  Future<void> _confirmarExclusao(BuildContext context) async {
+    final config = actions;
+    final onDelete = config?.onDelete;
+
+    if (config == null || onDelete == null) return;
+
+    final confirmar = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          backgroundColor: const Color(0xFFF5F2E9),
+          title: Text(config.deleteConfirmationTitle),
+          content: Text(config.deleteConfirmationMessage),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext, false),
+              child: Text(
+                config.deleteCancelButtonText,
+                style: const TextStyle(color: Colors.black87),
+              ),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext, true),
+              child: Text(
+                config.deleteConfirmButtonText,
+                style: TextStyle(color: config.deleteIconColor),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmar != true || !context.mounted) return;
+
+    try {
+      await onDelete();
+
+      if (!context.mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(config.deleteSuccessMessage),
+          backgroundColor: Colors.green,
+        ),
+      );
+    } catch (error) {
+      if (!context.mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(config.resolveDeleteErrorMessage(error)),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: EdgeInsets.only(bottom: 12),
-      padding: EdgeInsets.all(12),
-      decoration: BoxDecoration(
+    final borderRadius = BorderRadius.circular(16);
+    final cardLongPress =
+        onLongPress ??
+        (actions?.hasActions == true ? () => _abrirAcoes(context) : null);
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Material(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 8,
-            offset: Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          // Ícone
-          Container(
-            padding: EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: iconBackgroundColor,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Icon(icon, color: iconColor, size: 24),
-          ),
-          SizedBox(width: 16),
-          // Textos
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+        borderRadius: borderRadius,
+        clipBehavior: Clip.antiAlias,
+        elevation: 1,
+        shadowColor: Colors.black.withValues(alpha: 0.10),
+        surfaceTintColor: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          onLongPress: cardLongPress,
+          borderRadius: borderRadius,
+          splashColor: Colors.grey.withValues(alpha: 0.22),
+          highlightColor: Colors.grey.withValues(alpha: 0.12),
+          child: Padding(
+            padding: const EdgeInsets.all(12),
+            child: Row(
               children: [
-                Row(
-                  children: [
-                    Icon(Icons.access_time, size: 12, color: Colors.grey),
-                    SizedBox(width: 4),
-                    Text(
-                      time,
-                      style: TextStyle(fontSize: 12, color: Colors.grey),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 4),
-                Text(
-                  title,
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-                ),
-                if (subtitle != null) ...[
-                  SizedBox(height: 2),
-                  Text(
-                    subtitle!,
-                    style: TextStyle(fontSize: 14, color: Colors.grey),
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: iconBackgroundColor,
+                    borderRadius: BorderRadius.circular(12),
                   ),
-                ],
+                  child: Icon(icon, color: iconColor, size: 24),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          const Icon(
+                            Icons.access_time,
+                            size: 12,
+                            color: Colors.grey,
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            time,
+                            style: const TextStyle(
+                              fontSize: 12,
+                              color: Colors.grey,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        title,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                        ),
+                      ),
+                      if (subtitle != null) ...[
+                        const SizedBox(height: 2),
+                        Text(
+                          subtitle!,
+                          style: const TextStyle(
+                            fontSize: 14,
+                            color: Colors.grey,
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+                Text(
+                  '${isPositive ? '+' : '-'}R\$ ${amount.toStringAsFixed(2).replaceAll('.', ',')}',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18,
+                    color: isPositive
+                        ? const Color(0xFF4CAF50)
+                        : const Color(0xFFFF7E55),
+                  ),
+                ),
               ],
             ),
           ),
-          // Valor
-          Text(
-            '${isPositive ? '+' : '-'}R\$ ${amount.toStringAsFixed(2).replaceAll('.', ',')}',
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 18,
-              color: isPositive ? Color(0xFF4CAF50) : Color(0xFFFF7E55),
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }

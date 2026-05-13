@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:motora_app/deliveries_history_page.dart';
 import 'package:motora_app/home_page.dart';
 import 'package:motora_app/login_page.dart';
+import 'package:motora_app/perfil.dart';
 import 'package:motora_app/registro_page.dart';
 
 class App extends StatelessWidget {
@@ -32,6 +33,7 @@ class App extends StatelessWidget {
         '/login': (context) => const LoginPage(),
         '/registro': (context) => const RegistroPage(),
         '/home': (context) => const HomePage(),
+        '/perfil': (context) => const PerfilPage(),
         '/deliveries_history': (context) => const DeliveriesHistoryPage(),
       },
     );

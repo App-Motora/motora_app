@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:motora_app/components/primary_button.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class RegistroPage extends StatefulWidget {
   const RegistroPage({super.key});
@@ -137,10 +138,24 @@ class _RegistroPageState extends State<RegistroPage> {
                     onPressed: () async { 
                       if (_formKey.currentState!.validate()) {
                         try {
-                          await FirebaseAuth.instance.createUserWithEmailAndPassword(
+                          final credential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
                             email: _emailController.text.trim(),
                             password: _senhaController.text,
                           );
+                          await credential.user?.updateDisplayName(
+                            _nomeController.text.trim(),
+                          );
+                          final uid = credential.user?.uid;
+                          if (uid != null) {
+                            await FirebaseFirestore.instance
+                                .collection('usuarios')
+                                .doc(uid)
+                                .set({
+                                  'nome': _nomeController.text.trim(),
+                                  'email': _emailController.text.trim(),
+                                  'createdAt': FieldValue.serverTimestamp(),
+                                }, SetOptions(merge: true));
+                          }
                           if (mounted) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(content: Text('Conta criada com sucesso!'), backgroundColor: Colors.green),
@@ -156,6 +171,13 @@ class _RegistroPageState extends State<RegistroPage> {
                           }                         
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(content: Text(message), backgroundColor: Colors.red),
+                          );
+                        } catch (e) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('Erro ao salvar cadastro: $e'),
+                              backgroundColor: Colors.red,
+                            ),
                           );
                         }
                       }

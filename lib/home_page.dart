@@ -131,6 +131,7 @@ class _HomePageState extends State<HomePage> {
           color: Color(0xFF388E3C),
           function: () => showDialog(
             context: context,
+            barrierDismissible: false,
             builder: (BuildContext context) {
               return AutomaticDeliveryForm();
             },

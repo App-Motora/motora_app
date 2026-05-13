@@ -52,6 +52,7 @@ class HomePageVazia extends StatelessWidget {
             color: const Color(0xFF388E3C),
             onPressed: () => showDialog(
               context: context,
+              barrierDismissible: false,
               builder: (BuildContext context) {
                 return AutomaticDeliveryForm();
               },

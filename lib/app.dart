@@ -4,6 +4,7 @@ import 'package:motora_app/home_page.dart';
 import 'package:motora_app/login_page.dart';
 import 'package:motora_app/perfil.dart';
 import 'package:motora_app/registro_page.dart';
+import 'package:motora_app/restaurants_list_page.dart';
 
 class App extends StatelessWidget {
   const App({super.key});
@@ -35,6 +36,7 @@ class App extends StatelessWidget {
         '/home': (context) => const HomePage(),
         '/perfil': (context) => const PerfilPage(),
         '/deliveries_history': (context) => const DeliveriesHistoryPage(),
+        '/restaurants': (context) => const RestaurantsListPage(),
       },
     );
   }

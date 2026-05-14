@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:motora_app/components/financial_summary_card.dart';
 import 'package:motora_app/components/shift_summary.dart';
+import 'package:motora_app/data/restaurants.dart';
 
 class Header extends StatefulWidget {
   final String restaurantName;
@@ -28,13 +29,6 @@ class Header extends StatefulWidget {
 
 class _HeaderState extends State<Header> {
   String selectedRestaurant = 'Açaí da Praia';
-
-  final List<String> restaurants = [
-    'Açaí da Praia',
-    'Pizzaria Central',
-    'Hambúrguer do Zé',
-    'Sushi Express Grande',
-  ];
 
   @override
   Widget build(BuildContext context) {
@@ -74,7 +68,7 @@ class _HeaderState extends State<Header> {
                     },
                     dropdownColor: Colors.white,
                     alignment: Alignment.center,
-                    items: restaurants.map<DropdownMenuItem<String>>((
+                    items: availableRestaurants.map<DropdownMenuItem<String>>((
                       String value,
                     ) {
                       return DropdownMenuItem<String>(

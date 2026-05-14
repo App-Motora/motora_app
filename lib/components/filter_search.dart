@@ -77,6 +77,8 @@ class FilterSearch<T> extends StatefulWidget {
   final String sectionTitle;
   final String categoryFilterLabel;
   final ActivityCardActionConfig Function(T) activityCardActions;
+  final Color accentColor;
+  final IconData cardIcon;
 
   const FilterSearch({
     super.key,
@@ -92,7 +94,9 @@ class FilterSearch<T> extends StatefulWidget {
     this.searchHint = 'Pesquise',
     this.sectionTitle = 'Itens',
     this.categoryFilterLabel = 'Categoria',
-    required this.activityCardActions
+    required this.activityCardActions,
+    this.accentColor = const Color(0xFF388E3C),
+    this.cardIcon = Icons.location_on,
   });
 
   @override
@@ -114,7 +118,10 @@ class _FilterSearchState<T> extends State<FilterSearch<T>> {
     return ordenadas.where((item) {
       final matchesQuery =
           _queryAtiva.isEmpty ||
-          widget.getSearchText(item).toLowerCase().contains(_queryAtiva.toLowerCase());
+          widget
+              .getSearchText(item)
+              .toLowerCase()
+              .contains(_queryAtiva.toLowerCase());
       final matchesCategoria =
           _categoriasSelecionadas.isEmpty ||
           _categoriasSelecionadas.contains(widget.getCategory(item));
@@ -148,10 +155,7 @@ class _FilterSearchState<T> extends State<FilterSearch<T>> {
     });
   }
 
-  void _abrirFiltroCategoria(
-    BuildContext context,
-    List<String> categorias,
-  ) {
+  void _abrirFiltroCategoria(BuildContext context, List<String> categorias) {
     Set<String> selecaoTemporaria = Set.from(_categoriasSelecionadas);
 
     showModalBottomSheet(
@@ -184,9 +188,9 @@ class _FilterSearchState<T> extends State<FilterSearch<T>> {
                         TextButton(
                           onPressed: () =>
                               setModalState(() => selecaoTemporaria.clear()),
-                          child: const Text(
+                          child: Text(
                             'Limpar',
-                            style: TextStyle(color: Color(0xFF388E3C)),
+                            style: TextStyle(color: widget.accentColor),
                           ),
                         ),
                     ],
@@ -205,7 +209,7 @@ class _FilterSearchState<T> extends State<FilterSearch<T>> {
                       return CheckboxListTile(
                         title: Text(categoria),
                         value: selecaoTemporaria.contains(categoria),
-                        activeColor: const Color(0xFF388E3C),
+                        activeColor: widget.accentColor,
                         checkColor: Colors.white,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
@@ -232,7 +236,7 @@ class _FilterSearchState<T> extends State<FilterSearch<T>> {
                         Navigator.pop(context);
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF388E3C),
+                        backgroundColor: widget.accentColor,
                         foregroundColor: Colors.white,
                         minimumSize: const Size.fromHeight(48),
                         shape: RoundedRectangleBorder(
@@ -284,9 +288,9 @@ class _FilterSearchState<T> extends State<FilterSearch<T>> {
                         TextButton(
                           onPressed: () =>
                               setModalState(() => selecaoTemporaria = null),
-                          child: const Text(
+                          child: Text(
                             'Limpar',
-                            style: TextStyle(color: Color(0xFF388E3C)),
+                            style: TextStyle(color: widget.accentColor),
                           ),
                         ),
                     ],
@@ -310,12 +314,12 @@ class _FilterSearchState<T> extends State<FilterSearch<T>> {
                           duration: const Duration(milliseconds: 180),
                           decoration: BoxDecoration(
                             color: isSelected
-                                ? const Color(0xFF388E3C)
+                                ? widget.accentColor
                                 : Colors.white,
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(
                               color: isSelected
-                                  ? const Color(0xFF388E3C)
+                                  ? widget.accentColor
                                   : Colors.grey.shade300,
                               width: isSelected ? 2 : 1,
                             ),
@@ -359,7 +363,7 @@ class _FilterSearchState<T> extends State<FilterSearch<T>> {
                         Navigator.pop(context);
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF388E3C),
+                        backgroundColor: widget.accentColor,
                         foregroundColor: Colors.white,
                         minimumSize: const Size.fromHeight(48),
                         shape: RoundedRectangleBorder(
@@ -391,18 +395,14 @@ class _FilterSearchState<T> extends State<FilterSearch<T>> {
           const SizedBox(height: 20),
           Text(
             widget.sectionTitle,
-            style: const TextStyle(
-              fontSize: 28,
-              fontWeight: FontWeight.bold,
-            ),
+            style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 18),
           _buildSearchField(),
           const SizedBox(height: 12),
           _buildFilterChips(context, categorias),
           const SizedBox(height: 8),
-          if (_temFiltrosAtivos)
-            _buildActiveFiltersInfo(itensFiltrados.length),
+          if (_temFiltrosAtivos) _buildActiveFiltersInfo(itensFiltrados.length),
 
           const SizedBox(height: 16),
 
@@ -422,19 +422,12 @@ class _FilterSearchState<T> extends State<FilterSearch<T>> {
               child: Center(
                 child: Column(
                   children: [
-                    Icon(
-                      Icons.search_off,
-                      size: 48,
-                      color: Colors.black26,
-                    ),
+                    Icon(Icons.search_off, size: 48, color: Colors.black26),
                     SizedBox(height: 12),
                     Text(
                       'Nenhum item encontrado\ncom os filtros aplicados.',
                       textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: Colors.black54,
-                      ),
+                      style: TextStyle(fontSize: 16, color: Colors.black54),
                     ),
                   ],
                 ),
@@ -466,7 +459,7 @@ class _FilterSearchState<T> extends State<FilterSearch<T>> {
           horizontal: 16,
         ),
         suffixIcon: IconButton(
-          icon: const Icon(Icons.search, color: Color(0xFF388E3C)),
+          icon: Icon(Icons.search, color: widget.accentColor),
           tooltip: 'Buscar',
           onPressed: () {
             FocusScope.of(context).unfocus();
@@ -483,7 +476,7 @@ class _FilterSearchState<T> extends State<FilterSearch<T>> {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(18),
-          borderSide: const BorderSide(color: Color(0xFF388E3C), width: 1.5),
+          borderSide: BorderSide(color: widget.accentColor, width: 1.5),
         ),
       ),
     );
@@ -517,7 +510,7 @@ class _FilterSearchState<T> extends State<FilterSearch<T>> {
           ),
           selected: _categoriasSelecionadas.isNotEmpty,
           onSelected: (_) => _abrirFiltroCategoria(context, categorias),
-          selectedColor: const Color(0xFF388E3C),
+          selectedColor: widget.accentColor,
           checkmarkColor: Colors.white,
           backgroundColor: Colors.white,
           shape: RoundedRectangleBorder(
@@ -543,7 +536,7 @@ class _FilterSearchState<T> extends State<FilterSearch<T>> {
           ),
           selected: _filtroDatasAtivo != null,
           onSelected: (_) => _abrirFiltroDatas(context),
-          selectedColor: const Color(0xFF388E3C),
+          selectedColor: widget.accentColor,
           checkmarkColor: Colors.white,
           backgroundColor: Colors.white,
           shape: RoundedRectangleBorder(
@@ -598,8 +591,8 @@ class _FilterSearchState<T> extends State<FilterSearch<T>> {
           ).format(widget.getDate(item));
 
           return ActivityCard(
-            icon: Icons.location_on,
-            iconBackgroundColor: const Color(0xFF388E3C),
+            icon: widget.cardIcon,
+            iconBackgroundColor: widget.accentColor,
             time: dataFormatada,
             title: widget.getTitle(item),
             subtitle: widget.getSubtitle(item),

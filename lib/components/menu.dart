@@ -31,7 +31,7 @@ class _MenuState extends State<Menu> {
 
   final List<_MenuItemData> _items = const [
     _MenuItemData(Icons.history, 'Histórico de Atividades', '/home'),
-    _MenuItemData(Icons.swap_vert, 'Despesas', null),
+    _MenuItemData(Icons.swap_vert, 'Despesas', '/expenses_history'),
     _MenuItemData(Icons.delivery_dining, 'Entregas', '/deliveries_history'),
     _MenuItemData(Icons.analytics, 'Relatórios', '/reports'),
     _MenuItemData(Icons.restaurant, 'Restaurantes', '/restaurants'),

@@ -520,10 +520,6 @@ class _AutomaticDeliveryFormState extends State<AutomaticDeliveryForm> {
   }
 
   Widget _buildResultView(DeliveryTrackingResult result) {
-    final rawPath = result.rawPathText.isEmpty
-        ? 'Nenhum ponto capturado.'
-        : result.rawPathText;
-
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -552,26 +548,6 @@ class _AutomaticDeliveryFormState extends State<AutomaticDeliveryForm> {
           ),
         ),
         const SizedBox(height: 20),
-        // const Text('Path bruto', style: TextStyle(fontWeight: FontWeight.w600)),
-        // const SizedBox(height: 8),
-        // Container(
-        //   width: double.infinity,
-        //   padding: const EdgeInsets.all(12),
-        //   decoration: BoxDecoration(
-        //     color: Colors.white,
-        //     borderRadius: BorderRadius.circular(8),
-        //     border: Border.all(color: Colors.grey.shade300),
-        //   ),
-        //   child: SingleChildScrollView(
-        //     scrollDirection: Axis.horizontal,
-        //     child: SelectableText(
-        //       rawPath,
-        //       maxLines: 1,
-        //       style: const TextStyle(fontSize: 13),
-        //     ),
-        //   ),
-        // ),
-        // const SizedBox(height: 24),
         SizedBox(
           width: double.infinity,
           child: ElevatedButton.icon(

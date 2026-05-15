@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:motora_app/components/generic_modal.dart';
 import 'package:motora_app/constants/app_colors.dart';
 import 'package:motora_app/controllers/delivery_tracking_controller.dart';
 import 'package:motora_app/models/delivery_model.dart';
@@ -55,7 +56,10 @@ class _AutomaticDeliveryFormState extends State<AutomaticDeliveryForm> {
     final paymentProfile = _pagamentoController.text.trim();
 
     if (restaurant == null || paymentProfile.isEmpty) {
-      _showMessage('Informe restaurante e perfil de pagamento.', AppColors.corErro);
+      _showMessage(
+        'Informe restaurante e perfil de pagamento.',
+        AppColors.corErro,
+      );
       return;
     }
 
@@ -107,20 +111,21 @@ class _AutomaticDeliveryFormState extends State<AutomaticDeliveryForm> {
 
       // 6. Atualiza a tela para mostrar o resumo final ao usuário
       setState(() {
-        _finishedResult = rawResult; 
+        _finishedResult = rawResult;
       });
 
       _showMessage('Entrega salva com sucesso!', AppColors.corSucesso);
-      
     } catch (e) {
       if (!mounted) return;
-      _showMessage('Erro ao processar ou salvar entrega: $e', AppColors.corErro);
-      
+      _showMessage(
+        'Erro ao processar ou salvar entrega: $e',
+        AppColors.corErro,
+      );
     } finally {
       // 7. Garante que o botão de "Calculando..." pare de girar, mesmo se der erro
       if (mounted) {
         setState(() {
-          _isFinishing = false; 
+          _isFinishing = false;
         });
       }
     }
@@ -171,50 +176,13 @@ class _AutomaticDeliveryFormState extends State<AutomaticDeliveryForm> {
 
   @override
   Widget build(BuildContext context) {
-    final title = _dialogTitle;
-
-    return Dialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(20),
-          color: AppColors.corFundo,
-        ),
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const SizedBox(width: 24),
-                    Flexible(
-                      child: Text(
-                        title,
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.corTexto,
-                        ),
-                      ),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.close, color: AppColors.corIcone),
-                      onPressed: _closeDialog,
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                _buildDialogBody(),
-              ],
-            ),
-          ),
-        ),
-      ),
+    return GenericModal(
+      title: _dialogTitle,
+      content: _buildDialogBody(),
+      onClose: _closeDialog,
+      showActions: false,
+      padding: const EdgeInsets.all(20.0),
+      contentSpacing: 8,
     );
   }
 
@@ -263,10 +231,10 @@ class _AutomaticDeliveryFormState extends State<AutomaticDeliveryForm> {
                     ),
                     menuStyle: MenuStyle(
                       backgroundColor: const WidgetStatePropertyAll(
-                        Colors.white,
+                        AppColors.corInputs,
                       ),
                       surfaceTintColor: const WidgetStatePropertyAll(
-                        Colors.transparent,
+                        AppColors.corMaterial,
                       ),
                       shape: WidgetStatePropertyAll(
                         RoundedRectangleBorder(
@@ -280,7 +248,7 @@ class _AutomaticDeliveryFormState extends State<AutomaticDeliveryForm> {
                       return DropdownMenuEntry<String>(
                         value: value,
                         label: value,
-                        style: AppColors.dropdownMenuItemStyle(isSelected)
+                        style: AppColors.dropdownMenuItemStyle(isSelected),
                       );
                     }).toList(),
                     onSelected: (String? newValue) {
@@ -297,7 +265,9 @@ class _AutomaticDeliveryFormState extends State<AutomaticDeliveryForm> {
             const SizedBox(width: 10),
             Container(
               decoration: BoxDecoration(
-                color: isStarting ? AppColors.corBordaInputs : AppColors.corBordaFocadaInputs,
+                color: isStarting
+                    ? AppColors.corBordaInputs
+                    : AppColors.corBordaFocadaInputs,
                 borderRadius: BorderRadius.circular(25),
               ),
               child: IconButton(
@@ -352,7 +322,7 @@ class _AutomaticDeliveryFormState extends State<AutomaticDeliveryForm> {
             const SizedBox(width: 12),
             Expanded(
               child: OutlinedButton(
-                onPressed: isStarting ? null : () => Navigator.pop(context),
+                onPressed: isStarting ? null : _closeDialog,
                 style: _secondaryButtonStyle(),
                 child: const Text(
                   'Cancelar',
@@ -393,7 +363,7 @@ class _AutomaticDeliveryFormState extends State<AutomaticDeliveryForm> {
                 style: const TextStyle(
                   fontSize: 44,
                   fontWeight: FontWeight.bold,
-                  color: AppColors.corSucesso,
+                  color: AppColors.corSecundaria,
                 ),
               ),
             ],
@@ -448,7 +418,7 @@ class _AutomaticDeliveryFormState extends State<AutomaticDeliveryForm> {
                   style: const TextStyle(color: AppColors.corErro),
                 ),
                 style: OutlinedButton.styleFrom(
-                  backgroundColor: Colors.white,
+                  backgroundColor: AppColors.corInputs,
                   side: const BorderSide(color: AppColors.corErro, width: 1),
                   padding: const EdgeInsets.symmetric(vertical: 15),
                   shape: RoundedRectangleBorder(
@@ -471,10 +441,6 @@ class _AutomaticDeliveryFormState extends State<AutomaticDeliveryForm> {
   }
 
   Widget _buildResultView(DeliveryTrackingResult result) {
-    final rawPath = result.rawPathText.isEmpty
-        ? 'Nenhum ponto capturado.'
-        : result.rawPathText;
-
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -496,7 +462,7 @@ class _AutomaticDeliveryFormState extends State<AutomaticDeliveryForm> {
                 style: const TextStyle(
                   fontSize: 40,
                   fontWeight: FontWeight.bold,
-                  color: AppColors.corSucesso,
+                  color: AppColors.corSecundaria,
                 ),
               ),
             ],
@@ -507,8 +473,14 @@ class _AutomaticDeliveryFormState extends State<AutomaticDeliveryForm> {
           width: double.infinity,
           child: ElevatedButton.icon(
             onPressed: () => Navigator.pop(context, result),
-            icon: const Icon(Icons.check_circle_outline, color: AppColors.corIcone),
-            label: const Text('Fechar', style: TextStyle(color: AppColors.corTexto)),
+            icon: const Icon(
+              Icons.check_circle_outline,
+              color: AppColors.corIcone,
+            ),
+            label: const Text(
+              'Fechar',
+              style: TextStyle(color: AppColors.corTexto),
+            ),
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.corBordaFocadaInputs,
               padding: const EdgeInsets.symmetric(vertical: 15),
@@ -531,10 +503,7 @@ class _AutomaticDeliveryFormState extends State<AutomaticDeliveryForm> {
         borderRadius: BorderRadius.circular(8),
         color: enabled ? AppColors.corInputs : AppColors.corBordaInputs,
       ),
-      child: TextField(
-        controller: controller,
-        enabled: enabled,
-      ),
+      child: TextField(controller: controller, enabled: enabled),
     );
   }
 

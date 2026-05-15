@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 
 class AppColors {
@@ -24,16 +23,16 @@ class AppColors {
 
   static Color corCursorSelecao = Colors.orange;
 
-  static Color corMaterial = Colors.transparent;
+  static const Color corMaterial = Colors.transparent;
   static const Color corDropdownItemIsSelected = Color(0xFFF1F1F1);
   static const Color corDropdownItemSelected = Color(0xFFF6F6F6);
   static const Color corHovered = Color(0xFFF8F8F8);
   static const Color corOverlayDropdownItem = Color(0x1AF3D080);
-  static  Color corOverlayBotaoCancelar = Colors.grey;
+  static Color corOverlayBotaoCancelar = Colors.grey;
 
   static Color corSombra = Colors.black26;
   static const Color corIconeClaro = Colors.white;
-  
+
   static ButtonStyle dropdownMenuItemStyle(bool isSelected) {
     return ButtonStyle(
       backgroundColor: WidgetStateProperty.resolveWith((states) {
@@ -48,11 +47,10 @@ class AppColors {
         }
         return AppColors.corInputs;
       }),
-      foregroundColor: const WidgetStatePropertyAll(
-        AppColors.corTexto,
-      ),
+      foregroundColor: const WidgetStatePropertyAll(AppColors.corTexto),
       overlayColor: const WidgetStatePropertyAll(
         AppColors.corOverlayDropdownItem,
       ),
     );
-  }}
+  }
+}

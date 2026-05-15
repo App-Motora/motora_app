@@ -78,6 +78,8 @@ class FilterSearch<T> extends StatefulWidget {
   final String sectionTitle;
   final String categoryFilterLabel;
   final ActivityCardActionConfig Function(T) activityCardActions;
+  final Color accentColor;
+  final IconData cardIcon;
 
   const FilterSearch({
     super.key,
@@ -93,7 +95,9 @@ class FilterSearch<T> extends StatefulWidget {
     this.searchHint = 'Pesquise',
     this.sectionTitle = 'Itens',
     this.categoryFilterLabel = 'Categoria',
-    required this.activityCardActions
+    required this.activityCardActions,
+    this.accentColor = const Color(0xFF388E3C),
+    this.cardIcon = Icons.location_on,
   });
 
   @override
@@ -115,7 +119,10 @@ class _FilterSearchState<T> extends State<FilterSearch<T>> {
     return ordenadas.where((item) {
       final matchesQuery =
           _queryAtiva.isEmpty ||
-          widget.getSearchText(item).toLowerCase().contains(_queryAtiva.toLowerCase());
+          widget
+              .getSearchText(item)
+              .toLowerCase()
+              .contains(_queryAtiva.toLowerCase());
       final matchesCategoria =
           _categoriasSelecionadas.isEmpty ||
           _categoriasSelecionadas.contains(widget.getCategory(item));
@@ -149,10 +156,7 @@ class _FilterSearchState<T> extends State<FilterSearch<T>> {
     });
   }
 
-  void _abrirFiltroCategoria(
-    BuildContext context,
-    List<String> categorias,
-  ) {
+  void _abrirFiltroCategoria(BuildContext context, List<String> categorias) {
     Set<String> selecaoTemporaria = Set.from(_categoriasSelecionadas);
 
     showModalBottomSheet(
@@ -185,7 +189,7 @@ class _FilterSearchState<T> extends State<FilterSearch<T>> {
                         TextButton(
                           onPressed: () =>
                               setModalState(() => selecaoTemporaria.clear()),
-                          child: const Text(
+                          child: Text(
                             'Limpar',
                             style: TextStyle(color: AppColors.corSecundaria),
                           ),
@@ -285,7 +289,7 @@ class _FilterSearchState<T> extends State<FilterSearch<T>> {
                         TextButton(
                           onPressed: () =>
                               setModalState(() => selecaoTemporaria = null),
-                          child: const Text(
+                          child: Text(
                             'Limpar',
                             style: TextStyle(color: AppColors.corSecundaria),
                           ),
@@ -392,18 +396,14 @@ class _FilterSearchState<T> extends State<FilterSearch<T>> {
           const SizedBox(height: 20),
           Text(
             widget.sectionTitle,
-            style: const TextStyle(
-              fontSize: 28,
-              fontWeight: FontWeight.bold,
-            ),
+            style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 18),
           _buildSearchField(),
           const SizedBox(height: 12),
           _buildFilterChips(context, categorias),
           const SizedBox(height: 8),
-          if (_temFiltrosAtivos)
-            _buildActiveFiltersInfo(itensFiltrados.length),
+          if (_temFiltrosAtivos) _buildActiveFiltersInfo(itensFiltrados.length),
 
           const SizedBox(height: 16),
 
@@ -584,8 +584,8 @@ class _FilterSearchState<T> extends State<FilterSearch<T>> {
           ).format(widget.getDate(item));
 
           return ActivityCard(
-            icon: Icons.location_on,
-            iconBackgroundColor: AppColors.corEntrega,
+            icon: widget.cardIcon,
+            iconBackgroundColor: widget.accentColor,
             time: dataFormatada,
             title: widget.getTitle(item),
             subtitle: widget.getSubtitle(item),

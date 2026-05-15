@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:motora_app/components/financial_summary_card.dart';
 import 'package:motora_app/components/shift_summary.dart';
+import 'package:motora_app/data/restaurants.dart';
 import 'package:motora_app/constants/app_colors.dart';
 
 class Header extends StatefulWidget {
@@ -28,14 +29,7 @@ class Header extends StatefulWidget {
 }
 
 class _HeaderState extends State<Header> {
-  String restauranteSelecionado = 'Açaí da Praia';
-
-  final List<String> restaurantes = [
-    'Açaí da Praia',
-    'Pizzaria Central',
-    'Hambúrguer do Zé',
-    'Sushi Express Grande',
-  ];
+  String selectedRestaurant = 'Açaí da Praia';
 
   @override
   Widget build(BuildContext context) {
@@ -72,10 +66,10 @@ class _HeaderState extends State<Header> {
                         borderSide: BorderSide.none,
                       ),
                     ),
-                    initialSelection: restauranteSelecionado,
-                    dropdownMenuEntries: restaurantes.map((String value) {
+                    initialSelection: selectedRestaurant,
+                    dropdownMenuEntries: availableRestaurants.map((String value) {
                       final bool isSelected =
-                        value == restauranteSelecionado;
+                        value == selectedRestaurant;
                               
                       return DropdownMenuEntry<String>(
                         value: value,
@@ -87,7 +81,7 @@ class _HeaderState extends State<Header> {
                       if (newValue == null) return;
                               
                       setState(() {
-                        restauranteSelecionado = newValue;
+                        selectedRestaurant = newValue;
                       });
                     },
                   ),

@@ -132,6 +132,7 @@ class _HomePageState extends State<HomePage> {
           color: AppColors.corEntrega,
           function: () => showDialog(
             context: context,
+            barrierDismissible: false,
             builder: (BuildContext context) {
               return AutomaticDeliveryForm();
             },

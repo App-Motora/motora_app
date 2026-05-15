@@ -53,6 +53,7 @@ class HomePageVazia extends StatelessWidget {
             color: AppColors.corEntrega,
             onPressed: () => showDialog(
               context: context,
+              barrierDismissible: false,
               builder: (BuildContext context) {
                 return AutomaticDeliveryForm();
               },

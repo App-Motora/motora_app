@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:motora_app/constants/app_colors.dart';
 import 'package:motora_app/deliveries_history_page.dart';
+import 'package:motora_app/expenses_history_page.dart';
 import 'package:motora_app/home_page.dart';
 import 'package:motora_app/login_page.dart';
+import 'package:motora_app/perfil.dart';
 import 'package:motora_app/registro_page.dart';
+import 'package:motora_app/restaurants_list_page.dart';
+import 'package:motora_app/reports_page.dart';
 
 class App extends StatelessWidget {
   const App({super.key});
@@ -47,7 +51,11 @@ class App extends StatelessWidget {
         '/login': (context) => const LoginPage(),
         '/registro': (context) => const RegistroPage(),
         '/home': (context) => const HomePage(),
+        '/perfil': (context) => const PerfilPage(),
+        '/expenses_history': (context) => const ExpensesHistoryPage(),
         '/deliveries_history': (context) => const DeliveriesHistoryPage(),
+        '/restaurants': (context) => const RestaurantsListPage(),
+        '/reports': (context) => const ReportsPage(),
       },
     );
   }

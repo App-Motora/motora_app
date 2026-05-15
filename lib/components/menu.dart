@@ -32,10 +32,10 @@ class _MenuState extends State<Menu> {
 
   final List<_MenuItemData> _items = const [
     _MenuItemData(Icons.history, 'Histórico de Atividades', '/home'),
-    _MenuItemData(Icons.swap_vert, 'Despesas', null),
+    _MenuItemData(Icons.swap_vert, 'Despesas', '/expenses_history'),
     _MenuItemData(Icons.delivery_dining, 'Entregas', '/deliveries_history'),
-    _MenuItemData(Icons.analytics, 'Relatórios', null),
-    _MenuItemData(Icons.restaurant, 'Restaurantes', null),
+    _MenuItemData(Icons.analytics, 'Relatórios', '/reports'),
+    _MenuItemData(Icons.restaurant, 'Restaurantes', '/restaurants'),
   ];
 
   void _mostrarConfirmacaoSaida(BuildContext context) {
@@ -102,39 +102,45 @@ class _MenuState extends State<Menu> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              width: double.infinity,
-              color: AppColors.corPrincipal,
-              padding: const EdgeInsets.fromLTRB(20.0, 26.0, 20.0, 18.0),
-              child: const Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  CircleAvatar(
-                    radius: 26,
-                    backgroundColor: Colors.white,
-                    child: Icon(
-                      Icons.person,
-                      color: AppColors.corPrincipal,
-                      size: 28,
+            InkWell(
+              onTap: () {
+                Navigator.of(context).pop();
+                Navigator.of(context).pushNamed('/perfil');
+              },
+              child: Container(
+                width: double.infinity,
+                color: AppColors.corPrincipal,
+                padding: const EdgeInsets.fromLTRB(20.0, 26.0, 20.0, 18.0),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    CircleAvatar(
+                      radius: 26,
+                      backgroundColor: AppColors.corFundoMenu,
+                      child: Icon(
+                        Icons.person,
+                        color: AppColors.corPrincipal,
+                        size: 28,
+                      ),
                     ),
-                  ),
-                  SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Fulano',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.corTexto,
+                    SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Fulano',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.corTexto,
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
             Divider(height: 0, thickness: 1, color: AppColors.corBordaInputs),

@@ -4,6 +4,7 @@ import 'package:motora_app/components/automatic_expense_form.dart';
 import 'package:motora_app/components/filter_search.dart';
 import 'package:motora_app/components/float_button.dart';
 import 'package:motora_app/components/menu.dart';
+import 'package:motora_app/constants/app_colors.dart';
 
 class ExpensesHistoryPage extends StatefulWidget {
   const ExpensesHistoryPage({super.key});
@@ -13,8 +14,8 @@ class ExpensesHistoryPage extends StatefulWidget {
 }
 
 class _ExpensesHistoryPageState extends State<ExpensesHistoryPage> {
-  static const Color _expenseColor = Color(0xFFFF7E55);
-  static const Color _backgroundColor = Color(0xFFF5F2E9);
+  static const Color _expenseColor = AppColors.corDespesa;
+  static const Color _backgroundColor = AppColors.corFundo;
 
   final int _activeMenuIndex = 1;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
@@ -55,7 +56,7 @@ class _ExpensesHistoryPageState extends State<ExpensesHistoryPage> {
                 cardIcon: Icons.receipt_long,
                 activityCardActions: (_) => const ActivityCardActionConfig(
                   editIconColor: _expenseColor,
-                  deleteIconColor: Color(0xFFCC3300),
+                  deleteIconColor: AppColors.corExcluir,
                 ),
               ),
             ),
@@ -80,7 +81,7 @@ class _ExpensesHistoryPageState extends State<ExpensesHistoryPage> {
   Widget _buildTopBar() {
     return Container(
       width: double.infinity,
-      decoration: const BoxDecoration(color: Color(0xFFF7E18B)),
+      decoration: const BoxDecoration(color: AppColors.corPrincipal),
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,

@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:motora_app/components/menu.dart';
+import 'package:motora_app/constants/app_colors.dart';
 
 class ReportsPage extends StatefulWidget {
   const ReportsPage({super.key});
@@ -11,11 +12,10 @@ class ReportsPage extends StatefulWidget {
 }
 
 class _ReportsPageState extends State<ReportsPage> {
-  static const Color _backgroundColor = Color(0xFFF5F2E9);
-  static const Color _incomeColor = Color(0xFF388E3C);
-  static const Color _expenseColor = Color(0xFFFF7E55);
-  static const Color _textColor = Color(0xFF2D2D2D);
-  static const Color _mutedTextColor = Color(0xFF747474);
+  static const Color _backgroundColor = AppColors.corFundo;
+  static const Color _incomeColor = AppColors.corSucesso;
+  static const Color _expenseColor = AppColors.corDespesa;
+  static const Color _textColor = AppColors.corTexto;
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   late final List<_MonthOption> _monthOptions;
@@ -40,32 +40,34 @@ class _ReportsPageState extends State<ReportsPage> {
             final report = _buildStaticMonthlyReport();
 
             return CustomScrollView(
-              physics: const BouncingScrollPhysics(),
+              physics: const ClampingScrollPhysics(),
               slivers: [
                 SliverToBoxAdapter(
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(20, 16, 20, 28),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _buildTopBar(),
-                        const SizedBox(height: 22),
-                        _buildBalanceCard(report),
-                        const SizedBox(height: 28),
-                        const Text(
-                          'Despesas por categoria',
-                          style: TextStyle(
-                            color: _textColor,
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                          ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildHeader(report),
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(20, 28, 20, 28),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'Despesas por categoria',
+                              style: TextStyle(
+                                color: _textColor,
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(height: 14),
+                            _buildCategoryCard(report),
+                            const SizedBox(height: 28),
+                            _buildDetailsCard(report),
+                          ],
                         ),
-                        const SizedBox(height: 14),
-                        _buildCategoryCard(report),
-                        const SizedBox(height: 28),
-                        _buildDetailsCard(report),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ),
               ],
@@ -76,49 +78,78 @@ class _ReportsPageState extends State<ReportsPage> {
     );
   }
 
-  Widget _buildTopBar() {
-    return Row(
-      children: [
-        IconButton(
-          onPressed: () => _scaffoldKey.currentState?.openDrawer(),
-          icon: const Icon(Icons.menu, color: _textColor),
-          tooltip: 'Abrir menu',
-        ),
-        Expanded(
-          child: Center(
-            child: DropdownButtonHideUnderline(
-              child: DropdownButton<_MonthOption>(
-                value: _selectedMonth,
-                borderRadius: BorderRadius.circular(12),
-                dropdownColor: Colors.white,
-                icon: const Icon(Icons.keyboard_arrow_down),
-                items: _monthOptions
-                    .map(
-                      (month) => DropdownMenuItem<_MonthOption>(
-                        value: month,
-                        child: Text(
-                          month.label,
-                          style: const TextStyle(
-                            color: _textColor,
-                            fontSize: 18,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                      ),
-                    )
-                    .toList(),
-                onChanged: (month) {
-                  if (month == null) return;
-                  setState(() {
-                    _selectedMonth = month;
-                  });
-                },
-              ),
+  Widget _buildHeader(_MonthlyReport report) {
+    return Container(
+      width: double.infinity,
+      decoration: const BoxDecoration(color: AppColors.corPrincipal),
+      padding: const EdgeInsets.only(top: 15, left: 15, right: 15, bottom: 15),
+      child: Column(
+        spacing: 10,
+        children: [
+          SizedBox(
+            width: double.infinity,
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: IconButton(
+                    onPressed: () => _scaffoldKey.currentState?.openDrawer(),
+                    icon: const Icon(
+                      Icons.menu,
+                      color: AppColors.corIcone,
+                      size: 30,
+                    ),
+                    tooltip: 'Abrir menu',
+                  ),
+                ),
+                Center(child: _buildMonthDropdown()),
+              ],
             ),
           ),
+          _buildBalanceCard(report),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMonthDropdown() {
+    return DropdownMenu<_MonthOption>(
+      width: 220,
+      inputDecorationTheme: InputDecorationThemeData(
+        filled: true,
+        fillColor: AppColors.corInputs.withValues(alpha: 0.5),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(20),
+          borderSide: BorderSide.none,
         ),
-        const SizedBox(width: 48),
-      ],
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(20),
+          borderSide: BorderSide.none,
+        ),
+      ),
+      initialSelection: _selectedMonth,
+      textStyle: const TextStyle(
+        color: AppColors.corTexto,
+        fontSize: 16,
+        fontWeight: FontWeight.w700,
+      ),
+      dropdownMenuEntries: _monthOptions.map((month) {
+        final isSelected = month == _selectedMonth;
+
+        return DropdownMenuEntry<_MonthOption>(
+          value: month,
+          label: month.label,
+          style: AppColors.dropdownMenuItemStyle(isSelected),
+        );
+      }).toList(),
+      onSelected: (month) {
+        if (month == null) return;
+
+        setState(() {
+          _selectedMonth = month;
+        });
+      },
     );
   }
 
@@ -134,8 +165,8 @@ class _ReportsPageState extends State<ReportsPage> {
         children: [
           Text(
             hasProfit ? 'Lucro do mes' : 'Prejuizo do mes',
-            style: const TextStyle(
-              color: _mutedTextColor,
+            style: TextStyle(
+              color: AppColors.corTexto.withValues(alpha: 0.62),
               fontSize: 14,
               fontWeight: FontWeight.w700,
             ),
@@ -188,7 +219,7 @@ class _ReportsPageState extends State<ReportsPage> {
           width: 44,
           height: 44,
           decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-          child: Icon(icon, color: Colors.white, size: 24),
+          child: Icon(icon, color: AppColors.corIconeClaro, size: 24),
         ),
         const SizedBox(width: 10),
         Expanded(
@@ -197,8 +228,8 @@ class _ReportsPageState extends State<ReportsPage> {
             children: [
               Text(
                 title,
-                style: const TextStyle(
-                  color: _mutedTextColor,
+                style: TextStyle(
+                  color: AppColors.corTexto.withValues(alpha: 0.62),
                   fontWeight: FontWeight.w700,
                 ),
               ),
@@ -230,14 +261,14 @@ class _ReportsPageState extends State<ReportsPage> {
       padding: const EdgeInsets.all(20),
       decoration: _cardDecoration(),
       child: categories.isEmpty
-          ? const SizedBox(
+          ? SizedBox(
               height: 180,
               child: Center(
                 child: Text(
                   'Nenhuma despesa registrada neste mes.',
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    color: _mutedTextColor,
+                    color: AppColors.corHintInputs,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -364,8 +395,8 @@ class _ReportsPageState extends State<ReportsPage> {
           Expanded(
             child: Text(
               label,
-              style: const TextStyle(
-                color: _mutedTextColor,
+              style: TextStyle(
+                color: AppColors.corTexto.withValues(alpha: 0.62),
                 fontWeight: FontWeight.w700,
               ),
             ),
@@ -433,11 +464,11 @@ class _ReportsPageState extends State<ReportsPage> {
 
   BoxDecoration _cardDecoration() {
     return BoxDecoration(
-      color: Colors.white,
+      color: AppColors.corFundoMenu,
       borderRadius: BorderRadius.circular(24),
       boxShadow: [
         BoxShadow(
-          color: Colors.black.withValues(alpha: 0.06),
+          color: AppColors.corSombra.withValues(alpha: 0.06),
           blurRadius: 18,
           offset: const Offset(0, 10),
         ),
@@ -466,12 +497,12 @@ class _ReportsPageState extends State<ReportsPage> {
   ];
 
   static const List<Color> _categoryColors = [
-    Color(0xFFFF7E55),
-    Color(0xFFFF9F1C),
-    Color(0xFFFFC857),
-    Color(0xFFCC3300),
-    Color(0xFFE86A33),
-    Color(0xFFFFB08A),
+    AppColors.corDespesa,
+    AppColors.corSecundaria,
+    AppColors.corPrincipal,
+    AppColors.corExcluir,
+    AppColors.corErro,
+    AppColors.corEntrega,
   ];
 }
 

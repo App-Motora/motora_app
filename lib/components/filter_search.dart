@@ -96,7 +96,7 @@ class FilterSearch<T> extends StatefulWidget {
     this.sectionTitle = 'Itens',
     this.categoryFilterLabel = 'Categoria',
     required this.activityCardActions,
-    this.accentColor = const Color(0xFF388E3C),
+    this.accentColor = AppColors.corSucesso,
     this.cardIcon = Icons.location_on,
   });
 
@@ -196,7 +196,10 @@ class _FilterSearchState<T> extends State<FilterSearch<T>> {
                         ),
                     ],
                   ),
-                  const Divider(color: AppColors.corBordaFocadaInputs, thickness: 2),
+                  const Divider(
+                    color: AppColors.corBordaFocadaInputs,
+                    thickness: 2,
+                  ),
                   const SizedBox(height: 8),
                   if (categorias.isEmpty)
                     const Padding(
@@ -296,7 +299,10 @@ class _FilterSearchState<T> extends State<FilterSearch<T>> {
                         ),
                     ],
                   ),
-                  const Divider(color: AppColors.corBordaFocadaInputs, thickness: 2),
+                  const Divider(
+                    color: AppColors.corBordaFocadaInputs,
+                    thickness: 2,
+                  ),
                   const SizedBox(height: 12),
                   GridView.count(
                     crossAxisCount: 2,
@@ -470,7 +476,7 @@ class _FilterSearchState<T> extends State<FilterSearch<T>> {
             FocusScope.of(context).unfocus();
             setState(() => _queryAtiva = txtPesquisa.text.trim());
           },
-        )
+        ),
       ),
     );
   }
@@ -516,12 +522,16 @@ class _FilterSearchState<T> extends State<FilterSearch<T>> {
           avatar: Icon(
             Icons.calendar_today,
             size: 16,
-            color: _filtroDatasAtivo != null ? AppColors.corFundoMenu : AppColors.corIcone,
+            color: _filtroDatasAtivo != null
+                ? AppColors.corFundoMenu
+                : AppColors.corIcone,
           ),
           label: Text(
             _filtroDatasAtivo?.label ?? 'Data',
             style: TextStyle(
-              color: _filtroDatasAtivo != null ? AppColors.corFundoMenu : AppColors.corTexto,
+              color: _filtroDatasAtivo != null
+                  ? AppColors.corFundoMenu
+                  : AppColors.corTexto,
               fontWeight: _filtroDatasAtivo != null
                   ? FontWeight.bold
                   : FontWeight.normal,
@@ -553,7 +563,11 @@ class _FilterSearchState<T> extends State<FilterSearch<T>> {
           const Spacer(),
           TextButton.icon(
             onPressed: _limparFiltros,
-            icon: const Icon(Icons.close, size: 14, color: AppColors.corExcluir),
+            icon: const Icon(
+              Icons.close,
+              size: 14,
+              color: AppColors.corExcluir,
+            ),
             label: const Text(
               'Limpar filtros',
               style: TextStyle(fontSize: 13, color: AppColors.corExcluir),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:motora_app/components/menu.dart';
+import 'package:motora_app/constants/app_colors.dart';
 import 'package:motora_app/data/restaurants.dart';
 
 class RestaurantsListPage extends StatefulWidget {
@@ -10,8 +11,8 @@ class RestaurantsListPage extends StatefulWidget {
 }
 
 class _RestaurantsListPageState extends State<RestaurantsListPage> {
-  static const Color _backgroundColor = Color(0xFFF5F2E9);
-  static const Color _headerColor = Color(0xFFF7E18B);
+  static const Color _backgroundColor = AppColors.corFundo;
+  static const Color _headerColor = AppColors.corPrincipal;
   static const int _activeMenuIndex = 4;
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
@@ -80,19 +81,19 @@ class _RestaurantCard extends StatelessWidget {
 
   const _RestaurantCard({required this.name});
 
-  static const Color _projectBlue = Color(0xFF4FA8FF);
+  static const Color _projectBlue = AppColors.corSecundaria;
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: Material(
-        color: Colors.white,
+        color: AppColors.corFundoMenu,
         borderRadius: BorderRadius.circular(16),
         clipBehavior: Clip.antiAlias,
         elevation: 1,
-        shadowColor: Colors.black.withValues(alpha: 0.10),
-        surfaceTintColor: Colors.transparent,
+        shadowColor: AppColors.corSombra,
+        surfaceTintColor: AppColors.corMaterial,
         child: Padding(
           padding: const EdgeInsets.all(12),
           child: Row(
@@ -105,7 +106,7 @@ class _RestaurantCard extends StatelessWidget {
                 ),
                 child: const Icon(
                   Icons.restaurant,
-                  color: Colors.white,
+                  color: AppColors.corIconeClaro,
                   size: 24,
                 ),
               ),
@@ -116,7 +117,7 @@ class _RestaurantCard extends StatelessWidget {
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 18,
-                    color: Color(0xFF2D2D2D),
+                    color: AppColors.corTexto,
                   ),
                 ),
               ),

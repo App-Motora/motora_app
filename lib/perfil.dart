@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:motora_app/constants/app_colors.dart';
 import 'package:motora_app/login_page.dart';
 
 class PerfilPage extends StatefulWidget {
@@ -11,10 +12,10 @@ class PerfilPage extends StatefulWidget {
 }
 
 class _PerfilPageState extends State<PerfilPage> {
-  static const Color _backgroundColor = Color(0xFFF5F2E9);
-  static const Color _primaryYellow = Color(0xFFF7E18B);
-  static const Color _textColor = Color(0xFF2D2D2D);
-  static const Color _dividerColor = Color(0xFFE6E0D2);
+  static const Color _backgroundColor = AppColors.corFundo;
+  static const Color _primaryYellow = AppColors.corPrincipal;
+  static const Color _textColor = AppColors.corTexto;
+  final Color _dividerColor = AppColors.corSombra;
 
   final _formKey = GlobalKey<FormState>();
   final _nomeController = TextEditingController();
@@ -98,7 +99,7 @@ class _PerfilPageState extends State<PerfilPage> {
     final user = _currentUser;
     final doc = _userDoc;
     if (user == null || doc == null) {
-      _showMessage('Usuario nao encontrado.', Colors.red);
+      _showMessage('Usuario nao encontrado.', AppColors.corErro);
       return;
     }
 
@@ -141,12 +142,12 @@ class _PerfilPageState extends State<PerfilPage> {
         emailChanged
             ? 'Dados salvos. Confira seu e-mail para confirmar a alteracao.'
             : 'Dados salvos com sucesso!',
-        Colors.green,
+        AppColors.corSucesso,
       );
     } on FirebaseAuthException catch (e) {
-      _showMessage(_authErrorMessage(e), Colors.red);
+      _showMessage(_authErrorMessage(e), AppColors.corErro);
     } catch (e) {
-      _showMessage('Erro ao salvar dados: $e', Colors.red);
+      _showMessage('Erro ao salvar dados: $e', AppColors.corErro);
     } finally {
       if (mounted) {
         setState(() => _isSaving = false);
@@ -159,8 +160,8 @@ class _PerfilPageState extends State<PerfilPage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          backgroundColor: Colors.white,
-          surfaceTintColor: Colors.transparent,
+          backgroundColor: AppColors.corFundoMenu,
+          surfaceTintColor: AppColors.corMaterial,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),
@@ -169,10 +170,10 @@ class _PerfilPageState extends State<PerfilPage> {
             textAlign: TextAlign.center,
             style: TextStyle(fontWeight: FontWeight.bold),
           ),
-          content: const Text(
+          content: Text(
             'Voce deseja realmente sair da sua conta?',
             textAlign: TextAlign.center,
-            style: TextStyle(color: Colors.black87),
+            style: TextStyle(color: AppColors.corTexto.withValues(alpha: 0.75)),
           ),
           actionsAlignment: MainAxisAlignment.center,
           actions: [
@@ -180,7 +181,7 @@ class _PerfilPageState extends State<PerfilPage> {
               onPressed: () => Navigator.pop(context),
               child: const Text(
                 'Cancelar',
-                style: TextStyle(color: Colors.black),
+                style: TextStyle(color: AppColors.corTexto),
               ),
             ),
             TextButton(
@@ -197,7 +198,7 @@ class _PerfilPageState extends State<PerfilPage> {
               child: const Text(
                 'Sair',
                 style: TextStyle(
-                  color: Colors.redAccent,
+                  color: AppColors.corErro,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -288,9 +289,9 @@ class _PerfilPageState extends State<PerfilPage> {
             ],
           ),
           const SizedBox(height: 18),
-          const CircleAvatar(
+          CircleAvatar(
             radius: 48,
-            backgroundColor: Colors.white,
+            backgroundColor: AppColors.corFundoMenu,
             child: Icon(Icons.person, color: _primaryYellow, size: 58),
           ),
           const SizedBox(height: 16),
@@ -322,8 +323,8 @@ class _PerfilPageState extends State<PerfilPage> {
     return Container(
       width: double.infinity,
       margin: const EdgeInsets.only(top: 18),
-      decoration: const BoxDecoration(
-        color: Colors.white,
+      decoration: BoxDecoration(
+        color: AppColors.corFundoMenu,
         borderRadius: BorderRadius.only(
           topLeft: Radius.circular(26),
           topRight: Radius.circular(26),
@@ -340,8 +341,8 @@ class _PerfilPageState extends State<PerfilPage> {
           _buildOptionTile(
             icon: Icons.logout,
             title: 'Sair',
-            iconColor: Colors.redAccent,
-            textColor: Colors.redAccent,
+            iconColor: AppColors.corErro,
+            textColor: AppColors.corErro,
             onTap: _showLogoutConfirmation,
           ),
         ],
@@ -371,11 +372,11 @@ class _PerfilPageState extends State<PerfilPage> {
             ),
           ),
           trailing: title == 'Meu Cadastro'
-              ? const Icon(Icons.chevron_right, color: Colors.black45)
+              ? Icon(Icons.chevron_right, color: AppColors.corTexto.withValues(alpha: 0.75))
               : null,
           onTap: onTap,
         ),
-        const Divider(height: 1, color: _dividerColor),
+        Divider(height: 1, color: _dividerColor),
       ],
     );
   }
@@ -385,8 +386,8 @@ class _PerfilPageState extends State<PerfilPage> {
       key: const ValueKey('edit-profile'),
       width: double.infinity,
       margin: const EdgeInsets.only(top: 18),
-      decoration: const BoxDecoration(
-        color: Colors.white,
+      decoration: BoxDecoration(
+        color: AppColors.corFundoMenu,
         borderRadius: BorderRadius.only(
           topLeft: Radius.circular(26),
           topRight: Radius.circular(26),
@@ -405,12 +406,12 @@ class _PerfilPageState extends State<PerfilPage> {
                     onPressed: _isSaving
                         ? null
                         : () => setState(() {
-                              _isEditing = false;
-                              _nomeController.text = _nome;
-                              _emailController.text = _email;
-                              _senhaController.clear();
-                              _confirmaSenhaController.clear();
-                            }),
+                            _isEditing = false;
+                            _nomeController.text = _nome;
+                            _emailController.text = _email;
+                            _senhaController.clear();
+                            _confirmaSenhaController.clear();
+                          }),
                     icon: const Icon(Icons.arrow_back),
                   ),
                   const Expanded(
@@ -481,15 +482,15 @@ class _PerfilPageState extends State<PerfilPage> {
                         height: 18,
                         child: CircularProgressIndicator(
                           strokeWidth: 2,
-                          color: Colors.black,
+                          color: AppColors.corTexto,
                         ),
                       )
                     : const Icon(Icons.check_circle_outline),
                 label: Text(_isSaving ? 'Salvando...' : 'Salvar alteracoes'),
                 style: ElevatedButton.styleFrom(
-                  foregroundColor: Colors.black,
+                  foregroundColor: AppColors.corTexto,
                   backgroundColor: _primaryYellow,
-                  disabledBackgroundColor: Colors.grey.shade300,
+                  disabledBackgroundColor: AppColors.corBordaInputs,
                   padding: const EdgeInsets.symmetric(vertical: 15),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
@@ -517,12 +518,12 @@ class _PerfilPageState extends State<PerfilPage> {
       obscureText: obscureText,
       decoration: InputDecoration(
         labelText: label,
-        floatingLabelStyle: const TextStyle(color: Colors.black),
+        floatingLabelStyle: const TextStyle(color: AppColors.corTexto),
         prefixIcon: Icon(icon),
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
-          borderSide: const BorderSide(color: Colors.black),
+          borderSide: const BorderSide(color: AppColors.corTexto),
         ),
         filled: true,
         fillColor: _backgroundColor,

@@ -24,6 +24,8 @@ class _AutomaticDeliveryFormState extends State<AutomaticDeliveryForm> {
 
   String? restauranteSelecionado = 'Açaí da Praia';
   DeliveryTrackingResult? _finishedResult;
+  double? _valorFinalCorrida; // NOVA VARIÁVEL
+  double? _distanciaFinalLimpa; // NOVA VARIÁVEL
   bool _isFinishing = false;
 
   final List<String> restaurantes = [
@@ -110,8 +112,11 @@ class _AutomaticDeliveryFormState extends State<AutomaticDeliveryForm> {
       if (!mounted) return;
 
       // 6. Atualiza a tela para mostrar o resumo final ao usuário
+      // 6. Atualiza a tela para mostrar o resumo final ao usuário
       setState(() {
         _finishedResult = rawResult;
+        _valorFinalCorrida = valorCalculado; // Guarda o R$
+        _distanciaFinalLimpa = quilometragemLimpa; // Guarda o KM do Google Maps
       });
 
       _showMessage('Entrega salva com sucesso!', AppColors.corSucesso);
@@ -441,6 +446,9 @@ class _AutomaticDeliveryFormState extends State<AutomaticDeliveryForm> {
   }
 
   Widget _buildResultView(DeliveryTrackingResult result) {
+    final double distancia = _distanciaFinalLimpa ?? result.totalDistanceKm;
+    final double valor = _valorFinalCorrida ?? 0.0;
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -456,19 +464,33 @@ class _AutomaticDeliveryFormState extends State<AutomaticDeliveryForm> {
                 'Quilômetros rodados',
                 style: TextStyle(fontWeight: FontWeight.w600),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 4),
               Text(
-                '${result.totalDistanceKm.toStringAsFixed(1)} km',
+                '${distancia.toStringAsFixed(1)} km',
                 style: const TextStyle(
-                  fontSize: 40,
+                  fontSize: 32,
                   fontWeight: FontWeight.bold,
                   color: AppColors.corSecundaria,
+                ),
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                'Valor da corrida',
+                style: TextStyle(fontWeight: FontWeight.w600),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                'R\$ ${valor.toStringAsFixed(2).replaceAll('.', ',')}',
+                style: const TextStyle(
+                  fontSize: 30,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.corEntrega,
                 ),
               ),
             ],
           ),
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: 24),
         SizedBox(
           width: double.infinity,
           child: ElevatedButton.icon(

@@ -16,6 +16,9 @@ class Menu extends StatefulWidget {
 class _MenuState extends State<Menu> {
   late int _selectedIndex;
 
+  final user = FirebaseAuth.instance.currentUser;
+  late var nomeInteiro = user?.displayName?.split(' ') ?? ['Usuario'];
+
   @override
   void initState() {
     super.initState();
@@ -129,7 +132,7 @@ class _MenuState extends State<Menu> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Fulano',
+                            nomeInteiro[0],
                             style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart'; 
 import 'package:motora_app/constants/app_colors.dart';
 import 'package:motora_app/deliveries_history_page.dart';
 import 'package:motora_app/expenses_history_page.dart';
@@ -47,9 +46,8 @@ class App extends StatelessWidget {
         disabledColor: AppColors.corBordaInputs,
       ),
 
-      initialRoute: '/', 
+      initialRoute: '/login',
       routes: {
-        '/': (context) => const AuthCheck(), 
         '/login': (context) => const LoginPage(),
         '/registro': (context) => const RegistroPage(),
         '/home': (context) => const HomePage(),
@@ -85,29 +83,6 @@ class App extends StatelessWidget {
         ),
       ),
       hintStyle: TextStyle(color: AppColors.corHintInputs),
-    );
-  }
-}
-class AuthCheck extends StatelessWidget {
-  const AuthCheck({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return StreamBuilder<User?>(
-      stream: FirebaseAuth.instance.authStateChanges(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Scaffold(
-            body: Center(
-              child: CircularProgressIndicator(color: AppColors.corSecundaria),
-            ),
-          );
-        }
-        if (snapshot.hasData) {
-          return const HomePage();
-        }
-        return const LoginPage();
-      },
     );
   }
 }

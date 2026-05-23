@@ -261,10 +261,6 @@ class _PerfilPageState extends State<PerfilPage> {
       padding: const EdgeInsets.fromLTRB(20, 12, 20, 34),
       decoration: const BoxDecoration(
         color: _primaryYellow,
-        borderRadius: BorderRadius.only(
-          bottomLeft: Radius.circular(26),
-          bottomRight: Radius.circular(26),
-        ),
       ),
       child: Column(
         children: [
@@ -322,13 +318,8 @@ class _PerfilPageState extends State<PerfilPage> {
   Widget _buildProfileOptions() {
     return Container(
       width: double.infinity,
-      margin: const EdgeInsets.only(top: 18),
       decoration: BoxDecoration(
         color: AppColors.corFundoMenu,
-        borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(26),
-          topRight: Radius.circular(26),
-        ),
       ),
       child: ListView(
         padding: const EdgeInsets.fromLTRB(20, 18, 20, 28),
@@ -385,13 +376,8 @@ class _PerfilPageState extends State<PerfilPage> {
     return Container(
       key: const ValueKey('edit-profile'),
       width: double.infinity,
-      margin: const EdgeInsets.only(top: 18),
       decoration: BoxDecoration(
         color: AppColors.corFundoMenu,
-        borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(26),
-          topRight: Radius.circular(26),
-        ),
       ),
       child: SingleChildScrollView(
         padding: const EdgeInsets.fromLTRB(20, 24, 20, 32),

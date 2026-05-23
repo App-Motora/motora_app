@@ -38,6 +38,14 @@ class GenericModal extends StatefulWidget {
 }
 
 class _GenericModalState extends State<GenericModal> {
+  final ScrollController _scrollController = ScrollController();
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
   void _close() {
     final onClose = widget.onClose;
     if (onClose != null) {
@@ -51,6 +59,7 @@ class _GenericModalState extends State<GenericModal> {
   @override
   Widget build(BuildContext context) {
     return Dialog(
+      insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       child: Container(
         decoration: BoxDecoration(

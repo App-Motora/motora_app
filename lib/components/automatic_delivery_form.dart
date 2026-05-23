@@ -24,8 +24,8 @@ class _AutomaticDeliveryFormState extends State<AutomaticDeliveryForm> {
 
   String? restauranteSelecionado = 'Açaí da Praia';
   DeliveryTrackingResult? _finishedResult;
-  double? _valorFinalCorrida; // NOVA VARIÁVEL
-  double? _distanciaFinalLimpa; // NOVA VARIÁVEL
+  double? _valorFinalCorrida;
+  double? _distanciaFinalLimpa;
   bool _isFinishing = false;
 
   final List<String> restaurantes = [
@@ -112,11 +112,10 @@ class _AutomaticDeliveryFormState extends State<AutomaticDeliveryForm> {
       if (!mounted) return;
 
       // 6. Atualiza a tela para mostrar o resumo final ao usuário
-      // 6. Atualiza a tela para mostrar o resumo final ao usuário
       setState(() {
         _finishedResult = rawResult;
-        _valorFinalCorrida = valorCalculado; // Guarda o R$
-        _distanciaFinalLimpa = quilometragemLimpa; // Guarda o KM do Google Maps
+        _valorFinalCorrida = valorCalculado;
+        _distanciaFinalLimpa = double.parse(quilometragemLimpa.toStringAsFixed(2));
       });
 
       _showMessage('Entrega salva com sucesso!', AppColors.corSucesso);
@@ -448,7 +447,7 @@ class _AutomaticDeliveryFormState extends State<AutomaticDeliveryForm> {
   Widget _buildResultView(DeliveryTrackingResult result) {
     final double distancia = _distanciaFinalLimpa ?? result.totalDistanceKm;
     final double valor = _valorFinalCorrida ?? 0.0;
-
+    
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,

@@ -47,7 +47,7 @@ class App extends StatelessWidget {
         disabledColor: AppColors.corBordaInputs,
       ),
 
-      initialRoute: '/', 
+      initialRoute: '/',
       routes: {
         '/': (context) => const AuthCheck(), 
         '/login': (context) => const LoginPage(),

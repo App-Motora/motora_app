@@ -238,31 +238,18 @@ class _PerfilPageState extends State<PerfilPage> {
       body: SafeArea(
         child: _isLoading
         ? const Center(child: CircularProgressIndicator())
-        : LayoutBuilder(
-          builder: (context, constraints) {
-            return SingleChildScrollView(
-              child: ConstrainedBox(
-                constraints: BoxConstraints(
-                  minHeight: constraints.maxHeight
-                ),
-                child: IntrinsicHeight(
-                  child: Column(
-                    children: [
-                      _buildHeader(),
-                      Expanded(
-                        child: AnimatedSwitcher(
-                          duration: const Duration(milliseconds: 220),
-                          child: _isEditing
-                            ? _buildEditForm()
-                            : _buildProfileOptions(),
-                        ),
-                      ),
-                    ],
-                  ),
-                )
-              )
-            );
-          }
+        : Column(
+          children: [
+            _buildHeader(),
+            Expanded(
+              child: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 220),
+                child: _isEditing
+                  ? _buildEditForm()
+                  : _buildProfileOptions(),
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -274,10 +261,6 @@ class _PerfilPageState extends State<PerfilPage> {
       padding: const EdgeInsets.fromLTRB(20, 12, 20, 34),
       decoration: const BoxDecoration(
         color: _primaryYellow,
-        borderRadius: BorderRadius.only(
-          bottomLeft: Radius.circular(26),
-          bottomRight: Radius.circular(26),
-        ),
       ),
       child: Column(
         children: [
@@ -335,13 +318,8 @@ class _PerfilPageState extends State<PerfilPage> {
   Widget _buildProfileOptions() {
     return Container(
       width: double.infinity,
-      margin: const EdgeInsets.only(top: 18),
       decoration: BoxDecoration(
         color: AppColors.corFundoMenu,
-        borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(26),
-          topRight: Radius.circular(26),
-        ),
       ),
       child: ListView(
         padding: const EdgeInsets.fromLTRB(20, 18, 20, 28),
@@ -398,117 +376,115 @@ class _PerfilPageState extends State<PerfilPage> {
     return Container(
       key: const ValueKey('edit-profile'),
       width: double.infinity,
-      margin: const EdgeInsets.only(top: 18),
       decoration: BoxDecoration(
         color: AppColors.corFundoMenu,
-        borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(26),
-          topRight: Radius.circular(26),
-        ),
       ),
-      child: Form(
-        key: _formKey,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Row(
-              children: [
-                IconButton(
-                  onPressed: _isSaving
-                      ? null
-                      : () => setState(() {
-                          _isEditing = false;
-                          _nomeController.text = _nome;
-                          _emailController.text = _email;
-                          _senhaController.clear();
-                          _confirmaSenhaController.clear();
-                        }),
-                  icon: const Icon(Icons.arrow_back),
-                ),
-                const Expanded(
-                  child: Text(
-                    'Meu Cadastro',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: _textColor,
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.fromLTRB(20, 24, 20, 32),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Row(
+                children: [
+                  IconButton(
+                    onPressed: _isSaving
+                        ? null
+                        : () => setState(() {
+                            _isEditing = false;
+                            _nomeController.text = _nome;
+                            _emailController.text = _email;
+                            _senhaController.clear();
+                            _confirmaSenhaController.clear();
+                          }),
+                    icon: const Icon(Icons.arrow_back),
+                  ),
+                  const Expanded(
+                    child: Text(
+                      'Meu Cadastro',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: _textColor,
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(width: 48),
-              ],
-            ),
-            const SizedBox(height: 22),
-            _buildTextField(
-              controller: _nomeController,
-              label: 'Nome Completo',
-              icon: Icons.person_outline,
-              validator: (value) => value == null || value.trim().isEmpty
-                  ? 'Informe seu nome'
-                  : null,
-            ),
-            const SizedBox(height: 18),
-            _buildTextField(
-              controller: _emailController,
-              label: 'E-mail',
-              icon: Icons.email_outlined,
-              keyboardType: TextInputType.emailAddress,
-              validator: (value) => value == null || !value.contains('@')
-                  ? 'Informe um e-mail valido'
-                  : null,
-            ),
-            const SizedBox(height: 18),
-            _buildTextField(
-              controller: _senhaController,
-              label: 'Nova senha',
-              icon: Icons.lock_outline,
-              obscureText: true,
-              validator: (value) {
-                if (value == null || value.isEmpty) return null;
-                if (value.length < 6) return 'Minimo 6 caracteres';
-                return null;
-              },
-            ),
-            const SizedBox(height: 18),
-            _buildTextField(
-              controller: _confirmaSenhaController,
-              label: 'Confirmar senha',
-              icon: Icons.lock_reset,
-              obscureText: true,
-              validator: (value) {
-                if (_senhaController.text.isEmpty) return null;
-                if (value != _senhaController.text) {
-                  return 'As senhas nao coincidem';
-                }
-                return null;
-              },
-            ),
-            const SizedBox(height: 30),
-            ElevatedButton.icon(
-              onPressed: _isSaving ? null : _saveProfile,
-              icon: _isSaving
-                  ? const SizedBox(
-                      width: 18,
-                      height: 18,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: AppColors.corTexto,
-                      ),
-                    )
-                  : const Icon(Icons.check_circle_outline),
-              label: Text(_isSaving ? 'Salvando...' : 'Salvar alteracoes'),
-              style: ElevatedButton.styleFrom(
-                foregroundColor: AppColors.corTexto,
-                backgroundColor: _primaryYellow,
-                disabledBackgroundColor: AppColors.corBordaInputs,
-                padding: const EdgeInsets.symmetric(vertical: 15),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
+                  const SizedBox(width: 48),
+                ],
+              ),
+              const SizedBox(height: 22),
+              _buildTextField(
+                controller: _nomeController,
+                label: 'Nome Completo',
+                icon: Icons.person_outline,
+                validator: (value) => value == null || value.trim().isEmpty
+                    ? 'Informe seu nome'
+                    : null,
+              ),
+              const SizedBox(height: 18),
+              _buildTextField(
+                controller: _emailController,
+                label: 'E-mail',
+                icon: Icons.email_outlined,
+                keyboardType: TextInputType.emailAddress,
+                validator: (value) => value == null || !value.contains('@')
+                    ? 'Informe um e-mail valido'
+                    : null,
+              ),
+              const SizedBox(height: 18),
+              _buildTextField(
+                controller: _senhaController,
+                label: 'Nova senha',
+                icon: Icons.lock_outline,
+                obscureText: true,
+                validator: (value) {
+                  if (value == null || value.isEmpty) return null;
+                  if (value.length < 6) return 'Minimo 6 caracteres';
+                  return null;
+                },
+              ),
+              const SizedBox(height: 18),
+              _buildTextField(
+                controller: _confirmaSenhaController,
+                label: 'Confirmar senha',
+                icon: Icons.lock_reset,
+                obscureText: true,
+                validator: (value) {
+                  if (_senhaController.text.isEmpty) return null;
+                  if (value != _senhaController.text) {
+                    return 'As senhas nao coincidem';
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 30),
+              ElevatedButton.icon(
+                onPressed: _isSaving ? null : _saveProfile,
+                icon: _isSaving
+                    ? const SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: AppColors.corTexto,
+                        ),
+                      )
+                    : const Icon(Icons.check_circle_outline),
+                label: Text(_isSaving ? 'Salvando...' : 'Salvar alteracoes'),
+                style: ElevatedButton.styleFrom(
+                  foregroundColor: AppColors.corTexto,
+                  backgroundColor: _primaryYellow,
+                  disabledBackgroundColor: AppColors.corBordaInputs,
+                  padding: const EdgeInsets.symmetric(vertical: 15),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

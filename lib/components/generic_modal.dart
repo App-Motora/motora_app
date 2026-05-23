@@ -38,14 +38,6 @@ class GenericModal extends StatefulWidget {
 }
 
 class _GenericModalState extends State<GenericModal> {
-  final ScrollController _scrollController = ScrollController();
-
-  @override
-  void dispose() {
-    _scrollController.dispose();
-    super.dispose();
-  }
-
   void _close() {
     final onClose = widget.onClose;
     if (onClose != null) {

@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../models/delivery_model.dart';
-
+import '../models/expense_model.dart'; 
 
 class FirestoreService {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
@@ -82,4 +82,59 @@ class FirestoreService {
       throw Exception('Erro ao salvar entrega automática: $e');
     }
   }
-}
+
+  Future<void> salvarDespesa(Despesa despesa) async {
+    try {
+      await _db
+          .collection('usuarios')
+          .doc(_uid)
+          .collection('despesas')
+          .add(despesa.toMap());
+    } catch (e) {
+      throw Exception('Erro ao salvar despesa: $e');
+    }
+  }
+
+  Future<void> atualizarDespesa(Despesa despesa) async {
+    if (despesa.id == null) {
+      throw Exception('Erro ao atualizar despesa: id não encontrado');
+    }
+    try {
+      await _db
+          .collection('usuarios')
+          .doc(_uid)
+          .collection('despesas')
+          .doc(despesa.id)
+          .update(despesa.toMap());
+    } catch (e) {
+      throw Exception('Erro ao atualizar despesa: $e');
+    }
+  }
+
+  Future<void> excluirDespesa(String despesaId) async {
+    try {
+      await _db
+          .collection('usuarios')
+          .doc(_uid)
+          .collection('despesas')
+          .doc(despesaId)
+          .delete();
+    } catch (e) {
+      throw Exception('Erro ao excluir despesa: $e');
+    }
+  }
+
+  Stream<List<Despesa>> buscarDespesas() {
+    return _db
+        .collection('usuarios')
+        .doc(_uid)
+        .collection('despesas')
+        .orderBy('data', descending: true)
+        .snapshots()
+        .map(
+          (snapshot) => snapshot.docs.map((doc) {
+            return Despesa.fromMap(doc.id, doc.data());
+          }).toList(),
+        );
+  }
+} 

@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:motora_app/components/activity_card.dart';
-import 'package:motora_app/components/automatic_expense_form.dart';
 import 'package:motora_app/components/filter_search.dart';
 import 'package:motora_app/components/float_button.dart';
 import 'package:motora_app/components/menu.dart';
 import 'package:motora_app/constants/app_colors.dart';
+import 'package:motora_app/components/automatic_expense_form.dart';
+import 'package:motora_app/models/expense_model.dart';
+import 'package:motora_app/services/firestore_service.dart';
 
 class ExpensesHistoryPage extends StatefulWidget {
   const ExpensesHistoryPage({super.key});
@@ -14,50 +16,192 @@ class ExpensesHistoryPage extends StatefulWidget {
 }
 
 class _ExpensesHistoryPageState extends State<ExpensesHistoryPage> {
-  static const Color _expenseColor = AppColors.corDespesa;
-  static const Color _backgroundColor = AppColors.corFundo;
-
   final int _activeMenuIndex = 1;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-  late final List<_StaticExpense> _expenses;
 
-  @override
-  void initState() {
-    super.initState();
-    _expenses = _buildStaticExpenses();
+  void _abrirAcoesDespesa(BuildContext context, Despesa despesa) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: AppColors.corFundo,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      useSafeArea: true,
+      builder: (modalContext) {
+        return Padding(
+          padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 44,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: AppColors.corSombra,
+                  borderRadius: BorderRadius.circular(999),
+                ),
+              ),
+              const SizedBox(height: 16),
+              ListTile(
+                leading: const Icon(Icons.edit, color: AppColors.corEditar),
+                title: const Text('Editar despesa'),
+                subtitle: Text(despesa.categoria),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                onTap: () {
+                  Navigator.pop(modalContext);
+                  _abrirEditarDespesa(despesa);
+                },
+              ),
+              ListTile(
+                leading: const Icon(
+                  Icons.delete_outline,
+                  color: AppColors.corExcluir,
+                ),
+                title: const Text('Excluir despesa'),
+                subtitle: const Text('Remover esta despesa do histórico'),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                onTap: () {
+                  Navigator.pop(modalContext);
+                  if (despesa.id != null) {
+                    _confirmarExclusaoDespesa(despesa);
+                  }
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void _abrirEditarDespesa(Despesa despesa) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) =>
+          AutomaticExpenseForm(despesaParaEditar: despesa),
+    );
+  }
+
+  Future<void> _confirmarExclusaoDespesa(Despesa despesa) async {
+    final despesaId = despesa.id;
+
+    if (despesaId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Não foi possível identificar esta despesa.'),
+          backgroundColor: AppColors.corErro,
+        ),
+      );
+      return;
+    }
+
+    final confirmar = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          backgroundColor: AppColors.corFundo,
+          title: const Text('Excluir despesa?'),
+          content: Text(
+            'A despesa de ${despesa.categoria} será removida do histórico.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext, false),
+              child: const Text(
+                'Cancelar',
+                style: TextStyle(color: AppColors.corTexto),
+              ),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext, true),
+              child: const Text(
+                'Excluir',
+                style: TextStyle(color: AppColors.corExcluir),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmar != true) return;
+
+    try {
+      await FirestoreService().excluirDespesa(despesaId);
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Despesa excluída com sucesso!'),
+          backgroundColor: AppColors.corSucesso,
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Erro ao excluir despesa.'),
+          backgroundColor: AppColors.corErro,
+        ),
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldKey,
-      backgroundColor: _backgroundColor,
+      backgroundColor: AppColors.corFundo,
       drawer: Menu(selectedIndex: _activeMenuIndex),
       body: SafeArea(
         child: Column(
           children: [
             _buildTopBar(),
             Expanded(
-              child: FilterSearch<_StaticExpense>(
-                items: _expenses,
-                getCategory: (expense) => expense.category,
-                getDate: (expense) => expense.date,
-                getSearchText: (expense) =>
-                    '${expense.category} ${expense.description}',
-                getTitle: (expense) => expense.category,
-                getSubtitle: (expense) => expense.description,
-                getAmount: (expense) => expense.amount,
-                getIsPositive: (expense) => false,
-                onLongPress: (_) {},
-                searchHint: 'Pesquise a despesa',
-                sectionTitle: 'Historico',
-                categoryFilterLabel: 'Categoria',
-                accentColor: _expenseColor,
-                cardIcon: Icons.receipt_long,
-                activityCardActions: (_) => const ActivityCardActionConfig(
-                  editIconColor: _expenseColor,
-                  deleteIconColor: AppColors.corExcluir,
-                ),
+              child: StreamBuilder<List<Despesa>>(
+                stream: FirestoreService().buscarDespesas(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(
+                      child: CircularProgressIndicator(
+                        color: AppColors.corSecundaria,
+                      ),
+                    );
+                  }
+
+                  if (snapshot.hasError) {
+                    return const Center(
+                      child: Text('Erro ao carregar o histórico.'),
+                    );
+                  }
+
+                  final todasDespesas = snapshot.data ?? [];
+                  return FilterSearch<Despesa>(
+                    items: todasDespesas,
+                    getCategory: (d) => d.categoria,
+                    getDate: (d) => d.data,
+                    getSearchText: (d) => d.descricao,
+                    getTitle: (d) => d.categoria,
+                    getSubtitle: (d) => d.descricao,
+                    getAmount: (d) => d.valor,
+                    getIsPositive: (d) => false,
+                    onLongPress: (despesa) =>
+                        _abrirAcoesDespesa(context, despesa),
+                    searchHint: 'Pesquise a despesa',
+                    sectionTitle: 'Histórico',
+                    categoryFilterLabel: 'Categoria',
+                    activityCardActions: (despesa) =>
+                        _activityActionsConfig(despesa),
+                    cardIcon: Icons.receipt_long,
+                    accentColor: AppColors.corDespesa,
+                  );
+                },
               ),
             ),
           ],
@@ -67,7 +211,7 @@ class _ExpensesHistoryPageState extends State<ExpensesHistoryPage> {
         padding: const EdgeInsets.only(bottom: 8, right: 4),
         child: FloatButton(
           icon: Icons.add,
-          color: _expenseColor,
+          color: AppColors.corDespesa,
           function: () => showDialog(
             context: context,
             builder: (BuildContext context) => const AutomaticExpenseForm(),
@@ -100,60 +244,29 @@ class _ExpensesHistoryPageState extends State<ExpensesHistoryPage> {
     );
   }
 
-  List<_StaticExpense> _buildStaticExpenses() {
-    final now = DateTime.now();
+  ActivityCardActionConfig _activityActionsConfig(Despesa despesa) {
+    return ActivityCardActionConfig(
+      editTitle: 'Editar despesa',
+      editSubtitle: despesa.categoria,
+      deleteTitle: 'Excluir despesa',
+      deleteSubtitle: 'Remover esta despesa do histórico',
+      deleteConfirmationTitle: 'Excluir despesa?',
+      deleteConfirmationMessage:
+          'A despesa de ${despesa.categoria} será removida do histórico.',
+      deleteSuccessMessage: 'Despesa excluída com sucesso!',
+      deleteErrorMessage: 'Erro ao excluir despesa.',
+      editBuilder: (context) =>
+          AutomaticExpenseForm(despesaParaEditar: despesa),
+      onDelete: () async {
+        final despesaId = despesa.id;
 
-    return [
-      _StaticExpense(
-        category: 'Combustivel',
-        description: 'Abastecimento do turno',
-        amount: 120.00,
-        date: DateTime(now.year, now.month, now.day, 8, 45),
-      ),
-      _StaticExpense(
-        category: 'Alimentacao',
-        description: 'Almoco durante as entregas',
-        amount: 32.50,
-        date: DateTime(now.year, now.month, now.day, 12, 20),
-      ),
-      _StaticExpense(
-        category: 'Manutencao',
-        description: 'Troca de oleo',
-        amount: 95.00,
-        date: DateTime(now.year, now.month, now.day - 1, 17, 10),
-      ),
-      _StaticExpense(
-        category: 'Combustivel',
-        description: 'Completar tanque',
-        amount: 80.00,
-        date: DateTime(now.year, now.month, now.day - 2, 9, 5),
-      ),
-      _StaticExpense(
-        category: 'Outras',
-        description: 'Estacionamento',
-        amount: 18.00,
-        date: DateTime(now.year, now.month, now.day - 3, 15, 35),
-      ),
-      _StaticExpense(
-        category: 'Manutencao',
-        description: 'Calibragem e revisao rapida',
-        amount: 24.90,
-        date: DateTime(now.year, now.month, now.day - 6, 10, 0),
-      ),
-    ];
+        if (despesaId == null) {
+          throw const ActivityCardActionException(
+            'Não foi possível identificar esta despesa.',
+          );
+        }
+        await FirestoreService().excluirDespesa(despesaId);
+      },
+    );
   }
-}
-
-class _StaticExpense {
-  final String category;
-  final String description;
-  final double amount;
-  final DateTime date;
-
-  const _StaticExpense({
-    required this.category,
-    required this.description,
-    required this.amount,
-    required this.date,
-  });
 }

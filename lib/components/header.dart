@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:motora_app/components/financial_summary_card.dart';
 import 'package:motora_app/constants/app_colors.dart';
-import 'package:motora_app/data/restaurants.dart';
 
 class Header extends StatelessWidget {
   final String selectedRestaurant;
+  final List<String> restaurants;
   final bool hasActiveShift;
   final int shiftDeliveryCount;
   final double receitas;
@@ -17,6 +17,7 @@ class Header extends StatelessWidget {
   const Header({
     super.key,
     required this.selectedRestaurant,
+    required this.restaurants,
     required this.hasActiveShift,
     required this.shiftDeliveryCount,
     required this.receitas,
@@ -87,7 +88,9 @@ class Header extends StatelessWidget {
       constraints: const BoxConstraints(maxWidth: 260),
       child: DropdownButtonFormField<String>(
         key: ValueKey(selectedRestaurant),
-        initialValue: availableRestaurants.contains(selectedRestaurant)
+        initialValue: restaurants.isEmpty
+            ? selectedRestaurant
+            : restaurants.contains(selectedRestaurant)
             ? selectedRestaurant
             : null,
         isExpanded: true,
@@ -107,7 +110,9 @@ class Header extends StatelessWidget {
             borderSide: BorderSide.none,
           ),
         ),
-        items: availableRestaurants.map((value) {
+        items: (restaurants.isEmpty ? [selectedRestaurant] : restaurants).map((
+          value,
+        ) {
           return DropdownMenuItem<String>(value: value, child: Text(value));
         }).toList(),
         onChanged: (value) {

@@ -8,10 +8,10 @@ import 'package:motora_app/components/generic_modal.dart';
 import 'package:motora_app/components/header.dart';
 import 'package:motora_app/components/menu.dart';
 import 'package:motora_app/constants/app_colors.dart';
-import 'package:motora_app/data/restaurants.dart';
 import 'package:motora_app/home_page_vazia.dart';
 import 'package:motora_app/models/delivery_model.dart';
 import 'package:motora_app/models/expense_model.dart';
+import 'package:motora_app/models/restaurant_model.dart';
 import 'package:motora_app/models/shift_model.dart';
 import 'package:motora_app/services/firestore_service.dart';
 
@@ -34,58 +34,72 @@ class _HomePageState extends State<HomePage> {
       backgroundColor: AppColors.corFundo,
       drawer: Menu(selectedIndex: _activeMenuIndex),
       body: SafeArea(
-        child: StreamBuilder<Turno?>(
-          stream: FirestoreService().buscarTurnoAtivo(),
-          builder: (context, turnoSnapshot) {
-            return StreamBuilder<Entrega?>(
-              stream: FirestoreService().buscarEntregaMaisRecente(),
-              builder: (context, entregaRecenteSnapshot) {
-                final turnoAtivo = turnoSnapshot.data;
-                final restauranteAtual = _resolveCurrentRestaurant(
-                  turnoAtivo: turnoAtivo,
-                  entregaRecente: entregaRecenteSnapshot.data,
-                );
+        child: StreamBuilder<List<RestaurantModel>>(
+          stream: FirestoreService().buscarRestaurantes(),
+          builder: (context, restaurantesSnapshot) {
+            final restaurantes = _restaurantNames(
+              restaurantesSnapshot.data ?? [],
+            );
 
-                return StreamBuilder<List<Entrega>>(
-                  stream: FirestoreService().buscarEntregasDoDia(),
-                  builder: (context, entregasSnapshot) {
-                    return StreamBuilder<List<Despesa>>(
-                      stream: FirestoreService().buscarDespesasDoDia(),
-                      builder: (context, despesasSnapshot) {
-                        final entregas = entregasSnapshot.data ?? [];
-                        final despesas = despesasSnapshot.data ?? [];
+            return StreamBuilder<Turno?>(
+              stream: FirestoreService().buscarTurnoAtivo(),
+              builder: (context, turnoSnapshot) {
+                return StreamBuilder<Entrega?>(
+                  stream: FirestoreService().buscarEntregaMaisRecente(),
+                  builder: (context, entregaRecenteSnapshot) {
+                    final turnoAtivo = turnoSnapshot.data;
+                    final restauranteAtual = _resolveCurrentRestaurant(
+                      turnoAtivo: turnoAtivo,
+                      entregaRecente: entregaRecenteSnapshot.data,
+                      restaurantes: restaurantes,
+                    );
 
-                        if (turnoAtivo == null) {
-                          return _buildHomeContent(
-                            turnoAtivo: null,
-                            entregasTurno: const [],
-                            restauranteAtual: restauranteAtual,
-                            entregasSnapshot: entregasSnapshot,
-                            despesasSnapshot: despesasSnapshot,
-                            entregas: entregas,
-                            despesas: despesas,
-                          );
-                        }
+                    return StreamBuilder<List<Entrega>>(
+                      stream: FirestoreService().buscarEntregasDoDia(),
+                      builder: (context, entregasSnapshot) {
+                        return StreamBuilder<List<Despesa>>(
+                          stream: FirestoreService().buscarDespesasDoDia(),
+                          builder: (context, despesasSnapshot) {
+                            final entregas = entregasSnapshot.data ?? [];
+                            final despesas = despesasSnapshot.data ?? [];
 
-                        return StreamBuilder<List<Entrega>>(
-                          stream: FirestoreService().buscarEntregasDesde(
-                            turnoAtivo.iniciadoEm,
-                          ),
-                          builder: (context, entregasTurnoSnapshot) {
-                            return _buildHomeContent(
-                              turnoAtivo: turnoAtivo,
-                              entregasTurno:
-                                  entregasTurnoSnapshot.data ?? const [],
-                              restauranteAtual: restauranteAtual,
-                              entregasSnapshot: entregasSnapshot,
-                              despesasSnapshot: despesasSnapshot,
-                              entregas: entregas,
-                              despesas: despesas,
-                              isShiftDeliveriesLoading:
-                                  entregasTurnoSnapshot.connectionState ==
-                                  ConnectionState.waiting,
-                              hasShiftDeliveriesError:
-                                  entregasTurnoSnapshot.hasError,
+                            if (turnoAtivo == null) {
+                              return _buildHomeContent(
+                                turnoAtivo: null,
+                                entregasTurno: const [],
+                                restauranteAtual: restauranteAtual,
+                                restaurantes: restaurantes,
+                                restaurantesSnapshot: restaurantesSnapshot,
+                                entregasSnapshot: entregasSnapshot,
+                                despesasSnapshot: despesasSnapshot,
+                                entregas: entregas,
+                                despesas: despesas,
+                              );
+                            }
+
+                            return StreamBuilder<List<Entrega>>(
+                              stream: FirestoreService().buscarEntregasDesde(
+                                turnoAtivo.iniciadoEm,
+                              ),
+                              builder: (context, entregasTurnoSnapshot) {
+                                return _buildHomeContent(
+                                  turnoAtivo: turnoAtivo,
+                                  entregasTurno:
+                                      entregasTurnoSnapshot.data ?? const [],
+                                  restauranteAtual: restauranteAtual,
+                                  restaurantes: restaurantes,
+                                  restaurantesSnapshot: restaurantesSnapshot,
+                                  entregasSnapshot: entregasSnapshot,
+                                  despesasSnapshot: despesasSnapshot,
+                                  entregas: entregas,
+                                  despesas: despesas,
+                                  isShiftDeliveriesLoading:
+                                      entregasTurnoSnapshot.connectionState ==
+                                      ConnectionState.waiting,
+                                  hasShiftDeliveriesError:
+                                      entregasTurnoSnapshot.hasError,
+                                );
+                              },
                             );
                           },
                         );
@@ -105,6 +119,8 @@ class _HomePageState extends State<HomePage> {
     required Turno? turnoAtivo,
     required List<Entrega> entregasTurno,
     required String restauranteAtual,
+    required List<String> restaurantes,
+    required AsyncSnapshot<List<RestaurantModel>> restaurantesSnapshot,
     required AsyncSnapshot<List<Entrega>> entregasSnapshot,
     required AsyncSnapshot<List<Despesa>> despesasSnapshot,
     required List<Entrega> entregas,
@@ -115,10 +131,12 @@ class _HomePageState extends State<HomePage> {
     final isLoading =
         entregasSnapshot.connectionState == ConnectionState.waiting ||
         despesasSnapshot.connectionState == ConnectionState.waiting ||
+        restaurantesSnapshot.connectionState == ConnectionState.waiting ||
         isShiftDeliveriesLoading;
     final hasError =
         entregasSnapshot.hasError ||
         despesasSnapshot.hasError ||
+        restaurantesSnapshot.hasError ||
         hasShiftDeliveriesError;
     final activities = _buildDailyActivities(entregas, despesas);
     final hasActivities = activities.isNotEmpty;
@@ -142,6 +160,7 @@ class _HomePageState extends State<HomePage> {
           children: [
             Header(
               selectedRestaurant: restauranteAtual,
+              restaurants: restaurantes,
               hasActiveShift: hasActiveShift,
               shiftDeliveryCount: shiftDeliveryCount,
               receitas: totalEntregas,
@@ -166,6 +185,7 @@ class _HomePageState extends State<HomePage> {
                 hasActivities: hasActivities,
                 activities: activities,
                 selectedRestaurant: restauranteAtual,
+                restaurants: restaurantes,
                 hasActiveShift: hasActiveShift,
               ),
             ),
@@ -178,6 +198,7 @@ class _HomePageState extends State<HomePage> {
             child: _buildFloatingActionMenu(
               hasActiveShift: hasActiveShift,
               selectedRestaurant: restauranteAtual,
+              restaurants: restaurantes,
             ),
           ),
       ],
@@ -190,6 +211,7 @@ class _HomePageState extends State<HomePage> {
     required bool hasActivities,
     required List<_DailyActivity> activities,
     required String selectedRestaurant,
+    required List<String> restaurants,
     required bool hasActiveShift,
   }) {
     if (isLoading) {
@@ -208,7 +230,10 @@ class _HomePageState extends State<HomePage> {
       return HomePageVazia(
         initialRestaurant: selectedRestaurant,
         hasActiveShift: hasActiveShift,
-        onStartShiftPressed: () => _openStartShiftModal(selectedRestaurant),
+        onStartShiftPressed: () => _openStartShiftModal(
+          selectedRestaurant: selectedRestaurant,
+          restaurants: restaurants,
+        ),
       );
     }
 
@@ -260,6 +285,7 @@ class _HomePageState extends State<HomePage> {
   Widget _buildFloatingActionMenu({
     required bool hasActiveShift,
     required String selectedRestaurant,
+    required List<String> restaurants,
   }) {
     return Column(
       children: [
@@ -267,7 +293,10 @@ class _HomePageState extends State<HomePage> {
           FloatButton(
             icon: Icons.access_time,
             color: AppColors.corSecundaria,
-            function: () => _openStartShiftModal(selectedRestaurant),
+            function: () => _openStartShiftModal(
+              selectedRestaurant: selectedRestaurant,
+              restaurants: restaurants,
+            ),
           ),
           const SizedBox(height: 12),
         ],
@@ -299,7 +328,10 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  void _openStartShiftModal(String selectedRestaurant) {
+  void _openStartShiftModal({
+    required String selectedRestaurant,
+    required List<String> restaurants,
+  }) {
     _shiftStartRestaurant = selectedRestaurant;
 
     showDialog(
@@ -307,7 +339,7 @@ class _HomePageState extends State<HomePage> {
       builder: (BuildContext context) {
         return GenericModal(
           title: 'Começar um turno?',
-          content: _buildStartShiftContent(),
+          content: _buildStartShiftContent(restaurants),
           confirmButtonText: 'Iniciar Turno',
           confirmButtonIcon: Icon(
             Icons.play_arrow_outlined,
@@ -347,10 +379,11 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  Widget _buildStartShiftContent() {
-    _shiftStartRestaurant ??= availableRestaurants.isEmpty
-        ? null
-        : availableRestaurants.first;
+  Widget _buildStartShiftContent(List<String> restaurants) {
+    _shiftStartRestaurant = _resolveRestaurantFromList(
+      _shiftStartRestaurant,
+      restaurants,
+    );
 
     return StatefulBuilder(
       builder: (context, setModalState) {
@@ -370,7 +403,7 @@ class _HomePageState extends State<HomePage> {
                     builder: (context, constraints) {
                       return DropdownButtonFormField<String>(
                         initialValue:
-                            availableRestaurants.contains(_shiftStartRestaurant)
+                            restaurants.contains(_shiftStartRestaurant)
                             ? _shiftStartRestaurant
                             : null,
                         isExpanded: true,
@@ -390,7 +423,7 @@ class _HomePageState extends State<HomePage> {
                             borderSide: BorderSide.none,
                           ),
                         ),
-                        items: availableRestaurants.map((String value) {
+                        items: restaurants.map((String value) {
                           return DropdownMenuItem<String>(
                             value: value,
                             child: Text(value),
@@ -515,13 +548,37 @@ class _HomePageState extends State<HomePage> {
   String _resolveCurrentRestaurant({
     required Turno? turnoAtivo,
     required Entrega? entregaRecente,
+    required List<String> restaurantes,
   }) {
     if (turnoAtivo != null) return turnoAtivo.restaurante;
-    if (_selectedRestaurant != null) return _selectedRestaurant!;
-    if (entregaRecente != null) return entregaRecente.restaurante;
-    return availableRestaurants.isEmpty
-        ? 'Nenhum restaurante'
-        : availableRestaurants.first;
+    if (_selectedRestaurant != null &&
+        restaurantes.contains(_selectedRestaurant)) {
+      return _selectedRestaurant!;
+    }
+    if (entregaRecente != null &&
+        restaurantes.contains(entregaRecente.restaurante)) {
+      return entregaRecente.restaurante;
+    }
+    return restaurantes.isEmpty ? 'Nenhum restaurante' : restaurantes.first;
+  }
+
+  List<String> _restaurantNames(List<RestaurantModel> restaurantes) {
+    return restaurantes
+        .map((restaurante) => restaurante.nome.trim())
+        .where((nome) => nome.isNotEmpty)
+        .toList();
+  }
+
+  String? _resolveRestaurantFromList(
+    String? selectedRestaurant,
+    List<String> restaurants,
+  ) {
+    if (selectedRestaurant != null &&
+        restaurants.contains(selectedRestaurant)) {
+      return selectedRestaurant;
+    }
+
+    return restaurants.isEmpty ? null : restaurants.first;
   }
 
   int _countShiftRestaurantDeliveries(Turno turno, List<Entrega> entregas) {

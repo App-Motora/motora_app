@@ -1,12 +1,20 @@
 import 'package:flutter/material.dart';
-import 'package:motora_app/components/automatic_expense_form.dart';
-import 'package:motora_app/components/generic_modal.dart';
-import 'package:motora_app/components/primary_button.dart';
 import 'package:motora_app/components/automatic_delivery_form.dart';
+import 'package:motora_app/components/automatic_expense_form.dart';
+import 'package:motora_app/components/primary_button.dart';
 import 'package:motora_app/constants/app_colors.dart';
 
 class HomePageVazia extends StatelessWidget {
-  const HomePageVazia({super.key});
+  final String? initialRestaurant;
+  final bool hasActiveShift;
+  final VoidCallback? onStartShiftPressed;
+
+  const HomePageVazia({
+    super.key,
+    this.initialRestaurant,
+    this.hasActiveShift = false,
+    this.onStartShiftPressed,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -26,28 +34,15 @@ class HomePageVazia extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 20),
-            PrimaryButton(
-              label: 'Iniciar Turno',
-              icon: Icons.history,
-              color: AppColors.corSecundaria,
-              onPressed: () => showDialog(
-                context: context,
-                builder: (BuildContext context) {
-                  return GenericModal(
-                    title: 'Começar um turno?',
-                    content: Column(
-                      children: [
-                        Text('Restaurante vinculado: Açaí da Praia'),
-                        SizedBox(height: 20)
-                      ],
-                    ),
-                    confirmButtonText: 'Iniciar Turno',
-                    confirmButtonIcon: Icon(Icons.play_arrow_outlined, color: AppColors.corIcone),
-                  );
-                },
+            if (!hasActiveShift) ...[
+              PrimaryButton(
+                label: 'Iniciar Turno',
+                icon: Icons.history,
+                color: AppColors.corSecundaria,
+                onPressed: onStartShiftPressed ?? () {},
               ),
-            ),
-            const SizedBox(height: 20),
+              const SizedBox(height: 20),
+            ],
             PrimaryButton(
               label: 'Registrar Entrega',
               icon: Icons.delivery_dining,
@@ -56,7 +51,9 @@ class HomePageVazia extends StatelessWidget {
                 context: context,
                 barrierDismissible: false,
                 builder: (BuildContext context) {
-                  return AutomaticDeliveryForm();
+                  return AutomaticDeliveryForm(
+                    initialRestaurant: initialRestaurant,
+                  );
                 },
               ),
             ),

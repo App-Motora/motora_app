@@ -9,7 +9,9 @@ import 'package:motora_app/services/firestore_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class AutomaticDeliveryForm extends StatefulWidget {
-  const AutomaticDeliveryForm({super.key});
+  final String? initialRestaurant;
+
+  const AutomaticDeliveryForm({super.key, this.initialRestaurant});
 
   @override
   State<AutomaticDeliveryForm> createState() => _AutomaticDeliveryFormState();
@@ -37,6 +39,16 @@ class _AutomaticDeliveryFormState extends State<AutomaticDeliveryForm> {
   @override
   void initState() {
     super.initState();
+    final initialRestaurant = widget.initialRestaurant;
+
+    if (initialRestaurant != null && initialRestaurant.isNotEmpty) {
+      restauranteSelecionado = initialRestaurant;
+
+      if (!restaurantes.contains(initialRestaurant)) {
+        restaurantes.add(initialRestaurant);
+      }
+    }
+
     _trackingController.addListener(_refreshTrackingState);
   }
 
@@ -447,7 +459,7 @@ class _AutomaticDeliveryFormState extends State<AutomaticDeliveryForm> {
   Widget _buildResultView(DeliveryTrackingResult result) {
     final double distancia = _distanciaFinalLimpa ?? result.totalDistanceKm;
     final double valor = _valorFinalCorrida ?? 0.0;
-    
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,

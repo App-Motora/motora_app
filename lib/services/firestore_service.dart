@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../models/delivery_model.dart';
-import '../models/expense_model.dart'; 
+import '../models/expense_model.dart';
 
 class FirestoreService {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
@@ -54,6 +54,34 @@ class FirestoreService {
         .collection('usuarios')
         .doc(_uid)
         .collection('entregas')
+        .orderBy('data', descending: true)
+        .snapshots()
+        .map(
+          (snapshot) => snapshot.docs.map((doc) {
+            final data = doc.data();
+            return Entrega(
+              id: doc.id,
+              restaurante: data['restaurante'],
+              valor: data['valor'].toDouble(),
+              quilometragem: data['quilometragem'].toDouble(),
+              data: (data['data'] as Timestamp).toDate(),
+              userId: data['userId'],
+            );
+          }).toList(),
+        );
+  }
+
+  Stream<List<Entrega>> buscarEntregasDoDia() {
+    final now = DateTime.now();
+    final inicioDoDia = DateTime(now.year, now.month, now.day);
+    final inicioDoProximoDia = inicioDoDia.add(const Duration(days: 1));
+
+    return _db
+        .collection('usuarios')
+        .doc(_uid)
+        .collection('entregas')
+        .where('data', isGreaterThanOrEqualTo: Timestamp.fromDate(inicioDoDia))
+        .where('data', isLessThan: Timestamp.fromDate(inicioDoProximoDia))
         .orderBy('data', descending: true)
         .snapshots()
         .map(
@@ -137,4 +165,24 @@ class FirestoreService {
           }).toList(),
         );
   }
-} 
+
+  Stream<List<Despesa>> buscarDespesasDoDia() {
+    final now = DateTime.now();
+    final inicioDoDia = DateTime(now.year, now.month, now.day);
+    final inicioDoProximoDia = inicioDoDia.add(const Duration(days: 1));
+
+    return _db
+        .collection('usuarios')
+        .doc(_uid)
+        .collection('despesas')
+        .where('data', isGreaterThanOrEqualTo: Timestamp.fromDate(inicioDoDia))
+        .where('data', isLessThan: Timestamp.fromDate(inicioDoProximoDia))
+        .orderBy('data', descending: true)
+        .snapshots()
+        .map(
+          (snapshot) => snapshot.docs.map((doc) {
+            return Despesa.fromMap(doc.id, doc.data());
+          }).toList(),
+        );
+  }
+}

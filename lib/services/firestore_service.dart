@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../models/delivery_model.dart';
 import '../models/expense_model.dart';
+import '../models/restaurant_model.dart';
 import '../models/shift_model.dart';
 
 class FirestoreService {
@@ -18,6 +19,102 @@ class FirestoreService {
     } catch (e) {
       throw Exception('Erro ao salvar entrega: $e');
     }
+  }
+
+  Future<void> salvarRestaurante(RestaurantModel restaurante) async {
+    try {
+      await _db
+          .collection('usuarios')
+          .doc(_uid)
+          .collection('restaurantes')
+          .add({
+            ...restaurante.toMap(),
+            'createdAt': FieldValue.serverTimestamp(),
+            'updatedAt': FieldValue.serverTimestamp(),
+          });
+    } catch (e) {
+      throw Exception('Erro ao salvar restaurante: $e');
+    }
+  }
+
+  Future<void> atualizarRestaurante(RestaurantModel restaurante) async {
+    if (restaurante.id == null) {
+      throw Exception('Erro ao atualizar restaurante: id nao encontrado');
+    }
+
+    try {
+      await _db
+          .collection('usuarios')
+          .doc(_uid)
+          .collection('restaurantes')
+          .doc(restaurante.id)
+          .update({
+            ...restaurante.toMap(),
+            'updatedAt': FieldValue.serverTimestamp(),
+          });
+    } catch (e) {
+      throw Exception('Erro ao atualizar restaurante: $e');
+    }
+  }
+
+  Future<void> atualizarPerfilPagamentoRestaurante(
+    String restauranteId,
+    PaymentProfile perfilPagamento,
+  ) async {
+    try {
+      await _db
+          .collection('usuarios')
+          .doc(_uid)
+          .collection('restaurantes')
+          .doc(restauranteId)
+          .update({
+            'perfilPagamento': perfilPagamento.toMap(),
+            'updatedAt': FieldValue.serverTimestamp(),
+          });
+    } catch (e) {
+      throw Exception('Erro ao atualizar perfil de pagamento: $e');
+    }
+  }
+
+  Future<void> excluirRestaurante(String restauranteId) async {
+    try {
+      await _db
+          .collection('usuarios')
+          .doc(_uid)
+          .collection('restaurantes')
+          .doc(restauranteId)
+          .delete();
+    } catch (e) {
+      throw Exception('Erro ao excluir restaurante: $e');
+    }
+  }
+
+  Stream<List<RestaurantModel>> buscarRestaurantes() {
+    return _db
+        .collection('usuarios')
+        .doc(_uid)
+        .collection('restaurantes')
+        .orderBy('nome')
+        .snapshots()
+        .map(
+          (snapshot) => snapshot.docs
+              .map((doc) => RestaurantModel.fromMap(doc.id, doc.data()))
+              .toList(),
+        );
+  }
+
+  Stream<RestaurantModel?> buscarRestaurantePorId(String restauranteId) {
+    return _db
+        .collection('usuarios')
+        .doc(_uid)
+        .collection('restaurantes')
+        .doc(restauranteId)
+        .snapshots()
+        .map((snapshot) {
+          final data = snapshot.data();
+          if (!snapshot.exists || data == null) return null;
+          return RestaurantModel.fromMap(snapshot.id, data);
+        });
   }
 
   Stream<Turno?> buscarTurnoAtivo() {

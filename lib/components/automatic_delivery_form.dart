@@ -1,12 +1,14 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:motora_app/components/generic_modal.dart';
+import 'package:motora_app/components/restaurant_form.dart';
 import 'package:motora_app/constants/app_colors.dart';
 import 'package:motora_app/controllers/delivery_tracking_controller.dart';
 import 'package:motora_app/models/delivery_model.dart';
 import 'package:motora_app/models/delivery_tracking_result_model.dart';
-import 'package:motora_app/services/google_maps_service.dart';
+import 'package:motora_app/models/restaurant_model.dart';
 import 'package:motora_app/services/firestore_service.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:motora_app/services/google_maps_service.dart';
 
 class AutomaticDeliveryForm extends StatefulWidget {
   final String? initialRestaurant;
@@ -20,33 +22,26 @@ class AutomaticDeliveryForm extends StatefulWidget {
 class _AutomaticDeliveryFormState extends State<AutomaticDeliveryForm> {
   final DeliveryTrackingController _trackingController =
       DeliveryTrackingController();
-  final TextEditingController _pagamentoController = TextEditingController(
-    text: 'R\$ 3,00/km',
-  );
+  final FirestoreService _firestoreService = FirestoreService();
 
-  String? restauranteSelecionado = 'Açaí da Praia';
+  late final Stream<List<RestaurantModel>> _restaurantsStream;
+
+  String? _selectedRestaurantId;
+  String? _selectedRestaurantName;
+  PaymentProfile? _activePaymentProfile;
   DeliveryTrackingResult? _finishedResult;
   double? _valorFinalCorrida;
   double? _distanciaFinalLimpa;
   bool _isFinishing = false;
 
-  final List<String> restaurantes = [
-    'Açaí da Praia',
-    'Pizzaria do Bairro',
-    'Hambúrguer Caseiro',
-  ];
-
   @override
   void initState() {
     super.initState();
+    _restaurantsStream = _firestoreService.buscarRestaurantes();
+
     final initialRestaurant = widget.initialRestaurant;
-
     if (initialRestaurant != null && initialRestaurant.isNotEmpty) {
-      restauranteSelecionado = initialRestaurant;
-
-      if (!restaurantes.contains(initialRestaurant)) {
-        restaurantes.add(initialRestaurant);
-      }
+      _selectedRestaurantName = initialRestaurant;
     }
 
     _trackingController.addListener(_refreshTrackingState);
@@ -56,7 +51,6 @@ class _AutomaticDeliveryFormState extends State<AutomaticDeliveryForm> {
   void dispose() {
     _trackingController.removeListener(_refreshTrackingState);
     _trackingController.dispose();
-    _pagamentoController.dispose();
     super.dispose();
   }
 
@@ -65,69 +59,75 @@ class _AutomaticDeliveryFormState extends State<AutomaticDeliveryForm> {
     setState(() {});
   }
 
-  Future<void> _startDelivery() async {
-    final restaurant = restauranteSelecionado;
-    final paymentProfile = _pagamentoController.text.trim();
+  Future<void> _startDelivery(RestaurantModel restaurant) async {
+    final paymentProfile = restaurant.perfilPagamento;
 
-    if (restaurant == null || paymentProfile.isEmpty) {
+    if (!paymentProfile.estaConfigurado) {
       _showMessage(
-        'Informe restaurante e perfil de pagamento.',
+        'Configure o perfil de pagamento deste restaurante.',
         AppColors.corErro,
       );
       return;
     }
 
+    _activePaymentProfile = paymentProfile;
+
     await _trackingController.start(
-      restaurant: restaurant,
-      paymentProfile: paymentProfile,
+      restaurant: restaurant.nome,
+      paymentProfile: paymentProfile.resumo,
     );
 
     if (!mounted) return;
 
     final errorMessage = _trackingController.errorMessage;
     if (errorMessage != null) {
+      _activePaymentProfile = null;
       _showMessage(errorMessage, AppColors.corErro);
     }
   }
 
   Future<void> _finishDelivery() async {
     setState(() {
-      _isFinishing = true; // Inicia o loading
+      _isFinishing = true;
     });
 
     try {
-      // 1. Encerra o GPS e pega os dados brutos
       final rawResult = await _trackingController.finish();
 
-      // 2. Consulta o Google Maps para alinhar a rota e dar a KM real
       final googleMapsService = GoogleMapsService();
       final quilometragemLimpa = await googleMapsService.calcularDistanciaReal(
         rawResult.path,
       );
 
-      // 3. Calcula o valor da entrega (exemplo: R$ 3,00 por km)
-      final valorCalculado = quilometragemLimpa * 3.0;
+      final paymentProfile = _activePaymentProfile;
+      if (paymentProfile == null || !paymentProfile.estaConfigurado) {
+        throw Exception('Perfil de pagamento nao encontrado.');
+      }
 
-      // 4. Cria o objeto do Modelo de Entrega (Nome ajustado para novaEntrega)
+      final valorCalculado = _roundCurrency(
+        paymentProfile.calcularValorEntrega(quilometragemLimpa),
+      );
+      final quilometragemCalculada = double.parse(
+        quilometragemLimpa.toStringAsFixed(2),
+      );
+
       final novaEntrega = Entrega(
-        id: '', // O Firestore gera o ID automaticamente
+        id: '',
         restaurante: rawResult.restaurant,
         valor: valorCalculado,
-        quilometragem: double.parse(quilometragemLimpa.toStringAsFixed(2)),
+        quilometragem: quilometragemCalculada,
         data: rawResult.endedAt,
         userId: FirebaseAuth.instance.currentUser?.uid ?? '',
       );
 
-      // 5. SALVA NO FIRESTORE (Passando a variável com o nome correto)
-      await FirestoreService().salvarEntregaAutomatica(novaEntrega);
+      await _firestoreService.salvarEntregaAutomatica(novaEntrega);
 
       if (!mounted) return;
 
-      // 6. Atualiza a tela para mostrar o resumo final ao usuário
       setState(() {
         _finishedResult = rawResult;
         _valorFinalCorrida = valorCalculado;
-        _distanciaFinalLimpa = double.parse(quilometragemLimpa.toStringAsFixed(2));
+        _distanciaFinalLimpa = quilometragemCalculada;
       });
 
       _showMessage('Entrega salva com sucesso!', AppColors.corSucesso);
@@ -138,7 +138,6 @@ class _AutomaticDeliveryFormState extends State<AutomaticDeliveryForm> {
         AppColors.corErro,
       );
     } finally {
-      // 7. Garante que o botão de "Calculando..." pare de girar, mesmo se der erro
       if (mounted) {
         setState(() {
           _isFinishing = false;
@@ -156,7 +155,7 @@ class _AutomaticDeliveryFormState extends State<AutomaticDeliveryForm> {
             backgroundColor: AppColors.corFundo,
             title: const Text('Cancelar entrega?'),
             content: const Text(
-              'A entrega em andamento será encerrada sem gerar o path final.',
+              'A entrega em andamento sera encerrada sem gerar o path final.',
             ),
             actions: [
               TextButton(
@@ -221,7 +220,35 @@ class _AutomaticDeliveryFormState extends State<AutomaticDeliveryForm> {
   }
 
   Widget _buildStartForm() {
+    return StreamBuilder<List<RestaurantModel>>(
+      stream: _restaurantsStream,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return _buildRestaurantsLoading();
+        }
+
+        if (snapshot.hasError) {
+          return _buildRestaurantsError();
+        }
+
+        final restaurants = snapshot.data ?? [];
+        final selectedRestaurant = _resolveSelectedRestaurant(restaurants);
+
+        return _buildStartFormContent(restaurants, selectedRestaurant);
+      },
+    );
+  }
+
+  Widget _buildStartFormContent(
+    List<RestaurantModel> restaurants,
+    RestaurantModel? selectedRestaurant,
+  ) {
     final isStarting = _trackingController.isStarting;
+    final hasRestaurants = restaurants.isNotEmpty;
+    final hasPaymentProfile =
+        selectedRestaurant?.perfilPagamento.estaConfigurado ?? false;
+    final canStart =
+        !isStarting && selectedRestaurant != null && hasPaymentProfile;
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -238,9 +265,11 @@ class _AutomaticDeliveryFormState extends State<AutomaticDeliveryForm> {
               child: LayoutBuilder(
                 builder: (context, constraints) {
                   return DropdownMenu<String>(
-                    enabled: !isStarting,
+                    enabled: !isStarting && hasRestaurants,
                     width: constraints.maxWidth,
-                    initialSelection: restauranteSelecionado,
+                    initialSelection: selectedRestaurant == null
+                        ? null
+                        : _restaurantKey(selectedRestaurant),
                     textStyle: const TextStyle(
                       color: AppColors.corTexto,
                       fontSize: 15,
@@ -258,20 +287,29 @@ class _AutomaticDeliveryFormState extends State<AutomaticDeliveryForm> {
                         ),
                       ),
                     ),
-                    dropdownMenuEntries: restaurantes.map((String value) {
-                      final isSelected = value == restauranteSelecionado;
+                    dropdownMenuEntries: restaurants.map((restaurant) {
+                      final value = _restaurantKey(restaurant);
+                      final isSelected =
+                          selectedRestaurant != null &&
+                          _isSameRestaurant(restaurant, selectedRestaurant);
 
                       return DropdownMenuEntry<String>(
                         value: value,
-                        label: value,
+                        label: restaurant.nome,
                         style: AppColors.dropdownMenuItemStyle(isSelected),
                       );
                     }).toList(),
                     onSelected: (String? newValue) {
                       if (newValue == null) return;
 
+                      final restaurant = _findRestaurantByKey(
+                        restaurants,
+                        newValue,
+                      );
+
                       setState(() {
-                        restauranteSelecionado = newValue;
+                        _selectedRestaurantId = restaurant?.id;
+                        _selectedRestaurantName = restaurant?.nome ?? newValue;
                       });
                     },
                   );
@@ -288,7 +326,7 @@ class _AutomaticDeliveryFormState extends State<AutomaticDeliveryForm> {
               ),
               child: IconButton(
                 icon: const Icon(Icons.add, color: AppColors.corIcone),
-                onPressed: isStarting ? null : () {},
+                onPressed: isStarting ? null : _openCreateRestaurantModal,
               ),
             ),
           ],
@@ -299,16 +337,25 @@ class _AutomaticDeliveryFormState extends State<AutomaticDeliveryForm> {
           style: TextStyle(fontWeight: FontWeight.w500),
         ),
         const SizedBox(height: 8),
-        _buildEditableTextField(
-          controller: _pagamentoController,
-          enabled: !isStarting,
+        _buildPaymentProfileInfo(
+          selectedRestaurant,
+          hasRestaurants: hasRestaurants,
         ),
+        if (selectedRestaurant != null && !hasPaymentProfile) ...[
+          const SizedBox(height: 8),
+          const Text(
+            'Configure o perfil deste restaurante antes de iniciar.',
+            style: TextStyle(color: AppColors.corErro, fontSize: 12),
+          ),
+        ],
         const SizedBox(height: 30),
         Row(
           children: [
             Expanded(
               child: ElevatedButton.icon(
-                onPressed: isStarting ? null : _startDelivery,
+                onPressed: canStart
+                    ? () => _startDelivery(selectedRestaurant)
+                    : null,
                 icon: isStarting
                     ? const SizedBox(
                         width: 18,
@@ -370,7 +417,7 @@ class _AutomaticDeliveryFormState extends State<AutomaticDeliveryForm> {
           child: Column(
             children: [
               const Text(
-                'Quilômetros rodados',
+                'Quilometros rodados',
                 style: TextStyle(fontWeight: FontWeight.w600),
               ),
               const SizedBox(height: 8),
@@ -413,9 +460,7 @@ class _AutomaticDeliveryFormState extends State<AutomaticDeliveryForm> {
             const SizedBox(width: 12),
             Expanded(
               child: OutlinedButton.icon(
-                // Desabilita o clique se estiver carregando
                 onPressed: _isFinishing ? null : _finishDelivery,
-                // Troca o ícone por um círculo de progresso
                 icon: _isFinishing
                     ? const SizedBox(
                         width: 18,
@@ -472,7 +517,7 @@ class _AutomaticDeliveryFormState extends State<AutomaticDeliveryForm> {
           child: Column(
             children: [
               const Text(
-                'Quilômetros rodados',
+                'Quilometros rodados',
                 style: TextStyle(fontWeight: FontWeight.w600),
               ),
               const SizedBox(height: 4),
@@ -527,16 +572,24 @@ class _AutomaticDeliveryFormState extends State<AutomaticDeliveryForm> {
     );
   }
 
-  Widget _buildEditableTextField({
-    required TextEditingController controller,
-    bool enabled = true,
+  Widget _buildPaymentProfileInfo(
+    RestaurantModel? restaurant, {
+    required bool hasRestaurants,
   }) {
+    final text = restaurant == null
+        ? hasRestaurants
+              ? 'Selecione um restaurante'
+              : 'Cadastre um restaurante para iniciar'
+        : restaurant.perfilPagamento.resumo;
+
     return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(8),
-        color: enabled ? AppColors.corInputs : AppColors.corBordaInputs,
+        color: AppColors.corBordaInputs,
       ),
-      child: TextField(controller: controller, enabled: enabled),
+      child: Text(text, style: const TextStyle(color: AppColors.corTexto)),
     );
   }
 
@@ -554,7 +607,7 @@ class _AutomaticDeliveryFormState extends State<AutomaticDeliveryForm> {
             borderRadius: BorderRadius.circular(8),
             border: Border.all(color: AppColors.corBordaInputs),
           ),
-          child: Text(value, style: TextStyle(color: AppColors.corTexto)),
+          child: Text(value, style: const TextStyle(color: AppColors.corTexto)),
         ),
       ],
     );
@@ -567,6 +620,127 @@ class _AutomaticDeliveryFormState extends State<AutomaticDeliveryForm> {
       padding: const EdgeInsets.symmetric(vertical: 15),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       overlayColor: AppColors.corOverlayBotaoCancelar,
+    );
+  }
+
+  Widget _buildRestaurantsLoading() {
+    return const Padding(
+      padding: EdgeInsets.symmetric(vertical: 28),
+      child: Center(
+        child: CircularProgressIndicator(color: AppColors.corSecundaria),
+      ),
+    );
+  }
+
+  Widget _buildRestaurantsError() {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        const Text(
+          'Erro ao carregar restaurantes.',
+          textAlign: TextAlign.center,
+          style: TextStyle(color: AppColors.corErro),
+        ),
+        const SizedBox(height: 20),
+        OutlinedButton(
+          onPressed: _closeDialog,
+          style: _secondaryButtonStyle(),
+          child: const Text(
+            'Fechar',
+            style: TextStyle(color: AppColors.corTexto),
+          ),
+        ),
+      ],
+    );
+  }
+
+  RestaurantModel? _resolveSelectedRestaurant(
+    List<RestaurantModel> restaurants,
+  ) {
+    if (restaurants.isEmpty) return null;
+
+    final selectedId = _selectedRestaurantId;
+    if (selectedId != null) {
+      final restaurant = _findRestaurantById(restaurants, selectedId);
+      if (restaurant != null) return restaurant;
+    }
+
+    final selectedName = _selectedRestaurantName;
+    if (selectedName != null && selectedName.trim().isNotEmpty) {
+      final restaurant = _findRestaurantByName(restaurants, selectedName);
+      if (restaurant != null) return restaurant;
+    }
+
+    final initialRestaurant = widget.initialRestaurant;
+    if (initialRestaurant != null && initialRestaurant.trim().isNotEmpty) {
+      final restaurant = _findRestaurantByName(restaurants, initialRestaurant);
+      if (restaurant != null) return restaurant;
+    }
+
+    return restaurants.first;
+  }
+
+  RestaurantModel? _findRestaurantByKey(
+    List<RestaurantModel> restaurants,
+    String key,
+  ) {
+    for (final restaurant in restaurants) {
+      if (_restaurantKey(restaurant) == key) return restaurant;
+    }
+
+    return _findRestaurantByName(restaurants, key);
+  }
+
+  RestaurantModel? _findRestaurantById(
+    List<RestaurantModel> restaurants,
+    String id,
+  ) {
+    for (final restaurant in restaurants) {
+      if (restaurant.id == id) return restaurant;
+    }
+    return null;
+  }
+
+  RestaurantModel? _findRestaurantByName(
+    List<RestaurantModel> restaurants,
+    String name,
+  ) {
+    final normalizedName = _normalizeName(name);
+
+    for (final restaurant in restaurants) {
+      if (_normalizeName(restaurant.nome) == normalizedName) {
+        return restaurant;
+      }
+    }
+
+    return null;
+  }
+
+  bool _isSameRestaurant(RestaurantModel a, RestaurantModel b) {
+    final aId = a.id;
+    final bId = b.id;
+
+    if (aId != null && bId != null) return aId == bId;
+    return _normalizeName(a.nome) == _normalizeName(b.nome);
+  }
+
+  String _restaurantKey(RestaurantModel restaurant) {
+    return restaurant.id ?? restaurant.nome;
+  }
+
+  String _normalizeName(String value) {
+    return value.trim().toLowerCase();
+  }
+
+  double _roundCurrency(double value) {
+    return double.parse(value.toStringAsFixed(2));
+  }
+
+  void _openCreateRestaurantModal() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) => const RestaurantForm(),
     );
   }
 }

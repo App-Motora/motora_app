@@ -14,6 +14,27 @@ class PaymentProfile {
   });
 
   bool get usaPerfilCombinado => usaTaxaFixa && usaTaxaVariavel;
+  bool get estaConfigurado => usaTaxaFixa || usaTaxaVariavel;
+
+  double calcularValorEntrega(double quilometragem) {
+    final distanciaKm = quilometragem < 0 ? 0.0 : quilometragem;
+
+    if (usaPerfilCombinado) {
+      final quilometragemMinima = quilometragemMinimaTaxaVariavel ?? 0;
+
+      if (distanciaKm <= quilometragemMinima) {
+        return taxaFixa;
+      }
+
+      return taxaFixa +
+          ((distanciaKm - quilometragemMinima) * taxaVariavelPorKm);
+    }
+
+    if (usaTaxaFixa) return taxaFixa;
+    if (usaTaxaVariavel) return distanciaKm * taxaVariavelPorKm;
+
+    return 0;
+  }
 
   Map<String, dynamic> toMap() {
     return {
@@ -54,7 +75,7 @@ class PaymentProfile {
     if (usaPerfilCombinado) {
       final km = _formatDecimal(quilometragemMinimaTaxaVariavel ?? 0);
       return '${_formatCurrency(taxaFixa)} ate $km km; acima '
-          '${_formatCurrency(taxaVariavelPorKm)}/km';
+          '+ ${_formatCurrency(taxaVariavelPorKm)}/km excedente';
     }
 
     if (usaTaxaFixa) {

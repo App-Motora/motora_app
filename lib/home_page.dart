@@ -153,6 +153,9 @@ class _HomePageState extends State<HomePage> {
     final shiftDeliveryCount = hasActiveShift
         ? _countShiftRestaurantDeliveries(turnoAtivo, entregasTurno)
         : 0;
+    final outsideDeliveryCount = hasActiveShift
+        ? _countOutsideDeliveries(turnoAtivo, entregasTurno)
+        : 0;
 
     return Stack(
       children: [
@@ -163,6 +166,7 @@ class _HomePageState extends State<HomePage> {
               restaurants: restaurantes,
               hasActiveShift: hasActiveShift,
               shiftDeliveryCount: shiftDeliveryCount,
+              outsideDeliveryCount: outsideDeliveryCount,
               receitas: totalEntregas,
               despesas: totalDespesas,
               saldo: saldo,
@@ -176,7 +180,7 @@ class _HomePageState extends State<HomePage> {
               },
               onFinishShiftPressed: turnoAtivo == null
                   ? null
-                  : () => _openFinishShiftModal(turnoAtivo, entregasTurno),
+                  : () => _finishShift(turnoAtivo),
             ),
             Expanded(
               child: _buildBody(
@@ -460,41 +464,6 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  void _openFinishShiftModal(Turno turno, List<Entrega> entregasTurno) {
-    final entregasRestaurante = _countShiftRestaurantDeliveries(
-      turno,
-      entregasTurno,
-    );
-    final entregasPorFora = _countOutsideDeliveries(turno, entregasTurno);
-
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return GenericModal(
-          title: 'Finalizar turno?',
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildShiftInfoRow('Restaurante vinculado', turno.restaurante),
-              const SizedBox(height: 10),
-              _buildShiftInfoRow(
-                'Entregas do restaurante',
-                '$entregasRestaurante',
-              ),
-              const SizedBox(height: 10),
-              _buildShiftInfoRow('Entregas por fora', '$entregasPorFora'),
-              const SizedBox(height: 20),
-            ],
-          ),
-          confirmButtonText: 'Finalizar Turno',
-          confirmButtonIcon: Icon(Icons.stop_circle, color: AppColors.corIcone),
-          confirmButtonAction: () => _finishShift(turno),
-        );
-      },
-    );
-  }
-
   Future<void> _finishShift(Turno turno) async {
     final turnoId = turno.id;
     if (turnoId == null) return;
@@ -521,28 +490,6 @@ class _HomePageState extends State<HomePage> {
         ),
       );
     }
-  }
-
-  Widget _buildShiftInfoRow(String label, String value) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Flexible(
-          child: Text(
-            label,
-            style: const TextStyle(fontWeight: FontWeight.w500),
-          ),
-        ),
-        const SizedBox(width: 12),
-        Flexible(
-          child: Text(
-            value,
-            textAlign: TextAlign.end,
-            style: const TextStyle(fontWeight: FontWeight.bold),
-          ),
-        ),
-      ],
-    );
   }
 
   String _resolveCurrentRestaurant({

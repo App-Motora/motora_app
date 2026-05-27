@@ -630,8 +630,10 @@ class _DailyActivity {
       date: despesa.data,
       icon: Icons.receipt_long,
       color: AppColors.corDespesa,
-      title: despesa.categoria,
-      subtitle: despesa.descricao,
+      title: despesa.descricao.isNotEmpty
+          ? despesa.descricao
+          : despesa.categoria,
+      subtitle: despesa.descricao.isNotEmpty ? despesa.categoria : '',
       amount: despesa.valor,
       isPositive: false,
     );

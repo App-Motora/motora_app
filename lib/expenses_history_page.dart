@@ -187,8 +187,10 @@ class _ExpensesHistoryPageState extends State<ExpensesHistoryPage> {
                     getCategory: (d) => d.categoria,
                     getDate: (d) => d.data,
                     getSearchText: (d) => d.descricao,
-                    getTitle: (d) => d.descricao,
-                    getSubtitle: (d) => d.categoria,
+                    getTitle: (d) =>
+                        d.descricao.isNotEmpty ? d.descricao : d.categoria,
+                    getSubtitle: (d) =>
+                        d.descricao.isNotEmpty ? d.categoria : '',
                     getAmount: (d) => d.valor,
                     getIsPositive: (d) => false,
                     onLongPress: (despesa) =>

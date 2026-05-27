@@ -405,35 +405,41 @@ class _HomePageState extends State<HomePage> {
                 Expanded(
                   child: LayoutBuilder(
                     builder: (context, constraints) {
-                      return DropdownButtonFormField<String>(
-                        initialValue:
+                      return DropdownMenu<String>(
+                        enabled: restaurants.isNotEmpty,
+                        width: constraints.maxWidth,
+                        initialSelection:
                             restaurants.contains(_shiftStartRestaurant)
                             ? _shiftStartRestaurant
                             : null,
-                        isExpanded: true,
-                        decoration: InputDecoration(
-                          filled: true,
-                          fillColor: AppColors.corInputs,
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 16,
+                        textStyle: const TextStyle(
+                          color: AppColors.corTexto,
+                          fontSize: 15,
+                        ),
+                        menuStyle: MenuStyle(
+                          backgroundColor: const WidgetStatePropertyAll(
+                            AppColors.corInputs,
                           ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide.none,
+                          surfaceTintColor: const WidgetStatePropertyAll(
+                            AppColors.corMaterial,
                           ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide.none,
+                          shape: WidgetStatePropertyAll(
+                            RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
                           ),
                         ),
-                        items: restaurants.map((String value) {
-                          return DropdownMenuItem<String>(
+                        dropdownMenuEntries: restaurants.map((String value) {
+                          final bool isSelected =
+                              value == _shiftStartRestaurant;
+
+                          return DropdownMenuEntry<String>(
                             value: value,
-                            child: Text(value),
+                            label: value,
+                            style: AppColors.dropdownMenuItemStyle(isSelected),
                           );
                         }).toList(),
-                        onChanged: (String? newValue) {
+                        onSelected: (String? newValue) {
                           if (newValue == null) return;
 
                           setModalState(() {

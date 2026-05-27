@@ -82,22 +82,37 @@ class _HomePageState extends State<HomePage> {
                                 turnoAtivo.iniciadoEm,
                               ),
                               builder: (context, entregasTurnoSnapshot) {
-                                return _buildHomeContent(
-                                  turnoAtivo: turnoAtivo,
-                                  entregasTurno:
-                                      entregasTurnoSnapshot.data ?? const [],
-                                  restauranteAtual: restauranteAtual,
-                                  restaurantes: restaurantes,
-                                  restaurantesSnapshot: restaurantesSnapshot,
-                                  entregasSnapshot: entregasSnapshot,
-                                  despesasSnapshot: despesasSnapshot,
-                                  entregas: entregas,
-                                  despesas: despesas,
-                                  isShiftDeliveriesLoading:
-                                      entregasTurnoSnapshot.connectionState ==
-                                      ConnectionState.waiting,
-                                  hasShiftDeliveriesError:
-                                      entregasTurnoSnapshot.hasError,
+                                return StreamBuilder<List<Despesa>>(
+                                  stream: FirestoreService().buscarDespesasDesde(
+                                    turnoAtivo.iniciadoEm,
+                                  ),
+                                  builder: (context, despesasTurnoSnapshot) {
+                                    return _buildHomeContent(
+                                      turnoAtivo: turnoAtivo,
+                                      entregasTurno:
+                                          entregasTurnoSnapshot.data ??
+                                          const [],
+                                      despesasTurno:
+                                          despesasTurnoSnapshot.data ?? const [],
+                                      restauranteAtual: restauranteAtual,
+                                      restaurantes: restaurantes,
+                                      restaurantesSnapshot: restaurantesSnapshot,
+                                      entregasSnapshot: entregasSnapshot,
+                                      despesasSnapshot: despesasSnapshot,
+                                      entregas: entregas,
+                                      despesas: despesas,
+                                      isShiftDeliveriesLoading:
+                                          entregasTurnoSnapshot
+                                                  .connectionState ==
+                                              ConnectionState.waiting ||
+                                          despesasTurnoSnapshot
+                                                  .connectionState ==
+                                              ConnectionState.waiting,
+                                      hasShiftDeliveriesError:
+                                          entregasTurnoSnapshot.hasError ||
+                                          despesasTurnoSnapshot.hasError,
+                                    );
+                                  },
                                 );
                               },
                             );
@@ -118,6 +133,7 @@ class _HomePageState extends State<HomePage> {
   Widget _buildHomeContent({
     required Turno? turnoAtivo,
     required List<Entrega> entregasTurno,
+    List<Despesa> despesasTurno = const [],
     required String restauranteAtual,
     required List<String> restaurantes,
     required AsyncSnapshot<List<RestaurantModel>> restaurantesSnapshot,
@@ -156,6 +172,24 @@ class _HomePageState extends State<HomePage> {
     final outsideDeliveryCount = hasActiveShift
         ? _countOutsideDeliveries(turnoAtivo, entregasTurno)
         : 0;
+    final shiftTotalKm = hasActiveShift
+        ? entregasTurno.fold<double>(
+            0,
+            (total, entrega) => total + entrega.quilometragem,
+          )
+        : 0.0;
+    final shiftRevenue = hasActiveShift
+        ? entregasTurno.fold<double>(
+            0,
+            (total, entrega) => total + entrega.valor,
+          )
+        : 0.0;
+    final shiftExpenses = hasActiveShift
+        ? despesasTurno.fold<double>(
+            0,
+            (total, despesa) => total + despesa.valor,
+          )
+        : 0.0;
 
     return Stack(
       children: [
@@ -165,8 +199,12 @@ class _HomePageState extends State<HomePage> {
               selectedRestaurant: restauranteAtual,
               restaurants: restaurantes,
               hasActiveShift: hasActiveShift,
+              shiftStartedAt: turnoAtivo?.iniciadoEm,
               shiftDeliveryCount: shiftDeliveryCount,
               outsideDeliveryCount: outsideDeliveryCount,
+              shiftTotalKm: shiftTotalKm,
+              shiftRevenue: shiftRevenue,
+              shiftExpenses: shiftExpenses,
               receitas: totalEntregas,
               despesas: totalDespesas,
               saldo: saldo,
@@ -479,7 +517,6 @@ class _HomePageState extends State<HomePage> {
 
       if (!mounted) return;
 
-      Navigator.pop(context);
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Turno finalizado com sucesso!'),
@@ -495,6 +532,7 @@ class _HomePageState extends State<HomePage> {
           backgroundColor: AppColors.corErro,
         ),
       );
+      rethrow;
     }
   }
 

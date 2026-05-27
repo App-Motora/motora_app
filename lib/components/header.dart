@@ -7,13 +7,17 @@ class Header extends StatelessWidget {
   final String selectedRestaurant;
   final List<String> restaurants;
   final bool hasActiveShift;
+  final DateTime? shiftStartedAt;
   final int shiftDeliveryCount;
   final int outsideDeliveryCount;
+  final double shiftTotalKm;
+  final double shiftRevenue;
+  final double shiftExpenses;
   final double receitas;
   final double despesas;
   final double saldo;
   final VoidCallback? onMenuPressed;
-  final VoidCallback? onFinishShiftPressed;
+  final Future<void> Function()? onFinishShiftPressed;
   final ValueChanged<String>? onRestaurantSelected;
 
   const Header({
@@ -21,8 +25,12 @@ class Header extends StatelessWidget {
     required this.selectedRestaurant,
     required this.restaurants,
     required this.hasActiveShift,
+    this.shiftStartedAt,
     required this.shiftDeliveryCount,
     required this.outsideDeliveryCount,
+    required this.shiftTotalKm,
+    required this.shiftRevenue,
+    required this.shiftExpenses,
     required this.receitas,
     required this.despesas,
     required this.saldo,
@@ -56,11 +64,15 @@ class Header extends StatelessWidget {
               ],
             ),
           ),
-          if (hasActiveShift)
+          if (hasActiveShift && shiftStartedAt != null)
             ShiftSummary(
               restaurantName: selectedRestaurant,
+              startedAt: shiftStartedAt!,
               shiftDeliveryCount: shiftDeliveryCount,
               outsideDeliveryCount: outsideDeliveryCount,
+              totalKm: shiftTotalKm,
+              revenue: shiftRevenue,
+              expenses: shiftExpenses,
               onFinishShiftPressed: onFinishShiftPressed,
             ),
           FinancialSummaryCard(

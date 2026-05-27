@@ -407,4 +407,19 @@ class FirestoreService {
           }).toList(),
         );
   }
+
+  Stream<List<Despesa>> buscarDespesasDesde(DateTime inicio) {
+    return _db
+        .collection('usuarios')
+        .doc(_uid)
+        .collection('despesas')
+        .where('data', isGreaterThanOrEqualTo: Timestamp.fromDate(inicio))
+        .orderBy('data', descending: true)
+        .snapshots()
+        .map(
+          (snapshot) => snapshot.docs.map((doc) {
+            return Despesa.fromMap(doc.id, doc.data());
+          }).toList(),
+        );
+  }
 }

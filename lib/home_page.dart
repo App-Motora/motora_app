@@ -82,22 +82,37 @@ class _HomePageState extends State<HomePage> {
                                 turnoAtivo.iniciadoEm,
                               ),
                               builder: (context, entregasTurnoSnapshot) {
-                                return _buildHomeContent(
-                                  turnoAtivo: turnoAtivo,
-                                  entregasTurno:
-                                      entregasTurnoSnapshot.data ?? const [],
-                                  restauranteAtual: restauranteAtual,
-                                  restaurantes: restaurantes,
-                                  restaurantesSnapshot: restaurantesSnapshot,
-                                  entregasSnapshot: entregasSnapshot,
-                                  despesasSnapshot: despesasSnapshot,
-                                  entregas: entregas,
-                                  despesas: despesas,
-                                  isShiftDeliveriesLoading:
-                                      entregasTurnoSnapshot.connectionState ==
-                                      ConnectionState.waiting,
-                                  hasShiftDeliveriesError:
-                                      entregasTurnoSnapshot.hasError,
+                                return StreamBuilder<List<Despesa>>(
+                                  stream: FirestoreService().buscarDespesasDesde(
+                                    turnoAtivo.iniciadoEm,
+                                  ),
+                                  builder: (context, despesasTurnoSnapshot) {
+                                    return _buildHomeContent(
+                                      turnoAtivo: turnoAtivo,
+                                      entregasTurno:
+                                          entregasTurnoSnapshot.data ??
+                                          const [],
+                                      despesasTurno:
+                                          despesasTurnoSnapshot.data ?? const [],
+                                      restauranteAtual: restauranteAtual,
+                                      restaurantes: restaurantes,
+                                      restaurantesSnapshot: restaurantesSnapshot,
+                                      entregasSnapshot: entregasSnapshot,
+                                      despesasSnapshot: despesasSnapshot,
+                                      entregas: entregas,
+                                      despesas: despesas,
+                                      isShiftDeliveriesLoading:
+                                          entregasTurnoSnapshot
+                                                  .connectionState ==
+                                              ConnectionState.waiting ||
+                                          despesasTurnoSnapshot
+                                                  .connectionState ==
+                                              ConnectionState.waiting,
+                                      hasShiftDeliveriesError:
+                                          entregasTurnoSnapshot.hasError ||
+                                          despesasTurnoSnapshot.hasError,
+                                    );
+                                  },
                                 );
                               },
                             );
@@ -118,6 +133,7 @@ class _HomePageState extends State<HomePage> {
   Widget _buildHomeContent({
     required Turno? turnoAtivo,
     required List<Entrega> entregasTurno,
+    List<Despesa> despesasTurno = const [],
     required String restauranteAtual,
     required List<String> restaurantes,
     required AsyncSnapshot<List<RestaurantModel>> restaurantesSnapshot,
@@ -153,6 +169,27 @@ class _HomePageState extends State<HomePage> {
     final shiftDeliveryCount = hasActiveShift
         ? _countShiftRestaurantDeliveries(turnoAtivo, entregasTurno)
         : 0;
+    final outsideDeliveryCount = hasActiveShift
+        ? _countOutsideDeliveries(turnoAtivo, entregasTurno)
+        : 0;
+    final shiftTotalKm = hasActiveShift
+        ? entregasTurno.fold<double>(
+            0,
+            (total, entrega) => total + entrega.quilometragem,
+          )
+        : 0.0;
+    final shiftRevenue = hasActiveShift
+        ? entregasTurno.fold<double>(
+            0,
+            (total, entrega) => total + entrega.valor,
+          )
+        : 0.0;
+    final shiftExpenses = hasActiveShift
+        ? despesasTurno.fold<double>(
+            0,
+            (total, despesa) => total + despesa.valor,
+          )
+        : 0.0;
 
     return Stack(
       children: [
@@ -162,7 +199,12 @@ class _HomePageState extends State<HomePage> {
               selectedRestaurant: restauranteAtual,
               restaurants: restaurantes,
               hasActiveShift: hasActiveShift,
+              shiftStartedAt: turnoAtivo?.iniciadoEm,
               shiftDeliveryCount: shiftDeliveryCount,
+              outsideDeliveryCount: outsideDeliveryCount,
+              shiftTotalKm: shiftTotalKm,
+              shiftRevenue: shiftRevenue,
+              shiftExpenses: shiftExpenses,
               receitas: totalEntregas,
               despesas: totalDespesas,
               saldo: saldo,
@@ -176,7 +218,7 @@ class _HomePageState extends State<HomePage> {
               },
               onFinishShiftPressed: turnoAtivo == null
                   ? null
-                  : () => _openFinishShiftModal(turnoAtivo, entregasTurno),
+                  : () => _finishShift(turnoAtivo),
             ),
             Expanded(
               child: _buildBody(
@@ -401,35 +443,41 @@ class _HomePageState extends State<HomePage> {
                 Expanded(
                   child: LayoutBuilder(
                     builder: (context, constraints) {
-                      return DropdownButtonFormField<String>(
-                        initialValue:
+                      return DropdownMenu<String>(
+                        enabled: restaurants.isNotEmpty,
+                        width: constraints.maxWidth,
+                        initialSelection:
                             restaurants.contains(_shiftStartRestaurant)
                             ? _shiftStartRestaurant
                             : null,
-                        isExpanded: true,
-                        decoration: InputDecoration(
-                          filled: true,
-                          fillColor: AppColors.corInputs,
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 16,
+                        textStyle: const TextStyle(
+                          color: AppColors.corTexto,
+                          fontSize: 15,
+                        ),
+                        menuStyle: MenuStyle(
+                          backgroundColor: const WidgetStatePropertyAll(
+                            AppColors.corInputs,
                           ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide.none,
+                          surfaceTintColor: const WidgetStatePropertyAll(
+                            AppColors.corMaterial,
                           ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide.none,
+                          shape: WidgetStatePropertyAll(
+                            RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
                           ),
                         ),
-                        items: restaurants.map((String value) {
-                          return DropdownMenuItem<String>(
+                        dropdownMenuEntries: restaurants.map((String value) {
+                          final bool isSelected =
+                              value == _shiftStartRestaurant;
+
+                          return DropdownMenuEntry<String>(
                             value: value,
-                            child: Text(value),
+                            label: value,
+                            style: AppColors.dropdownMenuItemStyle(isSelected),
                           );
                         }).toList(),
-                        onChanged: (String? newValue) {
+                        onSelected: (String? newValue) {
                           if (newValue == null) return;
 
                           setModalState(() {
@@ -460,41 +508,6 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  void _openFinishShiftModal(Turno turno, List<Entrega> entregasTurno) {
-    final entregasRestaurante = _countShiftRestaurantDeliveries(
-      turno,
-      entregasTurno,
-    );
-    final entregasPorFora = _countOutsideDeliveries(turno, entregasTurno);
-
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return GenericModal(
-          title: 'Finalizar turno?',
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildShiftInfoRow('Restaurante vinculado', turno.restaurante),
-              const SizedBox(height: 10),
-              _buildShiftInfoRow(
-                'Entregas do restaurante',
-                '$entregasRestaurante',
-              ),
-              const SizedBox(height: 10),
-              _buildShiftInfoRow('Entregas por fora', '$entregasPorFora'),
-              const SizedBox(height: 20),
-            ],
-          ),
-          confirmButtonText: 'Finalizar Turno',
-          confirmButtonIcon: Icon(Icons.stop_circle, color: AppColors.corIcone),
-          confirmButtonAction: () => _finishShift(turno),
-        );
-      },
-    );
-  }
-
   Future<void> _finishShift(Turno turno) async {
     final turnoId = turno.id;
     if (turnoId == null) return;
@@ -504,7 +517,6 @@ class _HomePageState extends State<HomePage> {
 
       if (!mounted) return;
 
-      Navigator.pop(context);
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Turno finalizado com sucesso!'),
@@ -520,29 +532,8 @@ class _HomePageState extends State<HomePage> {
           backgroundColor: AppColors.corErro,
         ),
       );
+      rethrow;
     }
-  }
-
-  Widget _buildShiftInfoRow(String label, String value) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Flexible(
-          child: Text(
-            label,
-            style: const TextStyle(fontWeight: FontWeight.w500),
-          ),
-        ),
-        const SizedBox(width: 12),
-        Flexible(
-          child: Text(
-            value,
-            textAlign: TextAlign.end,
-            style: const TextStyle(fontWeight: FontWeight.bold),
-          ),
-        ),
-      ],
-    );
   }
 
   String _resolveCurrentRestaurant({

@@ -27,8 +27,7 @@ class _ManualDeliveryFormState extends State<ManualDeliveryForm> {
   ];
 
   final TextEditingController _valorController = TextEditingController();
-  final TextEditingController _quilometragemController =
-      TextEditingController();
+  final TextEditingController _quilometragemController = TextEditingController();
   final TextEditingController _dataController = TextEditingController();
 
   final TextInputFormatter _valorInputFormatter =
@@ -48,21 +47,18 @@ class _ManualDeliveryFormState extends State<ManualDeliveryForm> {
     super.initState();
 
     final entrega = widget.entrega;
-    if (entrega == null) return;
+    if (entrega != null) {
+      restauranteSelecionado = entrega.restaurante;
+      if (!restaurantes.contains(entrega.restaurante)) {
+        restaurantes.add(entrega.restaurante);
+      }
 
-    restauranteSelecionado = entrega.restaurante;
-    if (!restaurantes.contains(entrega.restaurante)) {
-      restaurantes.add(entrega.restaurante);
+      _valorController.text = entrega.valor.toStringAsFixed(2).replaceAll('.', ',');
+      _quilometragemController.text = entrega.quilometragem.toString().replaceAll('.', ',');
+      _dataController.text = DateFormat('dd/MM/yyyy').format(entrega.data);
+    } else {
+      _dataController.text = DateFormat('dd/MM/yyyy').format(DateTime.now());
     }
-
-    _valorController.text = entrega.valor
-        .toStringAsFixed(2)
-        .replaceAll('.', ',');
-    _quilometragemController.text = entrega.quilometragem.toString().replaceAll(
-      '.',
-      ',',
-    );
-    _dataController.text = DateFormat('dd/MM/yyyy').format(entrega.data);
   }
 
   @override
@@ -82,9 +78,7 @@ class _ManualDeliveryFormState extends State<ManualDeliveryForm> {
 
     if (_dataController.text.isNotEmpty) {
       try {
-        initialDate = DateFormat(
-          'dd/MM/yyyy',
-        ).parseStrict(_dataController.text);
+        initialDate = DateFormat('dd/MM/yyyy').parseStrict(_dataController.text);
       } catch (_) {}
     }
 
@@ -104,6 +98,74 @@ class _ManualDeliveryFormState extends State<ManualDeliveryForm> {
     setState(() {
       _dataController.text = '$dia/$mes/$ano';
     });
+  }
+
+  Future<void> _saveDelivery() async {
+    try {
+      final parsedDate = DateFormat('dd/MM/yyyy').parseStrict(_dataController.text);
+      final now = DateTime.now();
+
+      DateTime dataFinal;
+      if (widget.isEditing &&
+          widget.entrega != null &&
+          widget.entrega!.data.year == parsedDate.year &&
+          widget.entrega!.data.month == parsedDate.month &&
+          widget.entrega!.data.day == parsedDate.day) {
+        dataFinal = widget.entrega!.data;
+      } else {
+        dataFinal = DateTime(
+          parsedDate.year,
+          parsedDate.month,
+          parsedDate.day,
+          now.hour,
+          now.minute,
+          now.second,
+        );
+      }
+
+      final entrega = Entrega(
+        id: widget.entrega?.id,
+        restaurante: restauranteSelecionado!,
+        valor: double.parse(_valorController.text.replaceAll(',', '.')),
+        quilometragem: double.parse(_quilometragemController.text.replaceAll(',', '.')),
+        data: dataFinal,
+        userId: FirebaseAuth.instance.currentUser!.uid,
+      );
+
+      if (widget.isEditing) {
+        await FirestoreService().atualizarEntrega(entrega);
+      } else {
+        await FirestoreService().salvarEntregaManual(entrega);
+      }
+
+      if (!mounted) return;
+
+      final messenger = ScaffoldMessenger.of(context);
+      Navigator.pop(context);
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text(
+            widget.isEditing
+                ? 'Entrega atualizada com sucesso!'
+                : 'Entrega cadastrada com sucesso!',
+          ),
+          backgroundColor: AppColors.corSucesso,
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            widget.isEditing
+                ? 'Erro ao atualizar. Verifique os campos.'
+                : 'Erro ao cadastrar. Verifique os campos.',
+          ),
+          backgroundColor: AppColors.corErro,
+        ),
+      );
+    }
   }
 
   @override
@@ -224,78 +286,6 @@ class _ManualDeliveryFormState extends State<ManualDeliveryForm> {
         ),
       ],
     );
-  }
-
-  Future<void> _saveDelivery() async {
-    try {
-      final parsedDate = DateFormat(
-        'dd/MM/yyyy',
-      ).parseStrict(_dataController.text);
-      final now = DateTime.now();
-
-      DateTime dataFinal;
-      if (widget.isEditing &&
-          widget.entrega != null &&
-          widget.entrega!.data.year == parsedDate.year &&
-          widget.entrega!.data.month == parsedDate.month &&
-          widget.entrega!.data.day == parsedDate.day) {
-        dataFinal = widget.entrega!.data;
-      } else {
-        dataFinal = DateTime(
-          parsedDate.year,
-          parsedDate.month,
-          parsedDate.day,
-          now.hour,
-          now.minute,
-          now.second,
-        );
-      }
-
-      final entrega = Entrega(
-        id: widget.entrega?.id,
-        restaurante: restauranteSelecionado!,
-        valor: double.parse(_valorController.text.replaceAll(',', '.')),
-        quilometragem: double.parse(
-          _quilometragemController.text.replaceAll(',', '.'),
-        ),
-        data: dataFinal,
-        userId: FirebaseAuth.instance.currentUser!.uid,
-      );
-
-      if (widget.isEditing) {
-        await FirestoreService().atualizarEntrega(entrega);
-      } else {
-        await FirestoreService().salvarEntregaManual(entrega);
-      }
-
-      if (!mounted) return;
-
-      final messenger = ScaffoldMessenger.of(context);
-      Navigator.pop(context);
-      messenger.showSnackBar(
-        SnackBar(
-          content: Text(
-            widget.isEditing
-                ? 'Entrega atualizada com sucesso!'
-                : 'Entrega cadastrada com sucesso!',
-          ),
-          backgroundColor: AppColors.corSucesso,
-        ),
-      );
-    } catch (e) {
-      if (!mounted) return;
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            widget.isEditing
-                ? 'Erro ao atualizar. Verifique os campos.'
-                : 'Erro ao cadastrar. Verifique os campos.',
-          ),
-          backgroundColor: AppColors.corErro,
-        ),
-      );
-    }
   }
 
   Widget _buildTextField({

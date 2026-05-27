@@ -114,16 +114,34 @@ class _AutomaticExpenseFormState extends State<AutomaticExpenseForm> {
     setState(() => _isSaving = true);
 
     try {
-      final dataFormatada = DateFormat(
+      final parsedDate = DateFormat(
         'dd/MM/yyyy',
       ).parseStrict(_dataController.text);
+      final now = DateTime.now();
+
+      DateTime dataFinal;
+      if (widget.despesaParaEditar != null &&
+          widget.despesaParaEditar!.data.year == parsedDate.year &&
+          widget.despesaParaEditar!.data.month == parsedDate.month &&
+          widget.despesaParaEditar!.data.day == parsedDate.day) {
+        dataFinal = widget.despesaParaEditar!.data;
+      } else {
+        dataFinal = DateTime(
+          parsedDate.year,
+          parsedDate.month,
+          parsedDate.day,
+          now.hour,
+          now.minute,
+          now.second,
+        );
+      }
 
       final despesa = Despesa(
         id: widget.despesaParaEditar?.id,
         categoria: categoriaSelecionada!,
         descricao: descricaoText,
         valor: valorNum,
-        data: dataFormatada,
+        data: dataFinal,
         userId: FirebaseAuth.instance.currentUser?.uid ?? '',
       );
 

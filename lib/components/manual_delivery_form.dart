@@ -228,9 +228,28 @@ class _ManualDeliveryFormState extends State<ManualDeliveryForm> {
 
   Future<void> _saveDelivery() async {
     try {
-      final dataFormatada = DateFormat(
+      final parsedDate = DateFormat(
         'dd/MM/yyyy',
       ).parseStrict(_dataController.text);
+      final now = DateTime.now();
+
+      DateTime dataFinal;
+      if (widget.isEditing &&
+          widget.entrega != null &&
+          widget.entrega!.data.year == parsedDate.year &&
+          widget.entrega!.data.month == parsedDate.month &&
+          widget.entrega!.data.day == parsedDate.day) {
+        dataFinal = widget.entrega!.data;
+      } else {
+        dataFinal = DateTime(
+          parsedDate.year,
+          parsedDate.month,
+          parsedDate.day,
+          now.hour,
+          now.minute,
+          now.second,
+        );
+      }
 
       final entrega = Entrega(
         id: widget.entrega?.id,
@@ -239,7 +258,7 @@ class _ManualDeliveryFormState extends State<ManualDeliveryForm> {
         quilometragem: double.parse(
           _quilometragemController.text.replaceAll(',', '.'),
         ),
-        data: dataFormatada,
+        data: dataFinal,
         userId: FirebaseAuth.instance.currentUser!.uid,
       );
 

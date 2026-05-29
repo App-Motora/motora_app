@@ -8,13 +8,14 @@ environment:
 
 dependencies:
   cloud_firestore: ^6.3.0
+  diacritic: ^0.1.6
   firebase_auth: ^6.4.0
   firebase_core: ^4.7.0
   flutter:
     sdk: flutter
   geolocator: ^14.0.2
-  intl: ^0.20.2
   http: ^1.2.2
+  intl: ^0.20.2
 
 dev_dependencies:
   flutter_test:

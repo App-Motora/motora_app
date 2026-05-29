@@ -22,15 +22,17 @@ class ManualDeliveryForm extends StatefulWidget {
 
 class _ManualDeliveryFormState extends State<ManualDeliveryForm> {
   final FirestoreService _firestoreService = FirestoreService();
-  
+
   late final Stream<List<RestaurantModel>> _restaurantsStream;
 
   String? _selectedRestaurantId;
   String? _selectedRestaurantName;
   RestaurantModel? _selectedRestaurant;
+  List<RestaurantModel> _currentRestaurants = [];
 
   final TextEditingController _valorController = TextEditingController();
-  final TextEditingController _quilometragemController = TextEditingController();
+  final TextEditingController _quilometragemController =
+      TextEditingController();
   final TextEditingController _dataController = TextEditingController();
 
   final TextInputFormatter _valorInputFormatter =
@@ -55,8 +57,12 @@ class _ManualDeliveryFormState extends State<ManualDeliveryForm> {
     if (entrega != null) {
       _selectedRestaurantName = entrega.restaurante;
 
-      _valorController.text = entrega.valor.toStringAsFixed(2).replaceAll('.', ',');
-      _quilometragemController.text = entrega.quilometragem.toString().replaceAll('.', ',');
+      _valorController.text = entrega.valor
+          .toStringAsFixed(2)
+          .replaceAll('.', ',');
+      _quilometragemController.text = entrega.quilometragem
+          .toString()
+          .replaceAll('.', ',');
       _dataController.text = DateFormat('dd/MM/yyyy').format(entrega.data);
     } else {
       _dataController.text = DateFormat('dd/MM/yyyy').format(DateTime.now());
@@ -80,7 +86,9 @@ class _ManualDeliveryFormState extends State<ManualDeliveryForm> {
 
     if (_dataController.text.isNotEmpty) {
       try {
-        initialDate = DateFormat('dd/MM/yyyy').parseStrict(_dataController.text);
+        initialDate = DateFormat(
+          'dd/MM/yyyy',
+        ).parseStrict(_dataController.text);
       } catch (_) {}
     }
 
@@ -104,7 +112,9 @@ class _ManualDeliveryFormState extends State<ManualDeliveryForm> {
 
   Future<void> _saveDelivery() async {
     try {
-      final parsedDate = DateFormat('dd/MM/yyyy').parseStrict(_dataController.text);
+      final parsedDate = DateFormat(
+        'dd/MM/yyyy',
+      ).parseStrict(_dataController.text);
       final now = DateTime.now();
 
       DateTime dataFinal;
@@ -125,7 +135,12 @@ class _ManualDeliveryFormState extends State<ManualDeliveryForm> {
         );
       }
 
-      final restauranteName = _selectedRestaurantName;
+      String? restauranteName = _selectedRestaurantName;
+      if ((restauranteName == null || restauranteName.isEmpty) &&
+          _currentRestaurants.isNotEmpty) {
+        restauranteName = _currentRestaurants.first.nome;
+      }
+
       if (restauranteName == null || restauranteName.isEmpty) {
         _showError('Selecione um restaurante');
         return;
@@ -133,9 +148,11 @@ class _ManualDeliveryFormState extends State<ManualDeliveryForm> {
 
       final entrega = Entrega(
         id: widget.entrega?.id,
-        restaurante: restauranteName!,
+        restaurante: restauranteName,
         valor: double.parse(_valorController.text.replaceAll(',', '.')),
-        quilometragem: double.parse(_quilometragemController.text.replaceAll(',', '.')),
+        quilometragem: double.parse(
+          _quilometragemController.text.replaceAll(',', '.'),
+        ),
         data: dataFinal,
         userId: FirebaseAuth.instance.currentUser!.uid,
       );
@@ -172,10 +189,7 @@ class _ManualDeliveryFormState extends State<ManualDeliveryForm> {
 
   void _showError(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: AppColors.corErro,
-      ),
+      SnackBar(content: Text(message), backgroundColor: AppColors.corErro),
     );
   }
 
@@ -209,6 +223,8 @@ class _ManualDeliveryFormState extends State<ManualDeliveryForm> {
         }
 
         final restaurants = snapshot.data ?? [];
+        _currentRestaurants = restaurants;
+
         final selectedRestaurant = _resolveSelectedRestaurant(restaurants);
 
         return _buildFormContent(restaurants, selectedRestaurant);
@@ -258,7 +274,8 @@ class _ManualDeliveryFormState extends State<ManualDeliveryForm> {
                     ),
                     dropdownMenuEntries: restaurants.map((restaurant) {
                       final value = _restaurantKey(restaurant);
-                      final isSelected = selectedRestaurant != null &&
+                      final isSelected =
+                          selectedRestaurant != null &&
                           _isSameRestaurant(restaurant, selectedRestaurant);
 
                       return DropdownMenuEntry<String>(
@@ -388,7 +405,9 @@ class _ManualDeliveryFormState extends State<ManualDeliveryForm> {
             backgroundColor: AppColors.corInputs,
             side: BorderSide(color: AppColors.corBordaInputs, width: 1),
             padding: const EdgeInsets.symmetric(vertical: 15),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
           ),
           child: const Text(
             'Fechar',
@@ -416,7 +435,7 @@ class _ManualDeliveryFormState extends State<ManualDeliveryForm> {
       if (restaurant != null) return restaurant;
     }
 
-    return null;
+    return restaurants.first;
   }
 
   RestaurantModel? _findRestaurantByKey(

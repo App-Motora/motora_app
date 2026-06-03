@@ -14,6 +14,7 @@ import 'package:motora_app/models/expense_model.dart';
 import 'package:motora_app/models/restaurant_model.dart';
 import 'package:motora_app/models/shift_model.dart';
 import 'package:motora_app/services/firestore_service.dart';
+import 'package:motora_app/components/restaurant_form.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -83,9 +84,10 @@ class _HomePageState extends State<HomePage> {
                               ),
                               builder: (context, entregasTurnoSnapshot) {
                                 return StreamBuilder<List<Despesa>>(
-                                  stream: FirestoreService().buscarDespesasDesde(
-                                    turnoAtivo.iniciadoEm,
-                                  ),
+                                  stream: FirestoreService()
+                                      .buscarDespesasDesde(
+                                        turnoAtivo.iniciadoEm,
+                                      ),
                                   builder: (context, despesasTurnoSnapshot) {
                                     return _buildHomeContent(
                                       turnoAtivo: turnoAtivo,
@@ -93,10 +95,12 @@ class _HomePageState extends State<HomePage> {
                                           entregasTurnoSnapshot.data ??
                                           const [],
                                       despesasTurno:
-                                          despesasTurnoSnapshot.data ?? const [],
+                                          despesasTurnoSnapshot.data ??
+                                          const [],
                                       restauranteAtual: restauranteAtual,
                                       restaurantes: restaurantes,
-                                      restaurantesSnapshot: restaurantesSnapshot,
+                                      restaurantesSnapshot:
+                                          restaurantesSnapshot,
                                       entregasSnapshot: entregasSnapshot,
                                       despesasSnapshot: despesasSnapshot,
                                       entregas: entregas,
@@ -496,7 +500,10 @@ class _HomePageState extends State<HomePage> {
                   ),
                   child: IconButton(
                     icon: const Icon(Icons.add, color: AppColors.corIcone),
-                    onPressed: () {},
+                    onPressed: () => showDialog(
+                      context: context,
+                      builder: (BuildContext context) => const RestaurantForm(),
+                    ),
                   ),
                 ),
               ],

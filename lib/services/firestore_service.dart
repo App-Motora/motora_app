@@ -4,6 +4,7 @@ import '../models/delivery_model.dart';
 import '../models/expense_model.dart';
 import '../models/restaurant_model.dart';
 import '../models/shift_model.dart';
+import '../models/category_model.dart';
 
 class FirestoreService {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
@@ -419,6 +420,32 @@ class FirestoreService {
         .map(
           (snapshot) => snapshot.docs.map((doc) {
             return Despesa.fromMap(doc.id, doc.data());
+          }).toList(),
+        );
+  }
+
+  Future<void> salvarCategoria(Categoria categoria) async {
+    try {
+      await _db
+          .collection('usuarios')
+          .doc(_uid)
+          .collection('categorias')
+          .add(categoria.toMap());
+    } catch (e) {
+      throw Exception('Erro ao salvar categoria: $e');
+    }
+  }
+
+  Stream<List<Categoria>> buscarCategorias() {
+    return _db
+        .collection('usuarios')
+        .doc(_uid)
+        .collection('categorias')
+        .orderBy('nome')
+        .snapshots()
+        .map(
+          (snapshot) => snapshot.docs.map((doc) {
+            return Categoria.fromMap(doc.id, doc.data());
           }).toList(),
         );
   }

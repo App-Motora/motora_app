@@ -6,6 +6,8 @@ import 'package:motora_app/constants/app_colors.dart';
 import 'package:motora_app/models/expense_model.dart';
 import 'package:motora_app/services/firestore_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:motora_app/components/category_form.dart';
+import 'package:motora_app/models/category_model.dart';
 
 class AutomaticExpenseForm extends StatefulWidget {
   final Despesa? despesaParaEditar;
@@ -17,17 +19,12 @@ class AutomaticExpenseForm extends StatefulWidget {
 }
 
 class _AutomaticExpenseFormState extends State<AutomaticExpenseForm> {
-  String? categoriaSelecionada = 'Combustivel';
-  final List<String> categoriasDespesa = [
-    'Combustivel',
-    'Alimentacao',
-    'Manutencao',
-  ];
-
+  String? categoriaSelecionada;
   final TextEditingController _valorController = TextEditingController();
   final TextEditingController _descricaoController = TextEditingController();
   final TextEditingController _dataController = TextEditingController();
   bool _isSaving = false;
+
   final TextInputFormatter _valorInputFormatter =
       TextInputFormatter.withFunction((oldValue, newValue) {
         final RegExp regex = RegExp(r'^\d*([.,]\d{0,2})?$');
@@ -39,13 +36,12 @@ class _AutomaticExpenseFormState extends State<AutomaticExpenseForm> {
     super.initState();
     if (widget.despesaParaEditar != null) {
       final d = widget.despesaParaEditar!;
-      categoriaSelecionada = categoriasDespesa.contains(d.categoria)
-          ? d.categoria
-          : categoriasDespesa.first;
+      categoriaSelecionada = d.categoria;
       _descricaoController.text = d.descricao;
       _valorController.text = d.valor.toStringAsFixed(2).replaceAll('.', ',');
       _dataController.text = DateFormat('dd/MM/yyyy').format(d.data);
     } else {
+      categoriaSelecionada = 'Combustivel';
       _valorController.text = '';
       _dataController.text = DateFormat('dd/MM/yyyy').format(DateTime.now());
     }
@@ -96,6 +92,7 @@ class _AutomaticExpenseFormState extends State<AutomaticExpenseForm> {
     final valorString = _valorController.text.replaceAll(',', '.').trim();
     final double? valorNum = double.tryParse(valorString);
     final descricaoText = _descricaoController.text.trim();
+
     if (valorNum == null ||
         valorNum <= 0 ||
         categoriaSelecionada == null ||
@@ -185,83 +182,134 @@ class _AutomaticExpenseFormState extends State<AutomaticExpenseForm> {
             )
           : const Icon(Icons.check_circle_outline, color: AppColors.corIcone),
       confirmButtonAction: _isSaving ? null : _salvarDespesa,
-      confirmButtonColor: AppColors.corPrincipal,
+      confirmButtonColor: AppColors.corBordaFocadaInputs,
       padding: const EdgeInsets.all(20.0),
       actionsSpacing: 30,
     );
   }
 
   Widget _buildContent() {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'Categoria da Despesa',
-          style: TextStyle(fontWeight: FontWeight.w500),
-        ),
-        const SizedBox(height: 8),
-        LayoutBuilder(
-          builder: (context, constraints) {
-            return DropdownMenu<String>(
-              width: constraints.maxWidth,
-              initialSelection: categoriaSelecionada,
-              textStyle: const TextStyle(
-                color: AppColors.corTexto,
-                fontSize: 15,
-              ),
-              menuStyle: MenuStyle(
-                backgroundColor: const WidgetStatePropertyAll(
-                  AppColors.corInputs,
-                ),
-                shape: WidgetStatePropertyAll(
-                  RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+    final List<String> categoriasPadrao = [
+      'Combustível',
+      'Alimentação',
+      'Manutenção',
+    ];
+
+    return StreamBuilder<List<Categoria>>(
+      stream: FirestoreService().buscarCategorias(),
+      builder: (context, snapshot) {
+        final categoriasDoUsuario =
+            snapshot.data?.map((c) => c.nome).toList() ?? [];
+        final List<String> todasAsCategorias = {
+          ...categoriasPadrao,
+          ...categoriasDoUsuario,
+        }.toList();
+
+        if (categoriaSelecionada == null ||
+            !todasAsCategorias.contains(categoriaSelecionada)) {
+          categoriaSelecionada =
+              widget.despesaParaEditar?.categoria ?? todasAsCategorias.first;
+        }
+
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Categoria da Despesa',
+              style: TextStyle(fontWeight: FontWeight.w500),
+            ),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                Expanded(
+                  child: LayoutBuilder(
+                    builder: (context, constraints) {
+                      return DropdownMenu<String>(
+                        width: constraints.maxWidth,
+                        initialSelection: categoriaSelecionada,
+                        textStyle: const TextStyle(
+                          color: AppColors.corTexto,
+                          fontSize: 15,
+                        ),
+                        menuStyle: MenuStyle(
+                          backgroundColor: const WidgetStatePropertyAll(
+                            AppColors.corInputs,
+                          ),
+                          shape: WidgetStatePropertyAll(
+                            RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                        ),
+                        dropdownMenuEntries: todasAsCategorias.map((
+                          String value,
+                        ) {
+                          final bool isSelected = value == categoriaSelecionada;
+                          return DropdownMenuEntry<String>(
+                            value: value,
+                            label: value,
+                            style: AppColors.dropdownMenuItemStyle(isSelected),
+                          );
+                        }).toList(),
+                        onSelected: (String? newValue) {
+                          if (newValue == null) return;
+                          setState(() => categoriaSelecionada = newValue);
+                        },
+                      );
+                    },
                   ),
                 ),
+                const SizedBox(width: 10),
+                Container(
+                  decoration: BoxDecoration(
+                    color: AppColors.corPrincipal,
+                    borderRadius: BorderRadius.circular(25),
+                  ),
+                  child: IconButton(
+                    icon: const Icon(Icons.add, color: AppColors.corIcone),
+                    onPressed: () => showDialog(
+                      context: context,
+                      builder: (BuildContext context) => const CategoryForm(),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+            const Text('Valor', style: TextStyle(fontWeight: FontWeight.w500)),
+            const SizedBox(height: 8),
+            _buildTextField(
+              controller: _valorController,
+              hintText: 'Ex: 150,00',
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
               ),
-              dropdownMenuEntries: categoriasDespesa.map((String value) {
-                final bool isSelected = value == categoriaSelecionada;
-                return DropdownMenuEntry<String>(
-                  value: value,
-                  label: value,
-                  style: AppColors.dropdownMenuItemStyle(isSelected),
-                );
-              }).toList(),
-              onSelected: (String? newValue) {
-                if (newValue == null) return;
-                setState(() => categoriaSelecionada = newValue);
-              },
-            );
-          },
-        ),
-        const SizedBox(height: 20),
-        const Text('Valor', style: TextStyle(fontWeight: FontWeight.w500)),
-        const SizedBox(height: 8),
-        _buildTextField(
-          controller: _valorController,
-          hintText: 'Ex: 150,00',
-          keyboardType: const TextInputType.numberWithOptions(decimal: true),
-          inputFormatters: [_valorInputFormatter],
-        ),
-        const SizedBox(height: 20),
-        const Text('Descrição', style: TextStyle(fontWeight: FontWeight.w500)),
-        const SizedBox(height: 8),
-        _buildTextField(
-          controller: _descricaoController,
-          hintText: 'Ex: Troca de óleo',
-        ),
-        const SizedBox(height: 20),
-        const Text('Data', style: TextStyle(fontWeight: FontWeight.w500)),
-        const SizedBox(height: 8),
-        _buildTextField(
-          controller: _dataController,
-          hintText: 'Selecione uma data',
-          readOnly: true,
-          suffixIcon: const Icon(Icons.calendar_today_outlined),
-          onTap: _selecionarData,
-        ),
-      ],
+              inputFormatters: [_valorInputFormatter],
+            ),
+            const SizedBox(height: 20),
+            const Text(
+              'Descrição',
+              style: TextStyle(fontWeight: FontWeight.w500),
+            ),
+            const SizedBox(height: 8),
+            _buildTextField(
+              controller: _descricaoController,
+              hintText: 'Ex: Troca de óleo',
+            ),
+            const SizedBox(height: 20),
+            const Text('Data', style: TextStyle(fontWeight: FontWeight.w500)),
+            const SizedBox(height: 8),
+            _buildTextField(
+              controller: _dataController,
+              hintText: 'Selecione uma data',
+              readOnly: true,
+              suffixIcon: const Icon(Icons.calendar_today_outlined),
+              onTap: _selecionarData,
+            ),
+          ],
+        );
+      },
     );
   }
 

@@ -6,8 +6,7 @@ import 'package:motora_app/models/category_model.dart';
 import 'package:motora_app/services/firestore_service.dart';
 
 class CategoryForm extends StatefulWidget {
-  final Categoria? categoriaParaEditar; // Recebe dado para edição
-
+  final Categoria? categoriaParaEditar;
   const CategoryForm({super.key, this.categoriaParaEditar});
 
   @override
@@ -22,7 +21,6 @@ class _CategoryFormState extends State<CategoryForm> {
   @override
   void initState() {
     super.initState();
-    // Se recebeu uma categoria, preenche o campo para edição
     if (widget.categoriaParaEditar != null) {
       _nomeController.text = widget.categoriaParaEditar!.nome;
     }
@@ -50,12 +48,10 @@ class _CategoryFormState extends State<CategoryForm> {
 
     try {
       final categoria = Categoria(
-        id: widget.categoriaParaEditar?.id, // Repassa o ID se existir
+        id: widget.categoriaParaEditar?.id,
         nome: nome,
         userId: FirebaseAuth.instance.currentUser!.uid,
       );
-
-      // Define se vai salvar ou atualizar
       if (widget.categoriaParaEditar == null) {
         await FirestoreService().salvarCategoria(categoria);
       } else {
@@ -88,34 +84,6 @@ class _CategoryFormState extends State<CategoryForm> {
     }
   }
 
-  Future<void> _excluirCategoria() async {
-    setState(() => _isDeleting = true);
-    try {
-      await FirestoreService().excluirCategoria(
-        widget.categoriaParaEditar!.id!,
-      );
-
-      if (!mounted) return;
-      Navigator.pop(context);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Categoria excluída com sucesso!'),
-          backgroundColor: AppColors.corSucesso,
-        ),
-      );
-    } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Erro ao excluir: $e'),
-          backgroundColor: AppColors.corErro,
-        ),
-      );
-    } finally {
-      if (mounted) setState(() => _isDeleting = false);
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return GenericModal(
@@ -139,31 +107,6 @@ class _CategoryFormState extends State<CategoryForm> {
               ),
             ),
           ),
-          if (widget.categoriaParaEditar != null) ...[
-            const SizedBox(height: 20),
-            Center(
-              child: TextButton.icon(
-                onPressed: _isDeleting ? null : _excluirCategoria,
-                icon: _isDeleting
-                    ? const SizedBox(
-                        width: 14,
-                        height: 14,
-                        child: CircularProgressIndicator(
-                          color: AppColors.corExcluir,
-                          strokeWidth: 2,
-                        ),
-                      )
-                    : const Icon(
-                        Icons.delete_outline,
-                        color: AppColors.corExcluir,
-                      ),
-                label: const Text(
-                  'Excluir esta categoria',
-                  style: TextStyle(color: AppColors.corExcluir),
-                ),
-              ),
-            ),
-          ],
         ],
       ),
       confirmButtonText: _isSaving ? 'Salvando...' : 'Cadastrar',

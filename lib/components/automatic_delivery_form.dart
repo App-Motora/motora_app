@@ -203,7 +203,9 @@ class _AutomaticDeliveryFormState extends State<AutomaticDeliveryForm> {
 
   String get _dialogTitle {
     if (_finishedResult != null) return 'Entrega finalizada';
-    if (_trackingController.isTracking) return 'Entrega em andamento';
+    if (_trackingController.isTracking || _isFinishing) {
+      return 'Entrega em andamento';
+    }
     return 'Iniciar Entrega';
   }
 
@@ -211,8 +213,7 @@ class _AutomaticDeliveryFormState extends State<AutomaticDeliveryForm> {
     if (_finishedResult != null) {
       return _buildResultView(_finishedResult!);
     }
-
-    if (_trackingController.isTracking) {
+    if (_trackingController.isTracking || _isFinishing) {
       return _buildTrackingView();
     }
 

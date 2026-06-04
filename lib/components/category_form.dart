@@ -16,13 +16,31 @@ class CategoryForm extends StatefulWidget {
 class _CategoryFormState extends State<CategoryForm> {
   final _nomeController = TextEditingController();
   bool _isSaving = false;
-  bool _isDeleting = false;
+  final List<IconData> _iconesDisponiveis = [
+    Icons.label_outline,
+    Icons.local_gas_station,
+    Icons.restaurant,
+    Icons.build,
+    Icons.receipt_long,
+    Icons.two_wheeler,
+    Icons.health_and_safety,
+    Icons.shopping_cart,
+    Icons.attach_money,
+    Icons.warning_amber_rounded,
+    Icons.home_repair_service,
+    Icons.local_parking,
+  ];
+
+  late int _iconeSelecionado;
 
   @override
   void initState() {
     super.initState();
     if (widget.categoriaParaEditar != null) {
       _nomeController.text = widget.categoriaParaEditar!.nome;
+      _iconeSelecionado = widget.categoriaParaEditar!.iconCode;
+    } else {
+      _iconeSelecionado = Icons.label_outline.codePoint;
     }
   }
 
@@ -51,7 +69,9 @@ class _CategoryFormState extends State<CategoryForm> {
         id: widget.categoriaParaEditar?.id,
         nome: nome,
         userId: FirebaseAuth.instance.currentUser!.uid,
+        iconCode: _iconeSelecionado,
       );
+
       if (widget.categoriaParaEditar == null) {
         await FirestoreService().salvarCategoria(categoria);
       } else {
@@ -107,9 +127,49 @@ class _CategoryFormState extends State<CategoryForm> {
               ),
             ),
           ),
+          const SizedBox(height: 20),
+          const Text('Ícone', style: TextStyle(fontWeight: FontWeight.w500)),
+          const SizedBox(height: 12),
+          Wrap(
+            spacing: 12,
+            runSpacing: 12,
+            children: _iconesDisponiveis.map((iconData) {
+              final isSelected = iconData.codePoint == _iconeSelecionado;
+              return GestureDetector(
+                onTap: () {
+                  setState(() {
+                    _iconeSelecionado = iconData.codePoint;
+                  });
+                },
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: isSelected
+                        ? AppColors.corDespesa
+                        : AppColors.corInputs,
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: isSelected
+                          ? AppColors.corDespesa
+                          : AppColors.corSombra,
+                      width: 1,
+                    ),
+                  ),
+                  child: Icon(
+                    iconData,
+                    color: isSelected
+                        ? AppColors.corIconeClaro
+                        : AppColors.corTexto,
+                    size: 24,
+                  ),
+                ),
+              );
+            }).toList(),
+          ),
         ],
       ),
-      confirmButtonText: _isSaving ? 'Salvando...' : 'Cadastrar',
+      confirmButtonText: _isSaving ? 'Salvando...' : 'Salvar',
       confirmButtonIcon: _isSaving
           ? const SizedBox(
               width: 18,
@@ -120,7 +180,7 @@ class _CategoryFormState extends State<CategoryForm> {
               ),
             )
           : const Icon(Icons.check_circle_outline, color: AppColors.corIcone),
-      confirmButtonAction: _isSaving || _isDeleting ? null : _salvarCategoria,
+      confirmButtonAction: _isSaving ? null : _salvarCategoria,
       confirmButtonColor: AppColors.corBordaFocadaInputs,
       padding: const EdgeInsets.all(20.0),
       actionsSpacing: 30,

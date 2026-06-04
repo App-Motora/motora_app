@@ -41,7 +41,7 @@ class _AutomaticExpenseFormState extends State<AutomaticExpenseForm> {
       _valorController.text = d.valor.toStringAsFixed(2).replaceAll('.', ',');
       _dataController.text = DateFormat('dd/MM/yyyy').format(d.data);
     } else {
-      categoriaSelecionada = 'Combustivel';
+      categoriaSelecionada = 'Combustível';
       _valorController.text = '';
       _dataController.text = DateFormat('dd/MM/yyyy').format(DateTime.now());
     }
@@ -189,28 +189,48 @@ class _AutomaticExpenseFormState extends State<AutomaticExpenseForm> {
   }
 
   Widget _buildContent() {
-    final List<String> categoriasPadrao = [
-      'Combustível',
-      'Alimentação',
-      'Manutenção',
+    final List<Categoria> categoriasPadrao = [
+      Categoria(
+        nome: 'Combustível',
+        userId: 'padrao',
+        iconCode: Icons.local_gas_station.codePoint,
+      ),
+      Categoria(
+        nome: 'Alimentação',
+        userId: 'padrao',
+        iconCode: Icons.restaurant.codePoint,
+      ),
+      Categoria(
+        nome: 'Manutenção',
+        userId: 'padrao',
+        iconCode: Icons.build.codePoint,
+      ),
     ];
 
     return StreamBuilder<List<Categoria>>(
       stream: FirestoreService().buscarCategorias(),
       builder: (context, snapshot) {
-        final categoriasDoUsuario =
-            snapshot.data?.map((c) => c.nome).toList() ?? [];
-        final List<String> todasAsCategorias = {
-          ...categoriasPadrao,
-          if (categoriaSelecionada != null) categoriaSelecionada!,
-          ...categoriasDoUsuario,
-        }.toList();
+        final categoriasDoUsuario = snapshot.data ?? [];
+        final Map<String, Categoria> mapaCategorias = {};
 
-        if (categoriaSelecionada == null ||
-            !todasAsCategorias.contains(categoriaSelecionada)) {
-          categoriaSelecionada =
-              widget.despesaParaEditar?.categoria ?? todasAsCategorias.first;
+        for (var c in categoriasPadrao) {
+          mapaCategorias[c.nome] = c;
         }
+        for (var c in categoriasDoUsuario) {
+          mapaCategorias[c.nome] = c;
+        }
+        if (categoriaSelecionada != null &&
+            !mapaCategorias.containsKey(categoriaSelecionada)) {
+          mapaCategorias[categoriaSelecionada!] = Categoria(
+            nome: categoriaSelecionada!,
+            userId: 'temp',
+            iconCode: Icons.category.codePoint,
+          );
+        }
+        final List<Categoria> todasAsCategorias = mapaCategorias.values
+            .toList();
+        categoriaSelecionada ??=
+            widget.despesaParaEditar?.categoria ?? todasAsCategorias.first.nome;
 
         return Column(
           mainAxisSize: MainAxisSize.min,
@@ -244,12 +264,23 @@ class _AutomaticExpenseFormState extends State<AutomaticExpenseForm> {
                           ),
                         ),
                         dropdownMenuEntries: todasAsCategorias.map((
-                          String value,
+                          Categoria cat,
                         ) {
-                          final bool isSelected = value == categoriaSelecionada;
+                          final bool isSelected =
+                              cat.nome == categoriaSelecionada;
                           return DropdownMenuEntry<String>(
-                            value: value,
-                            label: value,
+                            value: cat.nome,
+                            label: cat.nome,
+                            leadingIcon: Icon(
+                              IconData(
+                                cat.iconCode,
+                                fontFamily: 'MaterialIcons',
+                              ),
+                              color: isSelected
+                                  ? AppColors.corDespesa
+                                  : AppColors.corTexto,
+                              size: 22,
+                            ),
                             style: AppColors.dropdownMenuItemStyle(isSelected),
                           );
                         }).toList(),

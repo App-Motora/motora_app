@@ -124,8 +124,8 @@ class _CategoriesListPageState extends State<CategoriesListPage> {
                     color: AppColors.corDespesa,
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: const Icon(
-                    Icons.category,
+                  child: Icon(
+                    IconData(categoria.iconCode, fontFamily: 'MaterialIcons'),
                     color: AppColors.corIconeClaro,
                     size: 24,
                   ),

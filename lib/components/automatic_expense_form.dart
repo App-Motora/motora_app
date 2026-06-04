@@ -202,6 +202,7 @@ class _AutomaticExpenseFormState extends State<AutomaticExpenseForm> {
             snapshot.data?.map((c) => c.nome).toList() ?? [];
         final List<String> todasAsCategorias = {
           ...categoriasPadrao,
+          if (categoriaSelecionada != null) categoriaSelecionada!,
           ...categoriasDoUsuario,
         }.toList();
 

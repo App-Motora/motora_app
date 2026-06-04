@@ -626,7 +626,7 @@ class _DailyActivity {
   factory _DailyActivity.fromExpense(Despesa despesa) {
     return _DailyActivity(
       date: despesa.data,
-      icon: Icons.receipt_long,
+      icon: IconData(despesa.iconCode, fontFamily: 'MaterialIcons'),
       color: AppColors.corDespesa,
       title: despesa.descricao.isNotEmpty
           ? despesa.descricao

@@ -80,6 +80,7 @@ class FilterSearch<T> extends StatefulWidget {
   final ActivityCardActionConfig Function(T) activityCardActions;
   final Color accentColor;
   final IconData cardIcon;
+  final IconData Function(T)? getDynamicIcon;
 
   const FilterSearch({
     super.key,
@@ -98,6 +99,7 @@ class FilterSearch<T> extends StatefulWidget {
     required this.activityCardActions,
     this.accentColor = AppColors.corSucesso,
     this.cardIcon = Icons.location_on,
+    this.getDynamicIcon,
   });
 
   @override
@@ -598,7 +600,7 @@ class _FilterSearchState<T> extends State<FilterSearch<T>> {
           ).format(widget.getDate(item));
 
           return ActivityCard(
-            icon: widget.cardIcon,
+            icon: widget.getDynamicIcon != null ? widget.getDynamicIcon!(item) : widget.cardIcon,
             iconBackgroundColor: widget.accentColor,
             time: dataFormatada,
             title: widget.getTitle(item),

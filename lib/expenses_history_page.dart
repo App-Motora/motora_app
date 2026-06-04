@@ -193,6 +193,7 @@ class _ExpensesHistoryPageState extends State<ExpensesHistoryPage> {
                         d.descricao.isNotEmpty ? d.categoria : '',
                     getAmount: (d) => d.valor,
                     getIsPositive: (d) => false,
+                    getDynamicIcon: (d) => IconData(d.iconCode, fontFamily: 'MaterialIcons'),
                     onLongPress: (despesa) =>
                         _abrirAcoesDespesa(context, despesa),
                     searchHint: 'Pesquise a despesa',

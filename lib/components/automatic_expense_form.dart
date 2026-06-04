@@ -20,6 +20,7 @@ class AutomaticExpenseForm extends StatefulWidget {
 
 class _AutomaticExpenseFormState extends State<AutomaticExpenseForm> {
   String? categoriaSelecionada;
+  List<Categoria> _categoriasAtuais = [];
   final TextEditingController _valorController = TextEditingController();
   final TextEditingController _descricaoController = TextEditingController();
   final TextEditingController _dataController = TextEditingController();
@@ -131,6 +132,15 @@ class _AutomaticExpenseFormState extends State<AutomaticExpenseForm> {
         );
       }
 
+      final cat = _categoriasAtuais.firstWhere(
+        (c) => c.nome == categoriaSelecionada,
+        orElse: () => Categoria(
+          nome: categoriaSelecionada!,
+          userId: '',
+          iconCode: Icons.receipt_long.codePoint,
+        ),
+      );
+
       final despesa = Despesa(
         id: widget.despesaParaEditar?.id,
         categoria: categoriaSelecionada!,
@@ -138,6 +148,7 @@ class _AutomaticExpenseFormState extends State<AutomaticExpenseForm> {
         valor: valorNum,
         data: dataFinal,
         userId: FirebaseAuth.instance.currentUser?.uid ?? '',
+        iconCode: cat.iconCode,
       );
 
       final firestoreService = FirestoreService();
@@ -229,6 +240,7 @@ class _AutomaticExpenseFormState extends State<AutomaticExpenseForm> {
         }
         final List<Categoria> todasAsCategorias = mapaCategorias.values
             .toList();
+        _categoriasAtuais = todasAsCategorias;
         categoriaSelecionada ??=
             widget.despesaParaEditar?.categoria ?? todasAsCategorias.first.nome;
 

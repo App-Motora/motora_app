@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 
 class Despesa {
   final String? id;
@@ -7,6 +8,7 @@ class Despesa {
   final double valor;
   final DateTime data;
   final String userId;
+  final int iconCode; 
 
   Despesa({
     this.id,
@@ -15,7 +17,8 @@ class Despesa {
     required this.valor,
     required this.data,
     required this.userId,
-  });
+    int? iconCode,
+  }) : iconCode = iconCode ?? Icons.receipt_long.codePoint;
 
   Map<String, dynamic> toMap() {
     return {
@@ -24,6 +27,7 @@ class Despesa {
       'valor': valor,
       'data': data,
       'userId': userId,
+      'iconCode': iconCode, 
     };
   }
 
@@ -35,6 +39,7 @@ class Despesa {
       valor: (map['valor'] ?? 0).toDouble(),
       data: (map['data'] as Timestamp).toDate(),
       userId: map['userId'] ?? '',
+      iconCode: map['iconCode'] ?? Icons.receipt_long.codePoint, 
     );
   }
 }

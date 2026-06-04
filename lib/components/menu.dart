@@ -39,6 +39,7 @@ class _MenuState extends State<Menu> {
     _MenuItemData(Icons.delivery_dining, 'Entregas', '/deliveries_history'),
     _MenuItemData(Icons.analytics, 'Relatórios', '/reports'),
     _MenuItemData(Icons.restaurant, 'Restaurantes', '/restaurants'),
+    _MenuItemData(Icons.category, 'Categorias', '/categories'),
   ];
 
   void _mostrarConfirmacaoSaida(BuildContext context) {

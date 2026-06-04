@@ -449,4 +449,33 @@ class FirestoreService {
           }).toList(),
         );
   }
+
+  Future<void> atualizarCategoria(Categoria categoria) async {
+    if (categoria.id == null) {
+      throw Exception('Erro ao atualizar categoria: id não encontrado');
+    }
+    try {
+      await _db
+          .collection('usuarios')
+          .doc(_uid)
+          .collection('categorias')
+          .doc(categoria.id)
+          .update(categoria.toMap());
+    } catch (e) {
+      throw Exception('Erro ao atualizar categoria: $e');
+    }
+  }
+
+  Future<void> excluirCategoria(String id) async {
+    try {
+      await _db
+          .collection('usuarios')
+          .doc(_uid)
+          .collection('categorias')
+          .doc(id)
+          .delete();
+    } catch (e) {
+      throw Exception('Erro ao excluir categoria: $e');
+    }
+  }
 }

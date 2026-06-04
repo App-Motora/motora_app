@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart'; 
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:motora_app/categories_list_page.dart';
 import 'package:motora_app/constants/app_colors.dart';
 import 'package:motora_app/deliveries_history_page.dart';
 import 'package:motora_app/expenses_history_page.dart';
@@ -22,22 +23,13 @@ class App extends StatelessWidget {
         dropdownMenuTheme: DropdownMenuThemeData(
           inputDecorationTheme: _buildInputDecorationTheme(),
           menuStyle: MenuStyle(
-            backgroundColor: const WidgetStatePropertyAll(
-              AppColors.corInputs,
-            ),
-            surfaceTintColor: const WidgetStatePropertyAll(
-              AppColors.corInputs,
-            ),
+            backgroundColor: const WidgetStatePropertyAll(AppColors.corInputs),
+            surfaceTintColor: const WidgetStatePropertyAll(AppColors.corInputs),
             shape: WidgetStatePropertyAll(
-              RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             ),
           ),
-          textStyle: const TextStyle(
-            color: AppColors.corTexto,
-            fontSize: 16,
-          ),
+          textStyle: const TextStyle(color: AppColors.corTexto, fontSize: 16),
         ),
         textSelectionTheme: TextSelectionThemeData(
           cursorColor: AppColors.corCursorSelecao,
@@ -49,7 +41,7 @@ class App extends StatelessWidget {
 
       initialRoute: '/',
       routes: {
-        '/': (context) => const AuthCheck(), 
+        '/': (context) => const AuthCheck(),
         '/login': (context) => const LoginPage(),
         '/registro': (context) => const RegistroPage(),
         '/home': (context) => const HomePage(),
@@ -58,6 +50,7 @@ class App extends StatelessWidget {
         '/deliveries_history': (context) => const DeliveriesHistoryPage(),
         '/restaurants': (context) => const RestaurantsListPage(),
         '/reports': (context) => const ReportsPage(),
+        '/categories': (context) => const CategoriesListPage(),
       },
     );
   }
@@ -66,13 +59,8 @@ class App extends StatelessWidget {
     return InputDecorationTheme(
       filled: true,
       fillColor: AppColors.corInputs,
-      contentPadding: const EdgeInsets.symmetric(
-        horizontal: 12,
-        vertical: 16,
-      ),
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(8),
-      ),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+      border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
         borderSide: BorderSide(color: AppColors.corBordaInputs),
@@ -88,6 +76,7 @@ class App extends StatelessWidget {
     );
   }
 }
+
 class AuthCheck extends StatelessWidget {
   const AuthCheck({super.key});
 

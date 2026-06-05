@@ -1,8 +1,12 @@
-import 'dart:math' as math;
-
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:motora_app/components/filter_search.dart'; // Importa o FiltroDatas
+import 'package:motora_app/components/financial_summary_card.dart'; // Seu card de resumo
 import 'package:motora_app/components/menu.dart';
 import 'package:motora_app/constants/app_colors.dart';
+import 'package:motora_app/models/delivery_model.dart';
+import 'package:motora_app/models/expense_model.dart';
+import 'package:motora_app/services/firestore_service.dart';
 
 class ReportsPage extends StatefulWidget {
   const ReportsPage({super.key});
@@ -12,572 +16,317 @@ class ReportsPage extends StatefulWidget {
 }
 
 class _ReportsPageState extends State<ReportsPage> {
-  static const Color _backgroundColor = AppColors.corFundo;
-  static const Color _incomeColor = AppColors.corSucesso;
-  static const Color _expenseColor = AppColors.corDespesa;
-  static const Color _textColor = AppColors.corTexto;
-
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-  late final List<_MonthOption> _monthOptions;
-  late _MonthOption _selectedMonth;
-
-  @override
-  void initState() {
-    super.initState();
-    _monthOptions = _buildMonthOptions();
-    _selectedMonth = _monthOptions.first;
-  }
+  
+  // O cérebro do filtro reaproveitado do seu FilterSearch
+  FiltroDatas _filtroAtivo = FiltroDatas.esteMes; 
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldKey,
-      backgroundColor: _backgroundColor,
-      drawer: const Menu(selectedIndex: 3),
+      backgroundColor: AppColors.corFundo,
+      drawer: const Menu(selectedIndex: 3), // Ajuste o index conforme seu Menu
       body: SafeArea(
-        child: Builder(
-          builder: (context) {
-            final report = _buildStaticMonthlyReport();
+        child: Column(
+          children: [
+            _buildTopBar(),
+            _buildFilterRow(),
+            Expanded(
+              child: StreamBuilder<List<Entrega>>(
+                stream: FirestoreService().buscarEntregas(),
+                builder: (context, entregasSnap) {
+                  return StreamBuilder<List<Despesa>>(
+                    stream: FirestoreService().buscarDespesas(),
+                    builder: (context, despesasSnap) {
+                      if (entregasSnap.connectionState == ConnectionState.waiting ||
+                          despesasSnap.connectionState == ConnectionState.waiting) {
+                        return const Center(
+                          child: CircularProgressIndicator(color: AppColors.corPrincipal),
+                        );
+                      }
 
-            return CustomScrollView(
-              physics: const ClampingScrollPhysics(),
-              slivers: [
-                SliverToBoxAdapter(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _buildHeader(report),
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(20, 28, 20, 28),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text(
-                              'Despesas por categoria',
-                              style: TextStyle(
-                                color: _textColor,
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            const SizedBox(height: 14),
-                            _buildCategoryCard(report),
-                            const SizedBox(height: 28),
-                            _buildDetailsCard(report),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            );
-          },
+                      final todasEntregas = entregasSnap.data ?? [];
+                      final todasDespesas = despesasSnap.data ?? [];
+
+                      // 1. APLICANDO O FILTRO DE DATA
+                      final range = _filtroAtivo.intervalo;
+                      final entregas = todasEntregas.where((e) =>
+                          !e.data.isBefore(range.start) && !e.data.isAfter(range.end)).toList();
+                      final despesas = todasDespesas.where((d) =>
+                          !d.data.isBefore(range.start) && !d.data.isAfter(range.end)).toList();
+
+                      return _buildReportContent(entregas, despesas);
+                    },
+                  );
+                },
+              ),
+            ),
+          ],
         ),
       ),
     );
   }
 
-  Widget _buildHeader(_MonthlyReport report) {
+  Widget _buildTopBar() {
     return Container(
       width: double.infinity,
       decoration: const BoxDecoration(color: AppColors.corPrincipal),
-      padding: const EdgeInsets.only(top: 15, left: 15, right: 15, bottom: 15),
-      child: Column(
-        spacing: 10,
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          SizedBox(
-            width: double.infinity,
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: IconButton(
-                    onPressed: () => _scaffoldKey.currentState?.openDrawer(),
-                    icon: const Icon(
-                      Icons.menu,
-                      color: AppColors.corIcone,
-                      size: 30,
-                    ),
-                    tooltip: 'Abrir menu',
-                  ),
-                ),
-                Center(child: _buildMonthDropdown()),
-              ],
-            ),
+          IconButton(
+            icon: const Icon(Icons.menu, size: 28),
+            onPressed: () => _scaffoldKey.currentState?.openDrawer(),
           ),
-          _buildBalanceCard(report),
+          const Text(
+            'Relatórios',
+            style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(width: 48),
         ],
       ),
     );
   }
 
-  Widget _buildMonthDropdown() {
-    return DropdownMenu<_MonthOption>(
-      width: 220,
-      inputDecorationTheme: InputDecorationThemeData(
-        filled: true,
-        fillColor: AppColors.corInputs.withValues(alpha: 0.5),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(20),
-          borderSide: BorderSide.none,
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(20),
-          borderSide: BorderSide.none,
-        ),
-      ),
-      initialSelection: _selectedMonth,
-      textStyle: const TextStyle(
-        color: AppColors.corTexto,
-        fontSize: 16,
-        fontWeight: FontWeight.w700,
-      ),
-      dropdownMenuEntries: _monthOptions.map((month) {
-        final isSelected = month == _selectedMonth;
-
-        return DropdownMenuEntry<_MonthOption>(
-          value: month,
-          label: month.label,
-          style: AppColors.dropdownMenuItemStyle(isSelected),
-        );
-      }).toList(),
-      onSelected: (month) {
-        if (month == null) return;
-
-        setState(() {
-          _selectedMonth = month;
-        });
-      },
-    );
-  }
-
-  Widget _buildBalanceCard(_MonthlyReport report) {
-    final hasProfit = report.balance >= 0;
-    final balanceColor = hasProfit ? _incomeColor : _expenseColor;
-
+  Widget _buildFilterRow() {
     return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.fromLTRB(20, 22, 20, 24),
-      decoration: _cardDecoration(),
-      child: Column(
-        children: [
-          Text(
-            hasProfit ? 'Lucro do mes' : 'Prejuizo do mes',
-            style: TextStyle(
-              color: AppColors.corTexto.withValues(alpha: 0.62),
-              fontSize: 14,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            _formatCurrency(report.balance.abs()),
-            style: TextStyle(
-              color: balanceColor,
-              fontSize: 36,
-              fontWeight: FontWeight.w900,
-            ),
-          ),
-          const SizedBox(height: 22),
-          Row(
-            children: [
-              Expanded(
-                child: _buildAmountPill(
-                  icon: Icons.arrow_upward,
-                  title: 'Receitas',
-                  amount: report.income,
-                  color: _incomeColor,
+      height: 60,
+      margin: const EdgeInsets.only(top: 8),
+      child: ListView(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        physics: const BouncingScrollPhysics(),
+        children: FiltroDatas.values.map((filtro) {
+          final isSelected = _filtroAtivo == filtro;
+          return Padding(
+            padding: const EdgeInsets.only(right: 8),
+            child: FilterChip(
+              label: Text(filtro.label), // Reaproveitado da extensão do filter_search
+              selected: isSelected,
+              onSelected: (_) => setState(() => _filtroAtivo = filtro),
+              selectedColor: AppColors.corSecundaria,
+              checkmarkColor: AppColors.corFundoMenu,
+              backgroundColor: AppColors.corFundoMenu,
+              labelStyle: TextStyle(
+                color: isSelected ? AppColors.corFundoMenu : AppColors.corTexto,
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+              ),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+                side: BorderSide(
+                  color: isSelected ? AppColors.corSecundaria : AppColors.corBordaInputs,
                 ),
               ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: _buildAmountPill(
-                  icon: Icons.arrow_downward,
-                  title: 'Despesas',
-                  amount: report.expenses,
-                  color: _expenseColor,
-                ),
-              ),
-            ],
-          ),
-        ],
+            ),
+          );
+        }).toList(),
       ),
     );
   }
 
-  Widget _buildAmountPill({
-    required IconData icon,
-    required String title,
-    required double amount,
-    required Color color,
-  }) {
-    return Row(
+  Widget _buildReportContent(List<Entrega> entregas, List<Despesa> despesas) {
+    // ==========================================
+    // CÁLCULOS DOS INDICADORES
+    // ==========================================
+    
+    // 1. Visão Geral
+    final faturamentoBruto = entregas.fold<double>(0, (sum, e) => sum + e.valor);
+    final totalCustos = despesas.fold<double>(0, (sum, d) => sum + d.valor);
+    final lucroLiquido = faturamentoBruto - totalCustos;
+
+    // 2. Eficiência
+    final kmTotal = entregas.fold<double>(0, (sum, e) => sum + e.quilometragem);
+    final valorPorKm = kmTotal > 0 ? (lucroLiquido / kmTotal) : 0.0;
+    final ticketMedio = entregas.isNotEmpty ? (faturamentoBruto / entregas.length) : 0.0;
+    
+    // Filtra apenas Manutenção e Combustível para o Custo/KM
+    final custosOperacionais = despesas.where((d) => 
+        d.categoria.toLowerCase().contains('combustível') || 
+        d.categoria.toLowerCase().contains('manutenção')
+    ).fold<double>(0, (sum, d) => sum + d.valor);
+    
+    final custoPorKm = kmTotal > 0 ? (custosOperacionais / kmTotal) : 0.0;
+
+    // 3. Ganhos por Restaurante (Top 5)
+    final Map<String, double> mapaRestaurantes = {};
+    for (var e in entregas) {
+      mapaRestaurantes[e.restaurante] = (mapaRestaurantes[e.restaurante] ?? 0) + e.valor;
+    }
+    final topRestaurantes = mapaRestaurantes.entries.toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
+
+    // 4. Despesas por Categoria
+    final Map<String, double> mapaCategorias = {};
+    for (var d in despesas) {
+      mapaCategorias[d.categoria] = (mapaCategorias[d.categoria] ?? 0) + d.valor;
+    }
+    final topCategorias = mapaCategorias.entries.toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
+
+    // ==========================================
+    // RENDERIZAÇÃO DA TELA
+    // ==========================================
+    return ListView(
+      padding: const EdgeInsets.all(20),
+      physics: const BouncingScrollPhysics(),
       children: [
-        Container(
-          width: 44,
-          height: 44,
-          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-          child: Icon(icon, color: AppColors.corIconeClaro, size: 24),
+        // 1. VISÃO GERAL (Usa o seu componente existente)
+        FinancialSummaryCard(
+          receitas: faturamentoBruto,
+          despesas: totalCustos,
+          saldo: lucroLiquido,
         ),
-        const SizedBox(width: 10),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                style: TextStyle(
-                  color: AppColors.corTexto.withValues(alpha: 0.62),
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-              const SizedBox(height: 3),
-              FittedBox(
-                alignment: Alignment.centerLeft,
-                fit: BoxFit.scaleDown,
-                child: Text(
-                  _formatCurrency(amount),
-                  style: TextStyle(
-                    color: color,
-                    fontWeight: FontWeight.w900,
-                    fontSize: 18,
-                  ),
-                ),
-              ),
-            ],
-          ),
+        const SizedBox(height: 24),
+
+        // 2. MÉTRICAS DE EFICIÊNCIA
+        const Text('Eficiência', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            _buildMetricCard('Lucro / Km', valorPorKm, Icons.speed, AppColors.corSucesso),
+            const SizedBox(width: 12),
+            _buildMetricCard('Ticket Médio', ticketMedio, Icons.receipt_long, AppColors.corSecundaria),
+            const SizedBox(width: 12),
+            _buildMetricCard('Custo / Km', custoPorKm, Icons.build, AppColors.corDespesa),
+          ],
         ),
+        const SizedBox(height: 32),
+
+        // 5. HISTÓRICO COMPARATIVO (Resumo visual do período)
+        const Text('Ganhos vs Gastos', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+        const SizedBox(height: 12),
+        _buildComparativeBar(faturamentoBruto, totalCustos),
+        const SizedBox(height: 32),
+
+        // 3. ANÁLISE DE GANHOS (Restaurantes)
+        const Text('Top Restaurantes', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+        const SizedBox(height: 12),
+        if (topRestaurantes.isEmpty) const Text('Nenhuma entrega neste período.'),
+        ...topRestaurantes.take(5).map((entry) => 
+          _buildNativeBarChart(entry.key, entry.value, topRestaurantes.first.value, AppColors.corSecundaria)
+        ),
+        const SizedBox(height: 32),
+
+        // 4. ANÁLISE DE GASTOS (Categorias)
+        const Text('Gastos por Categoria', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+        const SizedBox(height: 12),
+        if (topCategorias.isEmpty) const Text('Nenhuma despesa neste período.'),
+        ...topCategorias.map((entry) => 
+          _buildNativeBarChart(entry.key, entry.value, topCategorias.first.value, AppColors.corDespesa)
+        ),
+        const SizedBox(height: 40),
       ],
     );
   }
 
-  Widget _buildCategoryCard(_MonthlyReport report) {
-    final categories = report.categories;
+  // ==========================================
+  // COMPONENTES VISUAIS (GRÁFICOS NATIVOS)
+  // ==========================================
 
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(20),
-      decoration: _cardDecoration(),
-      child: categories.isEmpty
-          ? SizedBox(
-              height: 180,
-              child: Center(
-                child: Text(
-                  'Nenhuma despesa registrada neste mes.',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: AppColors.corHintInputs,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-            )
-          : LayoutBuilder(
-              builder: (context, constraints) {
-                final isCompact = constraints.maxWidth < 360;
-                final chart = SizedBox(
-                  width: 144,
-                  height: 144,
-                  child: CustomPaint(
-                    painter: _DonutChartPainter(categories),
-                    child: Center(
-                      child: Text(
-                        '${categories.length}',
-                        style: const TextStyle(
-                          color: _textColor,
-                          fontSize: 22,
-                          fontWeight: FontWeight.w900,
-                        ),
-                      ),
-                    ),
-                  ),
-                );
-                final legend = _buildCategoryLegend(categories);
-
-                if (isCompact) {
-                  return Column(
-                    children: [chart, const SizedBox(height: 18), legend],
-                  );
-                }
-
-                return Row(
-                  children: [
-                    chart,
-                    const SizedBox(width: 22),
-                    Expanded(child: legend),
-                  ],
-                );
-              },
+  Widget _buildMetricCard(String title, double value, IconData icon, Color color) {
+    return Expanded(
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: AppColors.corInputs,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: AppColors.corBordaInputs),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(icon, size: 20, color: color),
+            const SizedBox(height: 8),
+            Text(title, style: const TextStyle(fontSize: 12, color: AppColors.corTexto)),
+            const SizedBox(height: 4),
+            Text(
+              NumberFormat.currency(locale: 'pt_BR', symbol: 'R\$').format(value),
+              style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
             ),
+          ],
+        ),
+      ),
     );
   }
 
-  Widget _buildCategoryLegend(List<_CategorySlice> categories) {
-    return Column(
-      children: categories
-          .map(
-            (category) => Padding(
-              padding: const EdgeInsets.symmetric(vertical: 7),
-              child: Row(
-                children: [
-                  Container(
-                    width: 14,
-                    height: 14,
-                    decoration: BoxDecoration(
-                      color: category.color,
-                      shape: BoxShape.circle,
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Text(
-                      category.name,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        color: _textColor,
-                        fontWeight: FontWeight.w800,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  Text(
-                    _formatCurrency(category.amount),
-                    style: const TextStyle(
-                      color: _expenseColor,
-                      fontWeight: FontWeight.w900,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          )
-          .toList(),
-    );
-  }
-
-  Widget _buildDetailsCard(_MonthlyReport report) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(20),
-      decoration: _cardDecoration(),
+  // Gráfico de barra de progresso nativo para os Rankings
+  Widget _buildNativeBarChart(String label, double value, double maxValue, Color color) {
+    final formatador = NumberFormat.currency(locale: 'pt_BR', symbol: 'R\$');
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Resumo do mes',
-            style: TextStyle(
-              color: _textColor,
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(label, style: const TextStyle(fontWeight: FontWeight.w500)),
+              Text(formatador.format(value), style: const TextStyle(fontWeight: FontWeight.bold)),
+            ],
           ),
-          const SizedBox(height: 16),
-          _buildDetailRow('Entregas realizadas', '${report.deliveryCount}'),
-          _buildDetailRow('Despesas registradas', '${report.expenseCount}'),
-          _buildDetailRow(
-            'Resultado',
-            report.balance >= 0 ? 'Lucro' : 'Prejuizo',
-            valueColor: report.balance >= 0 ? _incomeColor : _expenseColor,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildDetailRow(String label, String value, {Color? valueColor}) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 7),
-      child: Row(
-        children: [
-          Expanded(
-            child: Text(
-              label,
-              style: TextStyle(
-                color: AppColors.corTexto.withValues(alpha: 0.62),
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-          ),
-          Text(
-            value,
-            style: TextStyle(
-              color: valueColor ?? _textColor,
-              fontWeight: FontWeight.w900,
-            ),
+          const SizedBox(height: 6),
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final percentage = maxValue > 0 ? (value / maxValue) : 0.0;
+              return Container(
+                height: 12,
+                width: constraints.maxWidth,
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Row(
+                  children: [
+                    AnimatedContainer(
+                      duration: const Duration(milliseconds: 600),
+                      curve: Curves.easeOutCubic,
+                      width: constraints.maxWidth * percentage,
+                      decoration: BoxDecoration(
+                        color: color,
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
           ),
         ],
       ),
     );
   }
 
-  _MonthlyReport _buildStaticMonthlyReport() {
-    final monthSeed = _selectedMonth.month;
-    final income = 3200.00 + (monthSeed * 210.75);
-    final deliveryCount = 42 + monthSeed;
-    final expenseCount = 9 + (monthSeed % 5);
-    final groupedExpenses = <String, double>{
-      'Combustivel': 820.00 + (monthSeed * 18.50),
-      'Alimentacao': 360.00 + (monthSeed * 11.25),
-      'Manutencao': 520.00 + (monthSeed * 8.75),
-      'Outras': 210.00 + (monthSeed * 6.50),
-    };
-    final expenses = groupedExpenses.values.fold<double>(
-      0,
-      (total, amount) => total + amount,
-    );
+  // Barra de comparação de Gastos vs Ganhos
+  Widget _buildComparativeBar(double ganhos, double gastos) {
+    final total = ganhos + gastos;
+    final percGanhos = total > 0 ? (ganhos / total) : 0.5;
+    final percGastos = total > 0 ? (gastos / total) : 0.5;
 
-    final sortedCategories = groupedExpenses.entries.toList()
-      ..sort((a, b) => b.value.compareTo(a.value));
-    final categories = sortedCategories.asMap().entries.map((entry) {
-      return _CategorySlice(
-        name: entry.value.key,
-        amount: entry.value.value,
-        color: _categoryColors[entry.key % _categoryColors.length],
-      );
-    }).toList();
-
-    return _MonthlyReport(
-      income: income,
-      expenses: expenses,
-      balance: income - expenses,
-      deliveryCount: deliveryCount,
-      expenseCount: expenseCount,
-      categories: categories,
-    );
-  }
-
-  List<_MonthOption> _buildMonthOptions() {
-    final now = DateTime.now();
-
-    return List.generate(12, (index) {
-      final date = DateTime(now.year, now.month - index);
-      return _MonthOption(
-        month: date.month,
-        year: date.year,
-        label: '${_monthNames[date.month - 1]} ${date.year}',
-      );
-    });
-  }
-
-  BoxDecoration _cardDecoration() {
-    return BoxDecoration(
-      color: AppColors.corFundoMenu,
-      borderRadius: BorderRadius.circular(24),
-      boxShadow: [
-        BoxShadow(
-          color: AppColors.corSombra.withValues(alpha: 0.06),
-          blurRadius: 18,
-          offset: const Offset(0, 10),
+    return Column(
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text('Ganhos', style: TextStyle(color: AppColors.corSucesso, fontWeight: FontWeight.bold)),
+            const Text('Gastos', style: TextStyle(color: AppColors.corDespesa, fontWeight: FontWeight.bold)),
+          ],
         ),
+        const SizedBox(height: 8),
+        ClipRRect(
+          borderRadius: BorderRadius.circular(8),
+          child: SizedBox(
+            height: 16,
+            child: Row(
+              children: [
+                Expanded(flex: (percGanhos * 100).toInt(), child: Container(color: AppColors.corSucesso)),
+                Expanded(flex: (percGastos * 100).toInt(), child: Container(color: AppColors.corDespesa)),
+              ],
+            ),
+          ),
+        )
       ],
     );
   }
-
-  String _formatCurrency(double value) {
-    final fixed = value.toStringAsFixed(2).replaceAll('.', ',');
-    return 'R\$ $fixed';
-  }
-
-  static const List<String> _monthNames = [
-    'Janeiro',
-    'Fevereiro',
-    'Marco',
-    'Abril',
-    'Maio',
-    'Junho',
-    'Julho',
-    'Agosto',
-    'Setembro',
-    'Outubro',
-    'Novembro',
-    'Dezembro',
-  ];
-
-  static const List<Color> _categoryColors = [
-    AppColors.corDespesa,
-    AppColors.corSecundaria,
-    AppColors.corPrincipal,
-    AppColors.corExcluir,
-    AppColors.corErro,
-    AppColors.corEntrega,
-  ];
-}
-
-class _DonutChartPainter extends CustomPainter {
-  final List<_CategorySlice> categories;
-
-  _DonutChartPainter(this.categories);
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final total = categories.fold<double>(
-      0,
-      (total, category) => total + category.amount,
-    );
-    final center = Offset(size.width / 2, size.height / 2);
-    final radius = math.min(size.width, size.height) / 2;
-    final rect = Rect.fromCircle(center: center, radius: radius);
-    final paint = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeCap = StrokeCap.round
-      ..strokeWidth = 28;
-
-    var startAngle = -math.pi / 2;
-    for (final category in categories) {
-      final sweepAngle = (category.amount / total) * math.pi * 2;
-      paint.color = category.color;
-      canvas.drawArc(rect, startAngle, sweepAngle - 0.04, false, paint);
-      startAngle += sweepAngle;
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant _DonutChartPainter oldDelegate) {
-    return oldDelegate.categories != categories;
-  }
-}
-
-class _MonthOption {
-  final int month;
-  final int year;
-  final String label;
-
-  const _MonthOption({
-    required this.month,
-    required this.year,
-    required this.label,
-  });
-}
-
-class _MonthlyReport {
-  final double income;
-  final double expenses;
-  final double balance;
-  final int deliveryCount;
-  final int expenseCount;
-  final List<_CategorySlice> categories;
-
-  const _MonthlyReport({
-    required this.income,
-    required this.expenses,
-    required this.balance,
-    required this.deliveryCount,
-    required this.expenseCount,
-    required this.categories,
-  });
-}
-
-class _CategorySlice {
-  final String name;
-  final double amount;
-  final Color color;
-
-  const _CategorySlice({
-    required this.name,
-    required this.amount,
-    required this.color,
-  });
 }

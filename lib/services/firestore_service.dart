@@ -185,6 +185,20 @@ class FirestoreService {
       throw Exception('Erro ao atualizar entrega: $e');
     }
   }
+  
+  Stream<List<Turno>> buscarTurnos() {
+    return _db
+        .collection('usuarios')
+        .doc(_uid)
+        .collection('turnos')
+        .orderBy('iniciadoEm', descending: true)
+        .snapshots()
+        .map(
+          (snapshot) => snapshot.docs.map((doc) {
+            return Turno.fromMap(doc.id, doc.data());
+          }).toList(),
+        );
+  }
 
   Future<void> excluirEntrega(String entregaId) async {
     try {

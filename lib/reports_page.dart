@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:motora_app/components/filter_search.dart'; // Importa o FiltroDatas
-import 'package:motora_app/components/financial_summary_card.dart'; // Seu card de resumo
+import 'package:motora_app/components/filter_search.dart';
+import 'package:motora_app/components/financial_summary_card.dart';
 import 'package:motora_app/components/menu.dart';
 import 'package:motora_app/constants/app_colors.dart';
 import 'package:motora_app/models/delivery_model.dart';
 import 'package:motora_app/models/expense_model.dart';
+import 'package:motora_app/models/shift_model.dart';
 import 'package:motora_app/services/firestore_service.dart';
 
 class ReportsPage extends StatefulWidget {
@@ -17,16 +18,14 @@ class ReportsPage extends StatefulWidget {
 
 class _ReportsPageState extends State<ReportsPage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-  
-  // O cérebro do filtro reaproveitado do seu FilterSearch
-  FiltroDatas _filtroAtivo = FiltroDatas.esteMes; 
+  FiltroDatas _filtroAtivo = FiltroDatas.hoje;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldKey,
       backgroundColor: AppColors.corFundo,
-      drawer: const Menu(selectedIndex: 3), // Ajuste o index conforme seu Menu
+      drawer: const Menu(selectedIndex: 2),
       body: SafeArea(
         child: Column(
           children: [
@@ -39,24 +38,33 @@ class _ReportsPageState extends State<ReportsPage> {
                   return StreamBuilder<List<Despesa>>(
                     stream: FirestoreService().buscarDespesas(),
                     builder: (context, despesasSnap) {
-                      if (entregasSnap.connectionState == ConnectionState.waiting ||
-                          despesasSnap.connectionState == ConnectionState.waiting) {
-                        return const Center(
-                          child: CircularProgressIndicator(color: AppColors.corPrincipal),
-                        );
-                      }
+                      return StreamBuilder<List<Turno>>(
+                        stream: FirestoreService().buscarTurnos(),
+                        builder: (context, turnosSnap) {
+                          if (entregasSnap.connectionState == ConnectionState.waiting ||
+                              despesasSnap.connectionState == ConnectionState.waiting ||
+                              turnosSnap.connectionState == ConnectionState.waiting) {
+                            return const Center(
+                              child: CircularProgressIndicator(color: AppColors.corPrincipal),
+                            );
+                          }
 
-                      final todasEntregas = entregasSnap.data ?? [];
-                      final todasDespesas = despesasSnap.data ?? [];
+                          final todasEntregas = entregasSnap.data ?? [];
+                          final todasDespesas = despesasSnap.data ?? [];
+                          final todosTurnos = turnosSnap.data ?? [];
 
-                      // 1. APLICANDO O FILTRO DE DATA
-                      final range = _filtroAtivo.intervalo;
-                      final entregas = todasEntregas.where((e) =>
-                          !e.data.isBefore(range.start) && !e.data.isAfter(range.end)).toList();
-                      final despesas = todasDespesas.where((d) =>
-                          !d.data.isBefore(range.start) && !d.data.isAfter(range.end)).toList();
+                          // APLICAÇÃO DO FILTRO DE DATA NOS 3 FLUXOS DE DADOS
+                          final range = _filtroAtivo.intervalo;
+                          final entregas = todasEntregas.where((e) =>
+                              !e.data.isBefore(range.start) && !e.data.isAfter(range.end)).toList();
+                          final despesas = todasDespesas.where((d) =>
+                              !d.data.isBefore(range.start) && !d.data.isAfter(range.end)).toList();
+                          final turnos = todosTurnos.where((t) =>
+                              !t.iniciadoEm.isBefore(range.start) && !t.iniciadoEm.isAfter(range.end)).toList();
 
-                      return _buildReportContent(entregas, despesas);
+                          return _buildReportContent(entregas, despesas, turnos);
+                        },
+                      );
                     },
                   );
                 },
@@ -103,7 +111,7 @@ class _ReportsPageState extends State<ReportsPage> {
           return Padding(
             padding: const EdgeInsets.only(right: 8),
             child: FilterChip(
-              label: Text(filtro.label), // Reaproveitado da extensão do filter_search
+              label: Text(filtro.label),
               selected: isSelected,
               onSelected: (_) => setState(() => _filtroAtivo = filtro),
               selectedColor: AppColors.corSecundaria,
@@ -126,30 +134,94 @@ class _ReportsPageState extends State<ReportsPage> {
     );
   }
 
-  Widget _buildReportContent(List<Entrega> entregas, List<Despesa> despesas) {
+  void _mostrarExplicacao(String titulo, String explicacao) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: AppColors.corFundoMenu,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Row(
+          children: [
+            const Icon(Icons.info_outline, color: AppColors.corTexto),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                titulo,
+                style: const TextStyle(color: AppColors.corTexto, fontSize: 18),
+              ),
+            ),
+          ],
+        ),
+        content: Text(
+          explicacao,
+          style: TextStyle(
+            color: AppColors.corTexto.withValues(alpha: 0.8),
+            height: 1.4,
+            fontSize: 15,
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text(
+              'Entendi',
+              style: TextStyle(color: AppColors.corTexto, fontWeight: FontWeight.bold),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildReportContent(List<Entrega> entregas, List<Despesa> despesas, List<Turno> turnos) {
     // ==========================================
-    // CÁLCULOS DOS INDICADORES
+    // 1. VISÃO GERAL
     // ==========================================
-    
-    // 1. Visão Geral
     final faturamentoBruto = entregas.fold<double>(0, (sum, e) => sum + e.valor);
     final totalCustos = despesas.fold<double>(0, (sum, d) => sum + d.valor);
     final lucroLiquido = faturamentoBruto - totalCustos;
 
-    // 2. Eficiência
+    // ==========================================
+    // 2. EFICIÊNCIA
+    // ==========================================
     final kmTotal = entregas.fold<double>(0, (sum, e) => sum + e.quilometragem);
     final valorPorKm = kmTotal > 0 ? (lucroLiquido / kmTotal) : 0.0;
     final ticketMedio = entregas.isNotEmpty ? (faturamentoBruto / entregas.length) : 0.0;
     
-    // Filtra apenas Manutenção e Combustível para o Custo/KM
     final custosOperacionais = despesas.where((d) => 
         d.categoria.toLowerCase().contains('combustível') || 
         d.categoria.toLowerCase().contains('manutenção')
     ).fold<double>(0, (sum, d) => sum + d.valor);
-    
     final custoPorKm = kmTotal > 0 ? (custosOperacionais / kmTotal) : 0.0;
 
-    // 3. Ganhos por Restaurante (Top 5)
+    // ==========================================
+    // 3. TEMPO E PRODUTIVIDADE (Novas Métricas)
+    // ==========================================
+    double horasTrabalhadas = 0;
+    for (var t in turnos) {
+      final fim = t.encerradoEm ?? DateTime.now(); // Se turno está ativo, usa hora atual
+      horasTrabalhadas += fim.difference(t.iniciadoEm).inMinutes / 60.0;
+    }
+    final ganhoPorHora = horasTrabalhadas > 0 ? (lucroLiquido / horasTrabalhadas) : 0.0;
+
+    final ganhosPorDia = <int, double>{};
+    for (var e in entregas) {
+      ganhosPorDia[e.data.weekday] = (ganhosPorDia[e.data.weekday] ?? 0) + e.valor;
+    }
+    
+    String melhorDiaNome = '-';
+    if (ganhosPorDia.isNotEmpty) {
+      final melhorDiaEntry = ganhosPorDia.entries.reduce((a, b) => a.value > b.value ? a : b);
+      final nomesDias = {
+        1: 'Segunda', 2: 'Terça', 3: 'Quarta',
+        4: 'Quinta', 5: 'Sexta', 6: 'Sábado', 7: 'Domingo'
+      };
+      melhorDiaNome = nomesDias[melhorDiaEntry.key] ?? '-';
+    }
+
+    // ==========================================
+    // 4. RANKINGS (Restaurantes e Categorias)
+    // ==========================================
     final Map<String, double> mapaRestaurantes = {};
     for (var e in entregas) {
       mapaRestaurantes[e.restaurante] = (mapaRestaurantes[e.restaurante] ?? 0) + e.valor;
@@ -157,7 +229,6 @@ class _ReportsPageState extends State<ReportsPage> {
     final topRestaurantes = mapaRestaurantes.entries.toList()
       ..sort((a, b) => b.value.compareTo(a.value));
 
-    // 4. Despesas por Categoria
     final Map<String, double> mapaCategorias = {};
     for (var d in despesas) {
       mapaCategorias[d.categoria] = (mapaCategorias[d.categoria] ?? 0) + d.valor;
@@ -166,41 +237,104 @@ class _ReportsPageState extends State<ReportsPage> {
       ..sort((a, b) => b.value.compareTo(a.value));
 
     // ==========================================
-    // RENDERIZAÇÃO DA TELA
+    // RENDERIZAÇÃO
     // ==========================================
     return ListView(
       padding: const EdgeInsets.all(20),
       physics: const BouncingScrollPhysics(),
       children: [
-        // 1. VISÃO GERAL (Usa o seu componente existente)
         FinancialSummaryCard(
           receitas: faturamentoBruto,
           despesas: totalCustos,
           saldo: lucroLiquido,
         ),
-        const SizedBox(height: 24),
+        const SizedBox(height: 32),
 
-        // 2. MÉTRICAS DE EFICIÊNCIA
-        const Text('Eficiência', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+        // NOVAS MÉTRICAS DE VOLUME
+        const Text('Volume do Período', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
         const SizedBox(height: 12),
         Row(
           children: [
-            _buildMetricCard('Lucro / Km', valorPorKm, Icons.speed, AppColors.corSucesso),
+            _buildInfoCard(
+              'Total de Entregas', 
+              '${entregas.length}', 
+              Icons.delivery_dining, 
+              AppColors.corTexto,
+              'Representa a contagem de todas as entregas concluídas no período selecionado.',
+            ),
             const SizedBox(width: 12),
-            _buildMetricCard('Ticket Médio', ticketMedio, Icons.receipt_long, AppColors.corSecundaria),
-            const SizedBox(width: 12),
-            _buildMetricCard('Custo / Km', custoPorKm, Icons.build, AppColors.corDespesa),
+            _buildInfoCard(
+              'Km Rodados', 
+              '${kmTotal.toStringAsFixed(1)} km', 
+              Icons.add_road, 
+              AppColors.corTexto,
+              'A soma de toda a quilometragem percorrida durante as entregas do período.',
+            ),
           ],
         ),
         const SizedBox(height: 32),
 
-        // 5. HISTÓRICO COMPARATIVO (Resumo visual do período)
+        // NOVAS MÉTRICAS DE TEMPO
+        const Text('Produtividade', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            _buildMetricCard(
+              'Ganho / Hora', 
+              ganhoPorHora, 
+              Icons.timer, 
+              AppColors.corSecundaria,
+              'Calculado dividindo o seu Lucro Líquido pelo total de horas trabalhadas nos turnos registrados.',
+            ),
+            const SizedBox(width: 12),
+            _buildInfoCard(
+              'Melhor Dia', 
+              melhorDiaNome, 
+              Icons.calendar_today, 
+              AppColors.corDespesa,
+              'O dia da semana em que você teve o maior faturamento bruto com entregas.',
+            ),
+          ],
+        ),
+        const SizedBox(height: 32),
+
+        // MÉTRICAS DE EFICIÊNCIA
+        const Text('Eficiência Operacional', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            _buildMetricCard(
+              'Lucro / Km', 
+              valorPorKm, 
+              Icons.speed, 
+              AppColors.corSucesso,
+              'Calculado dividindo o seu Lucro Líquido pela quilometragem total rodada nas entregas. Mostra o valor real de cada quilômetro.',
+            ),
+            const SizedBox(width: 12),
+            _buildMetricCard(
+              'Ticket Médio', 
+              ticketMedio, 
+              Icons.receipt_long, 
+              AppColors.corSecundaria,
+              'A média de valor que você ganha por entrega (Faturamento Bruto dividido pelo Total de Entregas).',
+            ),
+            const SizedBox(width: 12),
+            _buildMetricCard(
+              'Custo / Km', 
+              custoPorKm, 
+              Icons.build, 
+              AppColors.corDespesa,
+              'Soma das suas despesas categorizadas como "Combustível" e "Manutenção" dividida pela quilometragem rodada.',
+            ),
+          ],
+        ),
+        const SizedBox(height: 32),
+
         const Text('Ganhos vs Gastos', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
         const SizedBox(height: 12),
         _buildComparativeBar(faturamentoBruto, totalCustos),
         const SizedBox(height: 32),
 
-        // 3. ANÁLISE DE GANHOS (Restaurantes)
         const Text('Top Restaurantes', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
         const SizedBox(height: 12),
         if (topRestaurantes.isEmpty) const Text('Nenhuma entrega neste período.'),
@@ -209,7 +343,6 @@ class _ReportsPageState extends State<ReportsPage> {
         ),
         const SizedBox(height: 32),
 
-        // 4. ANÁLISE DE GASTOS (Categorias)
         const Text('Gastos por Categoria', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
         const SizedBox(height: 12),
         if (topCategorias.isEmpty) const Text('Nenhuma despesa neste período.'),
@@ -221,37 +354,74 @@ class _ReportsPageState extends State<ReportsPage> {
     );
   }
 
-  // ==========================================
-  // COMPONENTES VISUAIS (GRÁFICOS NATIVOS)
-  // ==========================================
-
-  Widget _buildMetricCard(String title, double value, IconData icon, Color color) {
+  // Componente para valores Monetários (Atualizado com InkWell)
+  Widget _buildMetricCard(String title, double value, IconData icon, Color color, String explicacao) {
     return Expanded(
-      child: Container(
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: AppColors.corInputs,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: AppColors.corBordaInputs),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Icon(icon, size: 20, color: color),
-            const SizedBox(height: 8),
-            Text(title, style: const TextStyle(fontSize: 12, color: AppColors.corTexto)),
-            const SizedBox(height: 4),
-            Text(
-              NumberFormat.currency(locale: 'pt_BR', symbol: 'R\$').format(value),
-              style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+      child: Material(
+        color: AppColors.corInputs,
+        borderRadius: BorderRadius.circular(16),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: () => _mostrarExplicacao(title, explicacao),
+          child: Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              border: Border.all(color: AppColors.corBordaInputs),
+              borderRadius: BorderRadius.circular(16),
             ),
-          ],
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(icon, size: 20, color: color),
+                const SizedBox(height: 8),
+                Text(title, style: const TextStyle(fontSize: 12, color: AppColors.corTexto)),
+                const SizedBox(height: 4),
+                Text(
+                  NumberFormat.currency(locale: 'pt_BR', symbol: 'R\$').format(value),
+                  style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
+          ),
         ),
       ),
     );
   }
 
-  // Gráfico de barra de progresso nativo para os Rankings
+  // Componente para Textos Normais (Atualizado com InkWell)
+  Widget _buildInfoCard(String title, String value, IconData icon, Color color, String explicacao) {
+    return Expanded(
+      child: Material(
+        color: AppColors.corInputs,
+        borderRadius: BorderRadius.circular(16),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: () => _mostrarExplicacao(title, explicacao),
+          child: Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              border: Border.all(color: AppColors.corBordaInputs),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(icon, size: 20, color: color),
+                const SizedBox(height: 8),
+                Text(title, style: const TextStyle(fontSize: 12, color: AppColors.corTexto)),
+                const SizedBox(height: 4),
+                Text(
+                  value,
+                  style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _buildNativeBarChart(String label, double value, double maxValue, Color color) {
     final formatador = NumberFormat.currency(locale: 'pt_BR', symbol: 'R\$');
     return Padding(
@@ -298,7 +468,6 @@ class _ReportsPageState extends State<ReportsPage> {
     );
   }
 
-  // Barra de comparação de Gastos vs Ganhos
   Widget _buildComparativeBar(double ganhos, double gastos) {
     final total = ganhos + gastos;
     final percGanhos = total > 0 ? (ganhos / total) : 0.5;

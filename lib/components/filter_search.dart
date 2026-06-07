@@ -108,6 +108,7 @@ class FilterSearch<T> extends StatefulWidget {
 
 class _FilterSearchState<T> extends State<FilterSearch<T>> {
   final TextEditingController txtPesquisa = TextEditingController();
+  final ScrollController _categoryFilterScrollController = ScrollController();
 
   String _queryAtiva = '';
 
@@ -149,6 +150,13 @@ class _FilterSearchState<T> extends State<FilterSearch<T>> {
       _filtroDatasAtivo != null ||
       _queryAtiva.isNotEmpty;
 
+  @override
+  void dispose() {
+    txtPesquisa.dispose();
+    _categoryFilterScrollController.dispose();
+    super.dispose();
+  }
+
   void _limparFiltros() {
     setState(() {
       _categoriasSelecionadas = {};
@@ -163,6 +171,7 @@ class _FilterSearchState<T> extends State<FilterSearch<T>> {
 
     showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
       backgroundColor: AppColors.corFundo,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
@@ -171,88 +180,103 @@ class _FilterSearchState<T> extends State<FilterSearch<T>> {
       builder: (context) {
         return StatefulBuilder(
           builder: (context, setModalState) {
-            return Padding(
-              padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Filtrar por ${widget.categoryFilterLabel}',
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      if (selecaoTemporaria.isNotEmpty)
-                        TextButton(
-                          onPressed: () =>
-                              setModalState(() => selecaoTemporaria.clear()),
-                          child: Text(
-                            'Limpar',
-                            style: TextStyle(color: AppColors.corSecundaria),
+            return FractionallySizedBox(
+              heightFactor: 0.6,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildBottomSheetHandle(),
+                    const SizedBox(height: 16),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Filtrar por ${widget.categoryFilterLabel}',
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
-                    ],
-                  ),
-                  const Divider(
-                    color: AppColors.corBordaFocadaInputs,
-                    thickness: 2,
-                  ),
-                  const SizedBox(height: 8),
-                  if (categorias.isEmpty)
-                    const Padding(
-                      padding: EdgeInsets.symmetric(vertical: 16),
-                      child: Center(
-                        child: Text('Nenhuma categoria encontrada.'),
-                      ),
-                    )
-                  else
-                    ...categorias.map((categoria) {
-                      return CheckboxListTile(
-                        title: Text(categoria),
-                        value: selecaoTemporaria.contains(categoria),
-                        activeColor: AppColors.corSecundaria,
-                        checkColor: AppColors.corFundoMenu,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        onChanged: (bool? value) {
-                          setModalState(() {
-                            if (value == true) {
-                              selecaoTemporaria.add(categoria);
-                            } else {
-                              selecaoTemporaria.remove(categoria);
-                            }
-                          });
-                        },
-                      );
-                    }),
-                  const SizedBox(height: 16),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        setState(
-                          () => _categoriasSelecionadas = selecaoTemporaria,
-                        );
-                        Navigator.pop(context);
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.corSecundaria,
-                        foregroundColor: AppColors.corFundoMenu,
-                        minimumSize: const Size.fromHeight(48),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                      child: const Text('Confirmar'),
+                        if (selecaoTemporaria.isNotEmpty)
+                          TextButton(
+                            onPressed: () =>
+                                setModalState(() => selecaoTemporaria.clear()),
+                            child: Text(
+                              'Limpar',
+                              style: TextStyle(color: AppColors.corSecundaria),
+                            ),
+                          ),
+                      ],
                     ),
-                  ),
-                ],
+                    const Divider(
+                      color: AppColors.corBordaFocadaInputs,
+                      thickness: 2,
+                    ),
+                    const SizedBox(height: 8),
+                    Expanded(
+                      child: categorias.isEmpty
+                          ? const Center(
+                              child: Text('Nenhuma categoria encontrada.'),
+                            )
+                          : Scrollbar(
+                              controller: _categoryFilterScrollController,
+                              thumbVisibility: categorias.length > 5,
+                              interactive: true,
+                              child: ListView.builder(
+                                controller: _categoryFilterScrollController,
+                                physics: const BouncingScrollPhysics(),
+                                itemCount: categorias.length,
+                                itemBuilder: (context, index) {
+                                  final categoria = categorias[index];
+                                  return CheckboxListTile(
+                                    title: Text(categoria),
+                                    value: selecaoTemporaria.contains(
+                                      categoria,
+                                    ),
+                                    activeColor: AppColors.corSecundaria,
+                                    checkColor: AppColors.corFundoMenu,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    onChanged: (bool? value) {
+                                      setModalState(() {
+                                        if (value == true) {
+                                          selecaoTemporaria.add(categoria);
+                                        } else {
+                                          selecaoTemporaria.remove(categoria);
+                                        }
+                                      });
+                                    },
+                                  );
+                                },
+                              ),
+                            ),
+                    ),
+                    const SizedBox(height: 16),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          setState(
+                            () => _categoriasSelecionadas = selecaoTemporaria,
+                          );
+                          Navigator.pop(context);
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.corSecundaria,
+                          foregroundColor: AppColors.corFundoMenu,
+                          minimumSize: const Size.fromHeight(48),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: const Text('Confirmar'),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             );
           },
@@ -280,6 +304,8 @@ class _FilterSearchState<T> extends State<FilterSearch<T>> {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  _buildBottomSheetHandle(),
+                  const SizedBox(height: 16),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -388,6 +414,19 @@ class _FilterSearchState<T> extends State<FilterSearch<T>> {
           },
         );
       },
+    );
+  }
+
+  Widget _buildBottomSheetHandle() {
+    return Center(
+      child: Container(
+        width: 44,
+        height: 4,
+        decoration: BoxDecoration(
+          color: AppColors.corSombra,
+          borderRadius: BorderRadius.circular(999),
+        ),
+      ),
     );
   }
 
@@ -600,7 +639,9 @@ class _FilterSearchState<T> extends State<FilterSearch<T>> {
           ).format(widget.getDate(item));
 
           return ActivityCard(
-            icon: widget.getDynamicIcon != null ? widget.getDynamicIcon!(item) : widget.cardIcon,
+            icon: widget.getDynamicIcon != null
+                ? widget.getDynamicIcon!(item)
+                : widget.cardIcon,
             iconBackgroundColor: widget.accentColor,
             time: dataFormatada,
             title: widget.getTitle(item),

@@ -20,7 +20,7 @@ class _ReportsPageState extends State<ReportsPage> {
   static const List<String> _monthNames = [
     'Janeiro',
     'Fevereiro',
-    'Marco',
+    'Março',
     'Abril',
     'Maio',
     'Junho',
@@ -38,7 +38,7 @@ class _ReportsPageState extends State<ReportsPage> {
     'Qua',
     'Qui',
     'Sex',
-    'Sab',
+    'Sáb',
     'Dom',
   ];
 
@@ -54,7 +54,7 @@ class _ReportsPageState extends State<ReportsPage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   final FirestoreService _firestoreService = FirestoreService();
   final ReportService _reportService = const ReportService();
-  late final List<_MonthOption> _monthOptions;
+
   late _MonthOption _selectedMonth;
   _ReportPreset _selectedPreset = _ReportPreset.month;
   DateTimeRange? _customRange;
@@ -62,8 +62,47 @@ class _ReportsPageState extends State<ReportsPage> {
   @override
   void initState() {
     super.initState();
-    _monthOptions = _buildMonthOptions();
-    _selectedMonth = _monthOptions.first;
+    final now = DateTime.now();
+    _selectedMonth = _MonthOption(
+      month: now.month,
+      year: now.year,
+      label: '${_monthNames[now.month - 1]} ${now.year}',
+    );
+  }
+
+  List<_MonthOption> _getDynamicMonthOptions(
+    List<Entrega> deliveries,
+    List<Despesa> expenses,
+  ) {
+    final now = DateTime.now();
+    final Set<String> activeYearMonths = {};
+    activeYearMonths.add('${now.year}-${now.month}');
+    for (var d in deliveries) {
+      activeYearMonths.add('${d.data.year}-${d.data.month}');
+    }
+    for (var e in expenses) {
+      activeYearMonths.add('${e.data.year}-${e.data.month}');
+    }
+
+    final List<_MonthOption> options = [];
+    for (var ym in activeYearMonths) {
+      final parts = ym.split('-');
+      final year = int.parse(parts[0]);
+      final month = int.parse(parts[1]);
+      options.add(
+        _MonthOption(
+          month: month,
+          year: year,
+          label: '${_monthNames[month - 1]} $year',
+        ),
+      );
+    }
+    options.sort((a, b) {
+      if (a.year != b.year) return b.year.compareTo(a.year);
+      return b.month.compareTo(a.month);
+    });
+
+    return options;
   }
 
   @override
@@ -96,10 +135,21 @@ class _ReportsPageState extends State<ReportsPage> {
                   return _buildErrorState();
                 }
 
+                final deliveries = deliveriesSnapshot.data ?? const [];
+                final expenses = expensesSnapshot.data ?? const [];
+                final dynamicMonthOptions = _getDynamicMonthOptions(
+                  deliveries,
+                  expenses,
+                );
+                final effectiveSelectedMonth =
+                    dynamicMonthOptions.contains(_selectedMonth)
+                    ? _selectedMonth
+                    : dynamicMonthOptions.first;
+
                 final report = _reportService.buildReport(
-                  deliveries: deliveriesSnapshot.data ?? const [],
-                  expenses: expensesSnapshot.data ?? const [],
-                  period: _currentPeriod(),
+                  deliveries: deliveries,
+                  expenses: expenses,
+                  period: _currentPeriod(effectiveSelectedMonth),
                 );
 
                 return CustomScrollView(
@@ -109,7 +159,11 @@ class _ReportsPageState extends State<ReportsPage> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          _buildHeader(report),
+                          _buildHeader(
+                            report,
+                            dynamicMonthOptions,
+                            effectiveSelectedMonth,
+                          ),
                           Padding(
                             padding: const EdgeInsets.fromLTRB(20, 24, 20, 30),
                             child: Column(
@@ -165,7 +219,11 @@ class _ReportsPageState extends State<ReportsPage> {
     );
   }
 
-  Widget _buildHeader(ReportSummary report) {
+  Widget _buildHeader(
+    ReportSummary report,
+    List<_MonthOption> options,
+    _MonthOption effectiveMonth,
+  ) {
     return Container(
       width: double.infinity,
       decoration: const BoxDecoration(color: AppColors.corPrincipal),
@@ -177,9 +235,9 @@ class _ReportsPageState extends State<ReportsPage> {
           const SizedBox(height: 14),
           _buildPresetFilters(),
           const SizedBox(height: 14),
-          _buildPeriodControl(),
+          _buildPeriodControl(options, effectiveMonth),
           const SizedBox(height: 18),
-          _buildBalanceCard(report),
+          _buildBalanceCard(report, effectiveMonth),
         ],
       ),
     );
@@ -298,14 +356,17 @@ class _ReportsPageState extends State<ReportsPage> {
     );
   }
 
-  Widget _buildPeriodControl() {
+  Widget _buildPeriodControl(
+    List<_MonthOption> options,
+    _MonthOption effectiveMonth,
+  ) {
     if (_selectedPreset == _ReportPreset.month) {
       return LayoutBuilder(
         builder: (context, constraints) {
           return DropdownMenu<_MonthOption>(
-            key: ValueKey(_selectedMonth.label),
+            key: ValueKey(effectiveMonth.label),
             width: constraints.maxWidth,
-            initialSelection: _selectedMonth,
+            initialSelection: effectiveMonth,
             textStyle: const TextStyle(
               color: AppColors.corTexto,
               fontSize: 16,
@@ -323,8 +384,8 @@ class _ReportsPageState extends State<ReportsPage> {
                 borderSide: BorderSide.none,
               ),
             ),
-            dropdownMenuEntries: _monthOptions.map((month) {
-              final isSelected = month == _selectedMonth;
+            dropdownMenuEntries: options.map((month) {
+              final isSelected = month == effectiveMonth;
               return DropdownMenuEntry<_MonthOption>(
                 value: month,
                 label: month.label,
@@ -345,7 +406,7 @@ class _ReportsPageState extends State<ReportsPage> {
     if (_selectedPreset == _ReportPreset.custom) {
       return _buildPeriodPill(
         icon: Icons.date_range_outlined,
-        title: 'Periodo personalizado',
+        title: 'Período personalizado',
         subtitle: _customRange == null
             ? 'Escolha um intervalo'
             : _formatDateRange(_customRange!),
@@ -353,7 +414,7 @@ class _ReportsPageState extends State<ReportsPage> {
       );
     }
 
-    final period = _currentPeriod();
+    final period = _currentPeriod(effectiveMonth);
     return _buildPeriodPill(
       icon: _selectedPreset == _ReportPreset.week
           ? Icons.calendar_view_week_outlined
@@ -435,13 +496,13 @@ class _ReportsPageState extends State<ReportsPage> {
     );
   }
 
-  Widget _buildBalanceCard(ReportSummary report) {
+  Widget _buildBalanceCard(ReportSummary report, _MonthOption effectiveMonth) {
     final hasProfit = report.balance >= 0;
     final balanceColor = hasProfit
         ? AppColors.corEntrega
         : AppColors.corDespesa;
     final periodLabel = _selectedPreset == _ReportPreset.month
-        ? _selectedMonth.label
+        ? effectiveMonth.label
         : _selectedPreset == _ReportPreset.custom && _customRange != null
         ? _formatDateRange(_customRange!)
         : _formatPeriodDates(report.period);
@@ -573,7 +634,7 @@ class _ReportsPageState extends State<ReportsPage> {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              'Não encontramos movimentações nesse período ainda. Assim que você registrar entregas ou despesas, as informações serão atualizados aqui.',
+              'Não encontramos movimentações nesse período ainda. Assim que você registrar entregas ou despesas, as informações serão atualizadas aqui.',
               style: TextStyle(
                 color: AppColors.corTexto.withValues(alpha: 0.7),
                 fontWeight: FontWeight.w600,
@@ -1211,7 +1272,7 @@ class _ReportsPageState extends State<ReportsPage> {
     });
   }
 
-  ReportPeriod _currentPeriod() {
+  ReportPeriod _currentPeriod(_MonthOption currentMonth) {
     final now = DateTime.now();
     final today = _dateOnly(now);
 
@@ -1242,29 +1303,16 @@ class _ReportsPageState extends State<ReportsPage> {
         }
         return ReportPeriod(
           type: ReportPeriodType.month,
-          start: DateTime(_selectedMonth.year, _selectedMonth.month),
-          endExclusive: DateTime(_selectedMonth.year, _selectedMonth.month + 1),
+          start: DateTime(currentMonth.year, currentMonth.month),
+          endExclusive: DateTime(currentMonth.year, currentMonth.month + 1),
         );
       case _ReportPreset.month:
         return ReportPeriod(
           type: ReportPeriodType.month,
-          start: DateTime(_selectedMonth.year, _selectedMonth.month),
-          endExclusive: DateTime(_selectedMonth.year, _selectedMonth.month + 1),
+          start: DateTime(currentMonth.year, currentMonth.month),
+          endExclusive: DateTime(currentMonth.year, currentMonth.month + 1),
         );
     }
-  }
-
-  List<_MonthOption> _buildMonthOptions() {
-    final now = DateTime.now();
-
-    return List.generate(12, (index) {
-      final date = DateTime(now.year, now.month - index);
-      return _MonthOption(
-        month: date.month,
-        year: date.year,
-        label: '${_monthNames[date.month - 1]} ${date.year}',
-      );
-    });
   }
 
   List<ReportBreakdownItem> _compactBreakdown(
@@ -1422,6 +1470,17 @@ class _MonthOption {
     required this.year,
     required this.label,
   });
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is _MonthOption &&
+          runtimeType == other.runtimeType &&
+          month == other.month &&
+          year == other.year;
+
+  @override
+  int get hashCode => month.hashCode ^ year.hashCode;
 }
 
 class _MetricTileData {

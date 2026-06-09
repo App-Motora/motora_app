@@ -17,11 +17,6 @@ class ReportsPage extends StatefulWidget {
 }
 
 class _ReportsPageState extends State<ReportsPage> {
-  static const Color _backgroundColor = AppColors.corFundo;
-  static const Color _incomeColor = AppColors.corSucesso;
-  static const Color _expenseColor = AppColors.corDespesa;
-  static const Color _textColor = AppColors.corTexto;
-
   static const List<String> _monthNames = [
     'Janeiro',
     'Fevereiro',
@@ -75,7 +70,7 @@ class _ReportsPageState extends State<ReportsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldKey,
-      backgroundColor: _backgroundColor,
+      backgroundColor: AppColors.corFundo,
       drawer: const Menu(selectedIndex: 3),
       body: SafeArea(
         child: StreamBuilder<List<Entrega>>(
@@ -124,23 +119,23 @@ class _ReportsPageState extends State<ReportsPage> {
                                   _buildEmptyStateCard(),
                                   const SizedBox(height: 24),
                                 ],
-                                _buildSectionTitle('Panorama do periodo'),
+                                _buildSectionTitle('Panorama do Período'),
                                 const SizedBox(height: 14),
                                 _buildMetricsGrid(report),
                                 const SizedBox(height: 24),
-                                _buildSectionTitle('Ganhos vs gastos'),
+                                _buildSectionTitle('Ganhos vs Gastos'),
                                 const SizedBox(height: 14),
                                 _buildCashflowCard(report),
                                 const SizedBox(height: 24),
-                                _buildSectionTitle('Top restaurantes'),
+                                _buildSectionTitle('Top Restaurantes'),
                                 const SizedBox(height: 14),
                                 _buildRestaurantsCard(report),
                                 const SizedBox(height: 24),
-                                _buildSectionTitle('Despesas por categoria'),
+                                _buildSectionTitle('Despesas por Categoria'),
                                 const SizedBox(height: 14),
                                 _buildCategoryCard(report),
                                 const SizedBox(height: 24),
-                                _buildSectionTitle('Insights do periodo'),
+                                _buildSectionTitle('Insights do Período'),
                                 const SizedBox(height: 14),
                                 _buildInsightsCard(report),
                               ],
@@ -164,7 +159,7 @@ class _ReportsPageState extends State<ReportsPage> {
       children: [
         _buildTopBar(),
         const Expanded(
-          child: Center(child: Text('Erro ao carregar os relatorios.')),
+          child: Center(child: Text('Erro ao carregar os relatórios.')),
         ),
       ],
     );
@@ -199,10 +194,10 @@ class _ReportsPageState extends State<ReportsPage> {
         ),
         const Expanded(
           child: Text(
-            'Relatorios',
+            'Relatórios',
             textAlign: TextAlign.center,
             style: TextStyle(
-              color: _textColor,
+              color: AppColors.corTexto,
               fontSize: 28,
               fontWeight: FontWeight.w900,
             ),
@@ -229,7 +224,7 @@ class _ReportsPageState extends State<ReportsPage> {
             onTap: () => _selectPreset(_ReportPreset.week),
           ),
           _buildPresetChip(
-            label: 'Este mes',
+            label: 'Este mês',
             selected: _selectedPreset == _ReportPreset.month,
             onTap: () => _selectPreset(_ReportPreset.month),
           ),
@@ -412,7 +407,7 @@ class _ReportsPageState extends State<ReportsPage> {
                     Text(
                       title,
                       style: const TextStyle(
-                        color: _textColor,
+                        color: AppColors.corTexto,
                         fontSize: 15,
                         fontWeight: FontWeight.w800,
                       ),
@@ -421,7 +416,7 @@ class _ReportsPageState extends State<ReportsPage> {
                     Text(
                       subtitle,
                       style: TextStyle(
-                        color: _textColor.withValues(alpha: 0.62),
+                        color: AppColors.corTexto.withValues(alpha: 0.62),
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -429,7 +424,10 @@ class _ReportsPageState extends State<ReportsPage> {
                 ),
               ),
               if (onTap != null)
-                const Icon(Icons.chevron_right_rounded, color: _textColor),
+                const Icon(
+                  Icons.chevron_right_rounded,
+                  color: AppColors.corTexto,
+                ),
             ],
           ),
         ),
@@ -439,7 +437,9 @@ class _ReportsPageState extends State<ReportsPage> {
 
   Widget _buildBalanceCard(ReportSummary report) {
     final hasProfit = report.balance >= 0;
-    final balanceColor = hasProfit ? _incomeColor : _expenseColor;
+    final balanceColor = hasProfit
+        ? AppColors.corEntrega
+        : AppColors.corDespesa;
     final periodLabel = _selectedPreset == _ReportPreset.month
         ? _selectedMonth.label
         : _selectedPreset == _ReportPreset.custom && _customRange != null
@@ -453,9 +453,9 @@ class _ReportsPageState extends State<ReportsPage> {
       child: Column(
         children: [
           Text(
-            hasProfit ? 'Lucro do periodo' : 'Prejuizo do periodo',
+            hasProfit ? 'Lucro do período' : 'Prejuízo do período',
             style: TextStyle(
-              color: _textColor.withValues(alpha: 0.62),
+              color: AppColors.corTexto.withValues(alpha: 0.62),
               fontSize: 14,
               fontWeight: FontWeight.w700,
             ),
@@ -465,7 +465,7 @@ class _ReportsPageState extends State<ReportsPage> {
             periodLabel,
             textAlign: TextAlign.center,
             style: TextStyle(
-              color: _textColor.withValues(alpha: 0.5),
+              color: AppColors.corTexto.withValues(alpha: 0.5),
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -486,7 +486,7 @@ class _ReportsPageState extends State<ReportsPage> {
                   icon: Icons.arrow_upward_rounded,
                   title: 'Receitas',
                   amount: report.income,
-                  color: _incomeColor,
+                  color: AppColors.corEntrega,
                 ),
               ),
               const SizedBox(width: 14),
@@ -495,7 +495,7 @@ class _ReportsPageState extends State<ReportsPage> {
                   icon: Icons.arrow_downward_rounded,
                   title: 'Despesas',
                   amount: report.expenses,
-                  color: _expenseColor,
+                  color: AppColors.corDespesa,
                 ),
               ),
             ],
@@ -527,7 +527,7 @@ class _ReportsPageState extends State<ReportsPage> {
               Text(
                 title,
                 style: TextStyle(
-                  color: _textColor.withValues(alpha: 0.62),
+                  color: AppColors.corTexto.withValues(alpha: 0.62),
                   fontWeight: FontWeight.w700,
                 ),
               ),
@@ -573,9 +573,9 @@ class _ReportsPageState extends State<ReportsPage> {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              'Nao encontramos movimentacoes nesse periodo ainda. Assim que voce registrar entregas ou despesas, os cards serao atualizados aqui.',
+              'Não encontramos movimentações nesse período ainda. Assim que você registrar entregas ou despesas, as informações serão atualizados aqui.',
               style: TextStyle(
-                color: _textColor.withValues(alpha: 0.7),
+                color: AppColors.corTexto.withValues(alpha: 0.7),
                 fontWeight: FontWeight.w600,
               ),
             ),
@@ -589,7 +589,7 @@ class _ReportsPageState extends State<ReportsPage> {
     return Text(
       title,
       style: const TextStyle(
-        color: _textColor,
+        color: AppColors.corTexto,
         fontSize: 26,
         fontWeight: FontWeight.w900,
       ),
@@ -601,42 +601,42 @@ class _ReportsPageState extends State<ReportsPage> {
       _MetricTileData(
         title: 'Total de entregas',
         value: '${report.deliveryCount}',
-        subtitle: 'registros no periodo',
+        subtitle: 'Registros no período',
         icon: Icons.delivery_dining,
         color: AppColors.corEntrega,
       ),
       _MetricTileData(
         title: 'Km rodados',
         value: _formatKm(report.totalKm),
-        subtitle: 'distancia acumulada',
+        subtitle: 'Distância acumulada',
         icon: Icons.route_outlined,
         color: AppColors.corSecundaria,
       ),
       _MetricTileData(
-        title: 'Ticket medio',
+        title: 'Ticket Médio',
         value: _formatCurrency(report.averageTicket),
-        subtitle: 'media por entrega',
+        subtitle: 'Média por entrega',
         icon: Icons.receipt_long_outlined,
         color: AppColors.corPrincipal,
       ),
       _MetricTileData(
         title: 'Lucro / km',
         value: _formatCurrency(report.profitPerKm),
-        subtitle: 'retorno por distancia',
+        subtitle: 'Retorno por distância',
         icon: Icons.speed_outlined,
         color: AppColors.corSucesso,
       ),
       _MetricTileData(
-        title: 'Despesa / entrega',
+        title: 'Despesa / Entrega',
         value: _formatCurrency(report.averageExpensePerDelivery),
-        subtitle: 'custo medio do periodo',
+        subtitle: 'Custo médio do período',
         icon: Icons.trending_down_rounded,
         color: AppColors.corDespesa,
       ),
       _MetricTileData(
         title: 'Dias ativos',
         value: '${report.activeDays}',
-        subtitle: 'dias com movimento',
+        subtitle: 'Dias com movimento',
         icon: Icons.calendar_month_outlined,
         color: AppColors.corSecundaria,
       ),
@@ -681,7 +681,7 @@ class _ReportsPageState extends State<ReportsPage> {
           Text(
             metric.title,
             style: TextStyle(
-              color: _textColor.withValues(alpha: 0.68),
+              color: AppColors.corTexto.withValues(alpha: 0.68),
               fontWeight: FontWeight.w700,
             ),
           ),
@@ -689,7 +689,7 @@ class _ReportsPageState extends State<ReportsPage> {
           Text(
             metric.value,
             style: const TextStyle(
-              color: _textColor,
+              color: AppColors.corTexto,
               fontSize: 22,
               fontWeight: FontWeight.w900,
             ),
@@ -698,7 +698,7 @@ class _ReportsPageState extends State<ReportsPage> {
           Text(
             metric.subtitle,
             style: TextStyle(
-              color: _textColor.withValues(alpha: 0.5),
+              color: AppColors.corTexto.withValues(alpha: 0.5),
               fontWeight: FontWeight.w600,
               fontSize: 12,
             ),
@@ -724,7 +724,7 @@ class _ReportsPageState extends State<ReportsPage> {
                 child: _buildCashflowLabel(
                   title: 'Ganhos',
                   amount: report.income,
-                  color: _incomeColor,
+                  color: AppColors.corEntrega,
                 ),
               ),
               const SizedBox(width: 12),
@@ -732,7 +732,7 @@ class _ReportsPageState extends State<ReportsPage> {
                 child: _buildCashflowLabel(
                   title: 'Gastos',
                   amount: report.expenses,
-                  color: _expenseColor,
+                  color: AppColors.corDespesa,
                   alignEnd: true,
                 ),
               ),
@@ -762,14 +762,14 @@ class _ReportsPageState extends State<ReportsPage> {
                               alignment: Alignment.centerLeft,
                               child: Container(
                                 width: incomeWidth,
-                                color: _incomeColor,
+                                color: AppColors.corEntrega,
                               ),
                             ),
                             Align(
                               alignment: Alignment.centerRight,
                               child: Container(
                                 width: expenseWidth,
-                                color: _expenseColor,
+                                color: AppColors.corDespesa,
                               ),
                             ),
                           ],
@@ -781,10 +781,12 @@ class _ReportsPageState extends State<ReportsPage> {
           const SizedBox(height: 14),
           Text(
             report.balance >= 0
-                ? 'Margem de lucro: ${_formatPercent(report.marginPercent)}'
-                : 'Prejuizo acumulado: ${_formatCurrency(report.balance.abs())}',
+                ? 'Margem de Lucro: ${_formatPercent(report.marginPercent)}'
+                : 'Prejuízo Acumulado: ${_formatCurrency(report.balance.abs())}',
             style: TextStyle(
-              color: report.balance >= 0 ? _incomeColor : _expenseColor,
+              color: report.balance >= 0
+                  ? AppColors.corEntrega
+                  : AppColors.corDespesa,
               fontWeight: FontWeight.w800,
             ),
           ),
@@ -816,7 +818,7 @@ class _ReportsPageState extends State<ReportsPage> {
         Text(
           _formatCurrency(amount),
           style: const TextStyle(
-            color: _textColor,
+            color: AppColors.corTexto,
             fontWeight: FontWeight.w800,
           ),
         ),
@@ -833,7 +835,7 @@ class _ReportsPageState extends State<ReportsPage> {
       decoration: _cardDecoration(),
       child: items.isEmpty
           ? _buildSectionEmptyMessage(
-              'Nenhuma entrega encontrada nesse periodo.',
+              'Nenhuma entrega encontrada nesse período.',
             )
           : Column(
               children: [
@@ -843,7 +845,7 @@ class _ReportsPageState extends State<ReportsPage> {
                     child: _buildRankingRow(
                       label: item.label,
                       amount: _formatCurrency(item.amount),
-                      subtitle: '${item.count} entregas',
+                      subtitle: '${item.count} Entregas',
                       progress: items.first.amount == 0
                           ? 0
                           : item.amount / items.first.amount,
@@ -853,9 +855,9 @@ class _ReportsPageState extends State<ReportsPage> {
                 ),
                 if (report.topRestaurants.length > items.length)
                   Text(
-                    '+${report.topRestaurants.length - items.length} restaurantes com faturamento no periodo',
+                    '+${report.topRestaurants.length - items.length} Restaurantes com faturamento no período',
                     style: TextStyle(
-                      color: _textColor.withValues(alpha: 0.55),
+                      color: AppColors.corTexto.withValues(alpha: 0.55),
                       fontWeight: FontWeight.w600,
                     ),
                   ),
@@ -883,7 +885,7 @@ class _ReportsPageState extends State<ReportsPage> {
       decoration: _cardDecoration(),
       child: slices.isEmpty
           ? _buildSectionEmptyMessage(
-              'Nenhuma despesa registrada nesse periodo.',
+              'Nenhuma despesa registrada nesse período.',
             )
           : LayoutBuilder(
               builder: (context, constraints) {
@@ -899,15 +901,15 @@ class _ReportsPageState extends State<ReportsPage> {
                           Text(
                             '${report.expenseCategories.length}',
                             style: const TextStyle(
-                              color: _textColor,
+                              color: AppColors.corTexto,
                               fontSize: 28,
                               fontWeight: FontWeight.w900,
                             ),
                           ),
                           Text(
-                            'categorias',
+                            'Categorias',
                             style: TextStyle(
-                              color: _textColor.withValues(alpha: 0.54),
+                              color: AppColors.corTexto.withValues(alpha: 0.54),
                               fontWeight: FontWeight.w700,
                             ),
                           ),
@@ -939,7 +941,7 @@ class _ReportsPageState extends State<ReportsPage> {
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
                                   style: const TextStyle(
-                                    color: _textColor,
+                                    color: AppColors.corTexto,
                                     fontWeight: FontWeight.w800,
                                   ),
                                 ),
@@ -948,7 +950,7 @@ class _ReportsPageState extends State<ReportsPage> {
                               Text(
                                 _formatCurrency(slice.item.amount),
                                 style: const TextStyle(
-                                  color: _expenseColor,
+                                  color: AppColors.corDespesa,
                                   fontWeight: FontWeight.w900,
                                 ),
                               ),
@@ -998,7 +1000,7 @@ class _ReportsPageState extends State<ReportsPage> {
           _buildInsightRow(
             icon: Icons.restaurant_outlined,
             color: AppColors.corEntrega,
-            label: 'Restaurante lider',
+            label: 'Restaurante líder',
             value: report.topRestaurant?.label ?? 'Sem dados',
             trailing: report.topRestaurant == null
                 ? null
@@ -1015,8 +1017,10 @@ class _ReportsPageState extends State<ReportsPage> {
           ),
           _buildInsightRow(
             icon: Icons.percent_rounded,
-            color: report.balance >= 0 ? _incomeColor : _expenseColor,
-            label: 'Margem do periodo',
+            color: report.balance >= 0
+                ? AppColors.corEntrega
+                : AppColors.corDespesa,
+            label: 'Margem do período',
             value: _formatPercent(report.marginPercent),
           ),
           _buildInsightRow(
@@ -1058,7 +1062,7 @@ class _ReportsPageState extends State<ReportsPage> {
                 Text(
                   label,
                   style: TextStyle(
-                    color: _textColor.withValues(alpha: 0.56),
+                    color: AppColors.corTexto.withValues(alpha: 0.56),
                     fontWeight: FontWeight.w700,
                   ),
                 ),
@@ -1066,7 +1070,7 @@ class _ReportsPageState extends State<ReportsPage> {
                 Text(
                   value,
                   style: const TextStyle(
-                    color: _textColor,
+                    color: AppColors.corTexto,
                     fontWeight: FontWeight.w900,
                   ),
                 ),
@@ -1077,7 +1081,7 @@ class _ReportsPageState extends State<ReportsPage> {
             Text(
               trailing,
               style: const TextStyle(
-                color: _textColor,
+                color: AppColors.corTexto,
                 fontWeight: FontWeight.w900,
               ),
             ),
@@ -1102,7 +1106,7 @@ class _ReportsPageState extends State<ReportsPage> {
               child: Text(
                 label,
                 style: const TextStyle(
-                  color: _textColor,
+                  color: AppColors.corTexto,
                   fontSize: 18,
                   fontWeight: FontWeight.w800,
                 ),
@@ -1112,7 +1116,7 @@ class _ReportsPageState extends State<ReportsPage> {
             Text(
               amount,
               style: const TextStyle(
-                color: _textColor,
+                color: AppColors.corTexto,
                 fontSize: 18,
                 fontWeight: FontWeight.w900,
               ),
@@ -1124,7 +1128,7 @@ class _ReportsPageState extends State<ReportsPage> {
           Text(
             subtitle,
             style: TextStyle(
-              color: _textColor.withValues(alpha: 0.5),
+              color: AppColors.corTexto.withValues(alpha: 0.5),
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -1151,7 +1155,7 @@ class _ReportsPageState extends State<ReportsPage> {
           message,
           textAlign: TextAlign.center,
           style: TextStyle(
-            color: _textColor.withValues(alpha: 0.56),
+            color: AppColors.corTexto.withValues(alpha: 0.56),
             fontWeight: FontWeight.w700,
           ),
         ),

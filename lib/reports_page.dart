@@ -657,6 +657,52 @@ class _ReportsPageState extends State<ReportsPage> {
     );
   }
 
+  void _mostrarExplicacao(String titulo, String explicacao) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: AppColors.corFundoMenu,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Row(
+          children: [
+            const Icon(Icons.info_outline, color: AppColors.corTexto),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                titulo,
+                style: const TextStyle(
+                  color: AppColors.corTexto,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ],
+        ),
+        content: Text(
+          explicacao,
+          style: TextStyle(
+            color: AppColors.corTexto.withValues(alpha: 0.8),
+            height: 1.4,
+            fontSize: 15,
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text(
+              'Entendi',
+              style: TextStyle(
+                color: AppColors.corTexto,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildMetricsGrid(ReportSummary report) {
     final metrics = [
       _MetricTileData(
@@ -665,6 +711,8 @@ class _ReportsPageState extends State<ReportsPage> {
         subtitle: 'Registros no período',
         icon: Icons.delivery_dining,
         color: AppColors.corEntrega,
+        explicacao:
+            'Representa a contagem de todas as entregas concluídas no período selecionado.',
       ),
       _MetricTileData(
         title: 'Km rodados',
@@ -672,6 +720,8 @@ class _ReportsPageState extends State<ReportsPage> {
         subtitle: 'Distância acumulada',
         icon: Icons.route_outlined,
         color: AppColors.corSecundaria,
+        explicacao:
+            'A soma de toda a quilometragem percorrida durante as entregas do período.',
       ),
       _MetricTileData(
         title: 'Ticket Médio',
@@ -679,6 +729,8 @@ class _ReportsPageState extends State<ReportsPage> {
         subtitle: 'Média por entrega',
         icon: Icons.receipt_long_outlined,
         color: AppColors.corPrincipal,
+        explicacao:
+            'A média de valor que você ganha por entrega (Ganhos Totais divididos pelo Número de Entregas).',
       ),
       _MetricTileData(
         title: 'Lucro / km',
@@ -686,6 +738,8 @@ class _ReportsPageState extends State<ReportsPage> {
         subtitle: 'Retorno por distância',
         icon: Icons.speed_outlined,
         color: AppColors.corSucesso,
+        explicacao:
+            'Seu lucro líquido dividido pela quilometragem total rodada. Mostra o valor real que vai para o seu bolso por cada quilômetro.',
       ),
       _MetricTileData(
         title: 'Despesa / Entrega',
@@ -693,6 +747,8 @@ class _ReportsPageState extends State<ReportsPage> {
         subtitle: 'Custo médio do período',
         icon: Icons.trending_down_rounded,
         color: AppColors.corDespesa,
+        explicacao:
+            'A soma de todas as suas despesas dividida pela quantidade de entregas realizadas no período.',
       ),
       _MetricTileData(
         title: 'Dias ativos',
@@ -700,6 +756,8 @@ class _ReportsPageState extends State<ReportsPage> {
         subtitle: 'Dias com movimento',
         icon: Icons.calendar_month_outlined,
         color: AppColors.corSecundaria,
+        explicacao:
+            'Quantidade de dias diferentes em que você registrou pelo menos uma entrega ou despesa.',
       ),
     ];
 
@@ -723,48 +781,65 @@ class _ReportsPageState extends State<ReportsPage> {
   }
 
   Widget _buildMetricCard(_MetricTileData metric) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: _cardDecoration(),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            width: 38,
-            height: 38,
-            decoration: BoxDecoration(
-              color: metric.color.withValues(alpha: 0.14),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Icon(metric.icon, color: metric.color, size: 22),
-          ),
-          const SizedBox(height: 14),
-          Text(
-            metric.title,
-            style: TextStyle(
-              color: AppColors.corTexto.withValues(alpha: 0.68),
-              fontWeight: FontWeight.w700,
+    return Material(
+      color: AppColors.corFundoMenu,
+      borderRadius: BorderRadius.circular(24),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(24),
+        onTap: () => _mostrarExplicacao(metric.title, metric.explicacao),
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(
+              color: AppColors.corBordaInputs.withValues(alpha: 0.5),
             ),
           ),
-          const SizedBox(height: 6),
-          Text(
-            metric.value,
-            style: const TextStyle(
-              color: AppColors.corTexto,
-              fontSize: 22,
-              fontWeight: FontWeight.w900,
-            ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: 38,
+                height: 38,
+                decoration: BoxDecoration(
+                  color: metric.color.withValues(alpha: 0.14),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(metric.icon, color: metric.color, size: 22),
+              ),
+              const SizedBox(height: 14),
+              Text(
+                metric.title,
+                style: TextStyle(
+                  color: AppColors.corTexto.withValues(alpha: 0.68),
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              const SizedBox(height: 6),
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  metric.value,
+                  style: const TextStyle(
+                    color: AppColors.corTexto,
+                    fontSize: 22,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                metric.subtitle,
+                style: TextStyle(
+                  color: AppColors.corTexto.withValues(alpha: 0.5),
+                  fontWeight: FontWeight.w600,
+                  fontSize: 12,
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 4),
-          Text(
-            metric.subtitle,
-            style: TextStyle(
-              color: AppColors.corTexto.withValues(alpha: 0.5),
-              fontWeight: FontWeight.w600,
-              fontSize: 12,
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
@@ -1489,6 +1564,7 @@ class _MetricTileData {
   final String subtitle;
   final IconData icon;
   final Color color;
+  final String explicacao;
 
   const _MetricTileData({
     required this.title,
@@ -1496,6 +1572,7 @@ class _MetricTileData {
     required this.subtitle,
     required this.icon,
     required this.color,
+    required this.explicacao,
   });
 }
 
